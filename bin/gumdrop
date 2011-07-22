@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+#  Copyright (c) 2011 M@ McCray. All rights reserved.
+
+$: << File.expand_path(File.dirname(__FILE__) + "/../lib")
+
+require "gumdrop"
+require "gumdrop/cli"
+
+Gumdrop::CLI.run(ARGV)
