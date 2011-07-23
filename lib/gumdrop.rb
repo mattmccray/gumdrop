@@ -42,14 +42,18 @@ module Gumdrop
         end
       end
       
-      # Layout
+      # Layouts, Generators, and Partials
       @site.keys.each do |path|
         if File.extname(path) == ".template"
           @layouts[File.basename(path)]= @site.delete(path)
+
         elsif File.extname(path) == ".generator"
           @generators[File.basename(path)]= @site.delete(path)
+
         elsif File.basename(path).starts_with?("_")
-          @partials[File.basename(path)[1..-1]]= @site.delete(path)
+          partial_name= File.basename(path)[1..-1].gsub(File.extname(File.basename(path)), '')
+          # puts "Creating partial #{partial_name} from #{path}"
+          @partials[partial_name]= @site.delete(path)
         end
       end
       

@@ -4,15 +4,14 @@ gem "sinatra"
 gem "active_support"
 gem "i18n"
 gem "rake"
-gem "gumdrop", :git=>"git://github.com/darthapo/gumdrop.git"
+gem "gumdrop"
 
-#
 # Add your dependencies here:
 
 gem "sass"
-gem "haml"
 gem "coffee-script"
 
 # gem "rdiscount"
 # gem "less"
+# gem "haml"
 

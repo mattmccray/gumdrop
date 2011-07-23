@@ -22,8 +22,18 @@ module Gumdrop
           matches= Dir["source/#{file_path}*"] 
           if matches.length > 0
             
-            Gumdrop.site = Gumdrop.layouts= Hash.new do |hash, key| 
+            Gumdrop.site= Gumdrop.layouts= Gumdrop.generators= Hash.new do |hash, key| 
               templates= Dir["source/**/#{key}*"]
+              if templates.length > 0
+                Content.new( templates[0] )
+              else
+                puts "NOT FOUND: #{key}"
+                nil
+              end
+            end
+            
+            Gumdrop.partials= Hash.new do |hash, key| 
+              templates= Dir["source/**/_#{key}*"]
               if templates.length > 0
                 Content.new( templates[0] )
               else
@@ -35,6 +45,8 @@ module Gumdrop
             content= Content.new matches[0]
             if content.useLayout?
               content_type :css if content.ext == '.css' # Meh?
+              content_type :js if content.ext == '.js' # Meh?
+              content_type :xml if content.ext == '.xml' # Meh?
               content.render
             else
               send_file matches[0]

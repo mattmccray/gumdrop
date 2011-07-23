@@ -100,7 +100,7 @@ module Gumdrop
       end
       
       def render(path)
-        page= Gumdrop.site[path]
+        page= get_page path
         unless page.nil?
           #TODO: nested state for an inline rendered page?
           old_layout= @state['layout']
@@ -126,6 +126,16 @@ module Gumdrop
           @state[name]
         end
       end
+      
+    protected
+      
+      def get_page(path)
+        page= Gumdrop.site[path]
+        page= Gumdrop.site["#{path}.html"] if page.nil? # Bit of a hack...
+        page= Gumdrop.partials[path] if page.nil?
+        page
+      end
+      
     end
   end
   

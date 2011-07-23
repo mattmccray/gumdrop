@@ -8,7 +8,7 @@ end
  
 desc "releases gem"
 task :release => :build do
-  system "gem push gumdrop-#{Gumdrop::VERSION}"
+  system "gem push gumdrop-#{Gumdrop::VERSION}.gem"
 end
 
 desc "installs gem"
