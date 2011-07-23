@@ -19,22 +19,65 @@ end
 
 module Gumdrop
   
+  class DeferredLoader
+    attr_reader :cache
+    
+    # def initialize
+    #   puts "@!@"
+    # end
+        
+    def method_missing(key, value=nil)
+      @cache= Hash.new {|h,k| h[k]= load_data(k) } if @cache.nil?
+      @cache[key]
+    end
+    
+  private
+  
+    def load_data(key)
+      path=get_filename(key)
+      if File.extname(path) == ".yamldb"
+        docs=[]
+        File.open(path, 'r') do |f|
+          YAML.load_documents(f) do |doc|
+            docs << hashes2ostruct( doc )
+          end
+        end
+        docs
+      else
+        hashes2ostruct( YAML.load_file(path)  )
+      end
+    end
+  
+    # TODO: Support './data/collection_name/*.(yaml|json)' data loading?
+  
+    def get_filename(path)
+      if File.exists? "data/#{path}.json"
+        "data/#{path}.json"
+      elsif File.exists? "data/#{path}.yml"
+        "data/#{path}.yml"
+      elsif File.exists? "data/#{path}.yaml"
+        "data/#{path}.yaml"
+      elsif File.exists? "data/#{path}.yamldb"
+        "data/#{path}.yamldb"
+      else
+        raise "No data found for #{path}"
+      end
+    end
+  end
+  
   module Context
     class << self
       
+      include ::Gumdrop::ViewHelpers
+      
       attr_accessor :state
+      attr_reader :data
       
       def uri(path)
-        "#{'../'*@state['current_depth']}#{path}"
-      end
-      
-      def data(path)
-        if File.exists? "data/#{path}.json"
-          hashes2ostruct( YAML.load_file "data/#{path}.json" )
-        elsif File.exists? "data/#{path}.yml"
-          hashes2ostruct( YAML.load_file "data/#{path}.yml" )
+        if Gumdrop.config.relative_paths
+          "#{'../'*@state['current_depth']}#{path}"
         else
-          raise "No Data"
+          "/#{path}"
         end
       end
     
@@ -70,6 +113,8 @@ module Gumdrop
       end
     
       def reset_data(preset={})
+        # TODO: Add a setting for reloading data on every request/page
+        @data= DeferredLoader.new if @data.nil? or !Gumdrop.config.cache_data
         @state = preset
       end
 

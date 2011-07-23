@@ -2,19 +2,33 @@ require 'tilt'
 require 'fileutils'
 require 'active_support/all'
 
+DEFAULT_OPTIONS= {
+  :cache_data => false,
+  :relative_paths => true,
+  :root => "."
+}
+
 module Gumdrop
   
   class << self
     
-    attr_accessor :root_path, :source_path, :site, :layouts
+    attr_accessor :root_path, :source_path, :site, :layouts, :generators, :partials, :config
     
-    def run(root=".")
+    def run(opts={})
       # Opts
-      root= File.expand_path root
+      Gumdrop.config.merge! opts
+      
+      root= File.expand_path Gumdrop.config.root
       src= File.join root, 'source'
+      if File.exists? "#{root}/lib/view_helpers.rb"
+        $: << "#{root}/lib"
+        require 'view_helpers'
+      end
 
       @site= Hash.new {|h,k| h[k]= nil }
       @layouts= Hash.new {|h,k| h[k]= nil }
+      @generators= Hash.new {|h,k| h[k]= nil }
+      @partials= Hash.new {|h,k| h[k]= nil }
       @root_path= root.split '/'
       @source_path= src.split '/'
       
@@ -32,6 +46,10 @@ module Gumdrop
       @site.keys.each do |path|
         if File.extname(path) == ".template"
           @layouts[File.basename(path)]= @site.delete(path)
+        elsif File.extname(path) == ".generator"
+          @generators[File.basename(path)]= @site.delete(path)
+        elsif File.basename(path).starts_with?("_")
+          @partials[File.basename(path)[1..-1]]= @site.delete(path)
         end
       end
       
@@ -51,7 +69,12 @@ end
 
 base= File.dirname(__FILE__)
 
+require "#{base}/gumdrop/hash_object.rb"
+
+Gumdrop.config= Gumdrop::HashObject.new(DEFAULT_OPTIONS)
+
 require "#{base}/gumdrop/version.rb"
+require "#{base}/gumdrop/view_helpers.rb"
 require "#{base}/gumdrop/context.rb"
 require "#{base}/gumdrop/content.rb"
 require "#{base}/gumdrop/server.rb"

@@ -4,12 +4,14 @@ module Gumdrop
     
     class << self
     
-      def start(port=8888)
-        puts "Serving at http://0.0.0.0:#{port}"
-        
-        set :port, port
-        
+      def start(opts={})
+        # Opts
+        opts.reverse_merge! :auto_run => true, :cache_data => false
+        Gumdrop.config.merge! opts
+
         require 'sinatra'
+
+        set :port, Gumdrop.config.port if Gumdrop.config.port
         
         get '/' do
           redirect '/index.html'
@@ -43,7 +45,11 @@ module Gumdrop
           end
         end
         
-        Sinatra::Application.run!
+        if Gumdrop.config.auto_run
+          Sinatra::Application.run!
+        else
+          Sinatra::Application
+        end
       end
     
     end
