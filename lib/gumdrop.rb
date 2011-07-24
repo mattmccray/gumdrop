@@ -34,8 +34,8 @@ module Gumdrop
       
       # Scan
       #puts "Running in: #{root}"
-      Dir["#{src}/**/*"].each do |path|
-        unless File.directory? path
+      Dir.glob("#{src}/**/*", File::FNM_DOTMATCH).each do |path|
+        unless File.directory? path or File.basename(path) == '.DS_Store'
           file_path = (path.split('/') - @root_path).join '/'
           node= Content.new(file_path)
           @site[node.to_s]= node
