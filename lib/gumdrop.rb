@@ -10,6 +10,14 @@ DEFAULT_OPTIONS= {
 
 module Gumdrop
   
+  autoload :HashObject, "gumdrop/hash_object"
+  autoload :VERSION, "gumdrop/version"
+  autoload :ViewHelpers, "gumdrop/view_helpers"
+  autoload :Context, "gumdrop/context"
+  autoload :Content, "gumdrop/content"
+  autoload :Server, "gumdrop/server"
+  autoload :Generator, "gumdrop/generator"
+  
   class << self
     
     attr_accessor :root_path, :source_path, :site, :layouts, :generators, :partials, :config
@@ -71,15 +79,14 @@ module Gumdrop
   
 end
 
-base= File.dirname(__FILE__)
-
-require "#{base}/gumdrop/hash_object.rb"
+# base= File.dirname(__FILE__)
+# require "#{base}/gumdrop/hash_object.rb"
 
 Gumdrop.config= Gumdrop::HashObject.new(DEFAULT_OPTIONS)
 
-require "#{base}/gumdrop/version.rb"
-require "#{base}/gumdrop/view_helpers.rb"
-require "#{base}/gumdrop/context.rb"
-require "#{base}/gumdrop/content.rb"
-require "#{base}/gumdrop/server.rb"
-require "#{base}/gumdrop/generator.rb"
+# require "#{base}/gumdrop/version.rb"
+# require "#{base}/gumdrop/view_helpers.rb"
+# require "#{base}/gumdrop/context.rb"
+# require "#{base}/gumdrop/content.rb"
+# require "#{base}/gumdrop/server.rb"
+# require "#{base}/gumdrop/generator.rb"
