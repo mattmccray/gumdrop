@@ -5,18 +5,20 @@ require 'active_support/all'
 DEFAULT_OPTIONS= {
   :cache_data => false,
   :relative_paths => true,
+  :auto_run => false,
   :root => "."
 }
 
 module Gumdrop
   
-  autoload :HashObject, "gumdrop/hash_object"
-  autoload :VERSION, "gumdrop/version"
-  autoload :ViewHelpers, "gumdrop/view_helpers"
   autoload :Context, "gumdrop/context"
   autoload :Content, "gumdrop/content"
-  autoload :Server, "gumdrop/server"
   autoload :Generator, "gumdrop/generator"
+  autoload :HashObject, "gumdrop/hash_object"
+  autoload :Server, "gumdrop/server"
+  autoload :Utils, "gumdrop/utils"
+  autoload :VERSION, "gumdrop/version"
+  autoload :ViewHelpers, "gumdrop/view_helpers"
   
   class << self
     
@@ -33,17 +35,17 @@ module Gumdrop
         require 'view_helpers'
       end
 
-      @site= Hash.new {|h,k| h[k]= nil }
-      @layouts= Hash.new {|h,k| h[k]= nil }
-      @generators= Hash.new {|h,k| h[k]= nil }
-      @partials= Hash.new {|h,k| h[k]= nil }
-      @root_path= root.split '/'
-      @source_path= src.split '/'
+      @site        = Hash.new {|h,k| h[k]= nil }
+      @layouts     = Hash.new {|h,k| h[k]= nil }
+      @generators  = Hash.new {|h,k| h[k]= nil }
+      @partials    = Hash.new {|h,k| h[k]= nil }
+      @root_path   = root.split '/'
+      @source_path = src.split '/'
       
       # Scan
       #puts "Running in: #{root}"
       Dir.glob("#{src}/**/*", File::FNM_DOTMATCH).each do |path|
-        unless File.directory? path or File.basename(path) == '.DS_Store'
+        unless File.directory? path or File.basename(path) == '.DS_Store' # should be smarter about this?
           file_path = (path.split('/') - @root_path).join '/'
           node= Content.new(file_path)
           @site[node.to_s]= node
@@ -76,17 +78,7 @@ module Gumdrop
       puts "Done."
     end
   end
+
+  Gumdrop.config= Gumdrop::HashObject.new(DEFAULT_OPTIONS)
   
 end
-
-# base= File.dirname(__FILE__)
-# require "#{base}/gumdrop/hash_object.rb"
-
-Gumdrop.config= Gumdrop::HashObject.new(DEFAULT_OPTIONS)
-
-# require "#{base}/gumdrop/version.rb"
-# require "#{base}/gumdrop/view_helpers.rb"
-# require "#{base}/gumdrop/context.rb"
-# require "#{base}/gumdrop/content.rb"
-# require "#{base}/gumdrop/server.rb"
-# require "#{base}/gumdrop/generator.rb"

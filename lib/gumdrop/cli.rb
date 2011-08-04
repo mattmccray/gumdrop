@@ -38,7 +38,8 @@ elsif opts[:build_given]
   Gumdrop.run(opts)
 
 elsif opts[:server_given]
-  Gumdrop::Server.start(opts)
+  Gumdrop.config.auto_run= true
+  Gumdrop::Server
 
 else
   require 'pp'
