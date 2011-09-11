@@ -1,8 +1,8 @@
 source "http://rubygems.org"
 
+gem "i18n"
 gem "sinatra"
 gem "active_support"
-gem "i18n"
 gem "rake"
 gem "gumdrop"
 
@@ -11,7 +11,12 @@ gem "gumdrop"
 gem "sass"
 gem "coffee-script"
 
+# For markdown support, a couple of options:
 # gem "rdiscount"
+# gem 'maruku'
+
+# For template support:
 # gem "less"
 # gem "haml"
-
+# gem "slim"
+# gem 'builder'

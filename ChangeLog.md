@@ -1,3 +1,8 @@
+# v0.2.5
+- New feature: Generators, from source tree or centreally in lib/site.rb
+- Server can reload the entire site for each request, by default this feature is off
+- Added Pager class for creating tumblr-like pagesets
+
 # v0.2.4
 - Modernized Sinatra usage. Added an example site (just boilerplate at this point).
 

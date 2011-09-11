@@ -2,3 +2,4 @@
 *.gem
 *.lock
 examples/**/output
+.sass-cache

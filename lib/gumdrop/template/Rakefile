@@ -8,15 +8,10 @@ SERVER='server.com'
 FOLDER="~/#{SERVER}"
 
 
-task :default  do
-  sh 'rake -T'
-end
-
 desc "Build source files into output"
 task :build do
   Gumdrop.run()
 end
-
 
 desc "Run development server"
 task :serve do

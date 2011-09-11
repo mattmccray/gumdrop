@@ -2,9 +2,9 @@ source "http://rubygems.org"
 
 here= File.dirname(__FILE__)
 
+gem "i18n"
 gem "sinatra"
 gem "active_support"
-gem "i18n"
 gem "rake"
 gem "gumdrop", :path=>"#{here}/../../"
 
@@ -16,4 +16,7 @@ gem "coffee-script"
 # gem "rdiscount"
 # gem "less"
 # gem "haml"
+gem "slim"
 
+gem 'maruku'
+gem 'builder'

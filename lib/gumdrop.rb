@@ -6,6 +6,7 @@ DEFAULT_OPTIONS= {
   :cache_data => false,
   :relative_paths => true,
   :auto_run => false,
+  :force_reload => false,
   :root => "."
 }
 
@@ -13,8 +14,12 @@ module Gumdrop
   
   autoload :Context, "gumdrop/context"
   autoload :Content, "gumdrop/content"
+  autoload :DeferredLoader, "gumdrop/deferred_loader"
   autoload :Generator, "gumdrop/generator"
+  autoload :GeneratedrContent, "gumdrop/generator"
+  autoload :GenerationDSL, "gumdrop/generator"
   autoload :HashObject, "gumdrop/hash_object"
+  autoload :Pager, "gumdrop/pager"
   autoload :Server, "gumdrop/server"
   autoload :Utils, "gumdrop/utils"
   autoload :VERSION, "gumdrop/version"
@@ -22,7 +27,7 @@ module Gumdrop
   
   class << self
     
-    attr_accessor :root_path, :source_path, :site, :layouts, :generators, :partials, :config
+    attr_accessor :root_path, :source_path, :site, :layouts, :generators, :partials, :config, :data
     
     def run(opts={})
       # Opts
@@ -30,8 +35,8 @@ module Gumdrop
       
       root= File.expand_path Gumdrop.config.root
       src= File.join root, 'source'
+      $: << "#{root}/lib"
       if File.exists? "#{root}/lib/view_helpers.rb"
-        $: << "#{root}/lib"
         require 'view_helpers'
       end
 
@@ -41,6 +46,17 @@ module Gumdrop
       @partials    = Hash.new {|h,k| h[k]= nil }
       @root_path   = root.split '/'
       @source_path = src.split '/'
+      @data        = Gumdrop::DeferredLoader.new()
+
+      if File.exists? "#{root}/lib/site.rb"
+        # In server mode, we want to reload it every time... right?
+        source= IO.readlines("#{root}/lib/site.rb").join('')
+        
+        GenerationDSL.class_eval source
+        
+        #load "#{root}/lib/site.rb" 
+        # require 'site' 
+      end
       
       # Scan
       #puts "Running in: #{root}"
@@ -58,7 +74,7 @@ module Gumdrop
           @layouts[File.basename(path)]= @site.delete(path)
 
         elsif File.extname(path) == ".generator"
-          @generators[File.basename(path)]= @site.delete(path)
+          @generators[File.basename(path)]= Generator.new( @site.delete(path) )
 
         elsif File.basename(path).starts_with?("_")
           partial_name= File.basename(path)[1..-1].gsub(File.extname(File.basename(path)), '')
@@ -67,16 +83,22 @@ module Gumdrop
         end
       end
       
-      # Render
-      site.keys.each do |path|
-        node= site[path]
-        output_path= "output/#{node.to_s}"
-        FileUtils.mkdir_p File.dirname(output_path)
-        node.renderTo output_path
+      @generators.each_pair do |path, generator|
+        generator.execute()
       end
       
-      puts "Done."
+      # Render
+      unless opts[:dry_run]
+        site.keys.sort.each do |path|
+          node= site[path]
+          output_path= "output/#{node.to_s}"
+          FileUtils.mkdir_p File.dirname(output_path)
+          node.renderTo output_path
+        end
+        puts "Done."
+      end
     end
+
   end
 
   Gumdrop.config= Gumdrop::HashObject.new(DEFAULT_OPTIONS)

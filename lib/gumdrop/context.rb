@@ -1,69 +1,5 @@
-require 'yaml'
-require 'ostruct'
-
-def hashes2ostruct(object)
-  return case object
-  when Hash
-    object = object.clone
-    object.each do |key, value|
-      object[key] = hashes2ostruct(value)
-    end
-    OpenStruct.new(object)
-  when Array
-    object = object.clone
-    object.map! { |i| hashes2ostruct(i) }
-  else
-    object
-  end
-end
 
 module Gumdrop
-  
-  class DeferredLoader
-    attr_reader :cache
-    
-    # def initialize
-    #   puts "@!@"
-    # end
-        
-    def method_missing(key, value=nil)
-      @cache= Hash.new {|h,k| h[k]= load_data(k) } if @cache.nil?
-      @cache[key]
-    end
-    
-  private
-  
-    def load_data(key)
-      path=get_filename(key)
-      if File.extname(path) == ".yamldb"
-        docs=[]
-        File.open(path, 'r') do |f|
-          YAML.load_documents(f) do |doc|
-            docs << hashes2ostruct( doc )
-          end
-        end
-        docs
-      else
-        hashes2ostruct( YAML.load_file(path)  )
-      end
-    end
-  
-    # TODO: Support './data/collection_name/*.(yaml|json)' data loading?
-  
-    def get_filename(path)
-      if File.exists? "data/#{path}.json"
-        "data/#{path}.json"
-      elsif File.exists? "data/#{path}.yml"
-        "data/#{path}.yml"
-      elsif File.exists? "data/#{path}.yaml"
-        "data/#{path}.yaml"
-      elsif File.exists? "data/#{path}.yamldb"
-        "data/#{path}.yamldb"
-      else
-        raise "No data found for #{path}"
-      end
-    end
-  end
   
   module Context
     class << self
@@ -71,9 +7,10 @@ module Gumdrop
       include ::Gumdrop::ViewHelpers
       
       attr_accessor :state
-      attr_reader :data
+      #attr_reader :data
       
       def uri(path)
+        path= path[1..-1] if path.starts_with?('/')
         if Gumdrop.config.relative_paths
           "#{'../'*@state['current_depth']}#{path}"
         else
@@ -99,32 +36,47 @@ module Gumdrop
         @state['layout']= name
       end
       
-      def render(path)
+      def render(path, opts={})
         page= get_page path
         unless page.nil?
           #TODO: nested state for an inline rendered page?
           old_layout= @state['layout']
-          content= page.render(true, false)
+          content= page.render(true, false, opts)
           old_layout= @state['layout']
           content
         else
           ""
         end
       end
+      
+      def data
+        Gumdrop.data
+      end
     
       def reset_data(preset={})
         # TODO: Add a setting for reloading data on every request/page
-        @data= DeferredLoader.new if @data.nil? or !Gumdrop.config.cache_data
+        #@data= DeferredLoader.new if @data.nil? or !Gumdrop.config.cache_data
+        Gumdrop.data.reset if !Gumdrop.config.cache_data
         @state = preset
       end
 
       def method_missing(name, value=nil)
         @state=  Hash.new {|h,k| h[k]= nil } if @state.nil? 
+        # puts "Looking for >> #{name} in #{@state.keys}"
         unless value.nil?
-          @state[name]= value
+          @state[name.to_s]= value
         else
-          @state[name]
+          @state[name.to_s]
         end
+      end
+      
+      def params
+        @content.params
+      end
+      
+      def set_content(content, locals)
+        @content= content
+        @state= @state.reverse_merge(content.params).reverse_merge(locals)
       end
       
     protected

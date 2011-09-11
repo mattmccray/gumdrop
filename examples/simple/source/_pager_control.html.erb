@@ -1,0 +1,14 @@
+<%
+  previous_page = [(current_page - 1), 1].max
+  next_page = [(current_page + 1), pager.length].min
+%>
+<div class="page">
+  <a href="<%= uri pager[previous_page - 1].uri %>">&larr;</a>
+<%
+  pager.each do |pager_page| 
+    class_name= pager_page.page == current_page ? 'current' : ''
+%>
+    <a href="<%= uri pager_page.uri %>" class="<%= class_name %>"><%= pager_page.page %></a>
+<% end %>
+  <a href="<%= uri pager[next_page - 1].uri %>">&rarr;</a>
+</div>
