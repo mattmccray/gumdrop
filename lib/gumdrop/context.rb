@@ -76,7 +76,7 @@ module Gumdrop
       
       def set_content(content, locals)
         @content= content
-        @state= @state.reverse_merge(content.params).reverse_merge(locals)
+        @state= @state.reverse_merge(content.params).merge(locals)
       end
       
     protected

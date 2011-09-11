@@ -45,8 +45,12 @@ module Gumdrop
     def pager_for(key, opts={})
       base_path= opts.fetch(:base_path, 'page')
       page_size= opts.fetch(:page_size, 5)
-      cache_or_load_data(key)
-      data= @cache[key]
+      data= if key.is_a? Symbol
+        cache_or_load_data(key)
+        @cache[key]
+      else
+        key
+      end
       Pager.new( data, base_path, page_size )
     end
   

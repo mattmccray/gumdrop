@@ -11,5 +11,6 @@ end
 require 'gumdrop'
 
 Gumdrop.config.auto_run= false
+Gumdrop.run :dry_run=>true 
 
 run Gumdrop::Server

@@ -1,3 +1,6 @@
+# v0.2.6
+- Update pager_for to accept a symbol or an array
+
 # v0.2.5
 - New feature: Generators, from source tree or centreally in lib/site.rb
 - Server can reload the entire site for each request, by default this feature is off
