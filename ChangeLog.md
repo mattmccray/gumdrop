@@ -1,3 +1,7 @@
+# v0.2.7
+- Added support for `yield` in templates
+- Added support for content_for -- only tested in SLIM
+
 # v0.2.6
 - Update pager_for to accept a symbol or an array
 

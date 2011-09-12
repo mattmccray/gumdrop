@@ -2,10 +2,15 @@ module Gumdrop
   
   module ViewHelpers
     
-    # Handy for hiding a block of unfinished code
-    # def hidden(&block)
-    #   #no-op
-    # end
+    def hidden(&block)
+      #no-op
+    end
+    
+    def markdown(source)
+      m= Tilt['markdown'].new { source }
+      m.render
+    end
+    
     
     def gumdrop_version
       ::Gumdrop::VERSION

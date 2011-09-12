@@ -17,6 +17,11 @@ module Gumdrop
           "/#{path}"
         end
       end
+      
+      def url(path)
+        path= path[1..-1] if path.starts_with?('/')
+        "#{data.config.url}/#{path}"
+      end
     
       def slug
         @state['current_slug']
@@ -77,6 +82,24 @@ module Gumdrop
       def set_content(content, locals)
         @content= content
         @state= @state.reverse_merge(content.params).merge(locals)
+      end
+      
+      def content_for(key, &block)
+        keyname= "_content_#{key}"
+        if block_given?
+          @state[keyname]= block
+        else
+          if @state.has_key?(keyname)
+            @state[keyname].call
+          else
+            nil
+          end
+        end
+      end
+      
+      def content_for?(key)
+        keyname= "_content_#{key}"
+        @state.has_key?(keyname)
       end
       
     protected

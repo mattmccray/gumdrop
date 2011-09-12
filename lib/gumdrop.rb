@@ -78,7 +78,7 @@ module Gumdrop
 
         elsif File.basename(path).starts_with?("_")
           partial_name= File.basename(path)[1..-1].gsub(File.extname(File.basename(path)), '')
-          puts "Creating partial #{partial_name} from #{path}"
+          # puts "Creating partial #{partial_name} from #{path}"
           @partials[partial_name]= @site.delete(path)
         end
       end

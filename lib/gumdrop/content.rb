@@ -33,11 +33,11 @@ module Gumdrop
         Context.reset_data 'current_depth'=>@level, 'current_slug'=>@slug, 'page'=>self, 'layout'=>default_layout, 'params'=>self.params
       end
       Context.set_content self, locals
-      content= @template.render(Context)
+      content= @template.render(Context) 
       return content if ignore_layout
       layout= Context.get_template()
       while !layout.nil?
-        content = layout.template.render(Context, :content=>content)
+        content = layout.template.render(Context, :content=>content) { content }
         layout= Context.get_template()
       end
       content
