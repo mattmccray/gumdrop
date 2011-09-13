@@ -11,12 +11,17 @@ module Gumdrop
     # get '/' do
     #   redirect '/index.html'
     # end
+    
+    Gumdrop.run :dry_run=>true
 
     get '/*' do
-      
-      Gumdrop.run :dry_run=>true if Gumdrop.config.force_reload
-      
       file_path= get_content_path params[:splat].join('/')
+      
+      if Gumdrop.config.force_reload
+        unless %w(.css .js .jpg .jpe .jpeg .gif .ico .png).include? File.extname(file_path).to_s
+          Gumdrop.run :dry_run=>true
+        end
+      end
       
       if Gumdrop.site.has_key? file_path
         content= Gumdrop.site[file_path]

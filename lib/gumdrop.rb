@@ -37,7 +37,9 @@ module Gumdrop
       src= File.join root, 'source'
       $: << "#{root}/lib"
       if File.exists? "#{root}/lib/view_helpers.rb"
-        require 'view_helpers'
+        # In server mode, we want to reload it every time... right?
+        load "#{root}/lib/view_helpers.rb"
+        #require 'view_helpers'
       end
 
       @site        = Hash.new {|h,k| h[k]= nil }
@@ -47,13 +49,11 @@ module Gumdrop
       @root_path   = root.split '/'
       @source_path = src.split '/'
       @data        = Gumdrop::DeferredLoader.new()
-
+      
       if File.exists? "#{root}/lib/site.rb"
         # In server mode, we want to reload it every time... right?
         source= IO.readlines("#{root}/lib/site.rb").join('')
-        
         GenerationDSL.class_eval source
-        
         #load "#{root}/lib/site.rb" 
         # require 'site' 
       end

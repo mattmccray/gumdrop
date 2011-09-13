@@ -1,3 +1,6 @@
+# v0.2.8
+- Added better support for site reloading in server
+
 # v0.2.7
 - Added support for `yield` in templates
 - Added support for content_for -- only tested in SLIM

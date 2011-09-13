@@ -35,7 +35,7 @@ module Gumdrop
   
     def set(key, value, opts={})
       @cache[key]= value
-      @persisted[key]= value if opts[:persist]
+      @persisted[key]= value #unless opts[:persist] == false
     end
   
     def reset
