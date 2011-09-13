@@ -1,3 +1,7 @@
+# v0.2.10
+- Update default template to use slim layouts
+- Fixed a bug in uri when creating a path to "/"
+
 # v0.2.9
 - Added ability to force absolute url's from uri helper. set force_absolute in template
 

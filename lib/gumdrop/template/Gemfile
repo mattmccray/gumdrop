@@ -8,8 +8,10 @@ gem "gumdrop"
 
 # Add your dependencies here:
 
+gem "slim"
 gem "sass"
 gem "coffee-script"
+
 
 # For markdown support, a couple of options:
 # gem "rdiscount"
@@ -18,5 +20,6 @@ gem "coffee-script"
 # For template support:
 # gem "less"
 # gem "haml"
-# gem "slim"
+
+# For xml generation support:
 # gem 'builder'

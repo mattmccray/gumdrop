@@ -1,5 +1,16 @@
 # Any specialized code for your site goes here...
 
+puts "Build: #{Gumdrop.data.config.title} (gumdrop v#{Gumdrop::VERSION})"
+
+if defined? Encoding
+  Encoding.default_internal = Encoding.default_external = "UTF-8"
+else
+  $KCODE = "UTF-8"
+end
+
+require 'slim'
+Slim::Engine.set_default_options :pretty => true
+
 # Example site-level generator
 # generate do
 #

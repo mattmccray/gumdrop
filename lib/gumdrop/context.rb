@@ -10,7 +10,7 @@ module Gumdrop
       #attr_reader :data
       
       def uri(path)
-        path= path[1..-1] if path.starts_with?('/')
+        path= path[1..-1] if path.starts_with?('/') and path != "/"
         if !Gumdrop.config.relative_paths or Context.force_absolute
           "/#{path}"
         else
