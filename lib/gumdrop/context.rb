@@ -11,10 +11,10 @@ module Gumdrop
       
       def uri(path)
         path= path[1..-1] if path.starts_with?('/')
-        if Gumdrop.config.relative_paths
-          "#{'../'*@state['current_depth']}#{path}"
-        else
+        if !Gumdrop.config.relative_paths or Context.force_absolute
           "/#{path}"
+        else
+          "#{'../'*@state['current_depth']}#{path}"
         end
       end
       

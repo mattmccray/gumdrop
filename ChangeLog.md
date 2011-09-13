@@ -1,3 +1,6 @@
+# v0.2.9
+- Added ability to force absolute url's from uri helper. set force_absolute in template
+
 # v0.2.8
 - Added better support for site reloading in server
 
