@@ -9,13 +9,17 @@ module Gumdrop
       attr_accessor :state
       #attr_reader :data
       
-      def uri(path)
+      def uri(path, opts={})
         path= path[1..-1] if path.starts_with?('/') and path != "/"
-        if !Gumdrop.config.relative_paths or Context.force_absolute
+        uri_string= if !Gumdrop.config.relative_paths or Context.force_absolute
           "/#{path}"
         else
           "#{'../'*@state['current_depth']}#{path}"
         end
+        if opts[:fresh] and Gumdrop.site.has_key?(path)
+          uri_string += "?v=#{ Gumdrop.site[path].mtime.to_i }"
+        end
+        uri_string
       end
       
       def url(path)

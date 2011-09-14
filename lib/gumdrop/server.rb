@@ -18,7 +18,7 @@ module Gumdrop
       file_path= get_content_path params[:splat].join('/')
       
       if Gumdrop.config.force_reload
-        unless %w(.css .js .jpg .jpe .jpeg .gif .ico .png).include? File.extname(file_path).to_s
+        unless %w(.jpg .jpe .jpeg .gif .ico .png).include? File.extname(file_path).to_s
           Gumdrop.run :dry_run=>true
         end
       end

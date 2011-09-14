@@ -1,3 +1,6 @@
+# v0.2.11
+- Updated server to reload on .css and .js file requests too.
+
 # v0.2.10
 - Update default template to use slim layouts
 - Fixed a bug in uri when creating a path to "/"

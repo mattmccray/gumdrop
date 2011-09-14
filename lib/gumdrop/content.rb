@@ -66,6 +66,14 @@ module Gumdrop
       end
     end
     
+    def mtime
+      if File.exists? @path
+        File.new(@path).mtime
+      else
+        Time.now
+      end
+    end
+    
     def useLayout?
       !@template.nil?
     end
