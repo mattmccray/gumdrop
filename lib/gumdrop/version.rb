@@ -1,5 +1,5 @@
 module Gumdrop
   
-  VERSION = "0.2.11" unless defined?(::Gumdrop::VERSION)
+  VERSION = "0.2.12" unless defined?(::Gumdrop::VERSION)
   
 end

@@ -10,7 +10,7 @@ module Gumdrop
       #attr_reader :data
       
       def uri(path, opts={})
-        path= path[1..-1] if path.starts_with?('/') and path != "/"
+        path= path[1..-1] if path.starts_with?('/') # and path != "/"
         uri_string= if !Gumdrop.config.relative_paths or Context.force_absolute
           "/#{path}"
         else
@@ -19,6 +19,7 @@ module Gumdrop
         if opts[:fresh] and Gumdrop.site.has_key?(path)
           uri_string += "?v=#{ Gumdrop.site[path].mtime.to_i }"
         end
+        uri_string = "/" if uri_string == ""
         uri_string
       end
       
@@ -92,6 +93,7 @@ module Gumdrop
         keyname= "_content_#{key}"
         if block_given?
           @state[keyname]= block
+          nil
         else
           if @state.has_key?(keyname)
             @state[keyname].call
@@ -112,6 +114,7 @@ module Gumdrop
         page= Gumdrop.site[path]
         page= Gumdrop.site["#{path}.html"] if page.nil? # Bit of a hack...
         page= Gumdrop.partials[path] if page.nil?
+        page= Gumdrop.templates[path] if page.nil? # ???
         page
       end
       

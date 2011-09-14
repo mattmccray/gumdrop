@@ -33,6 +33,7 @@ module Gumdrop
     end
     
     def page(name, opts={}, &block)
+      name= name[1..-1] if name.starts_with?('/')
       opts= params.reverse_merge(opts)
       filepath= if @base_path.empty?
         "/#{name}"

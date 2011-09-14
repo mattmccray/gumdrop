@@ -11,6 +11,10 @@ module Gumdrop
       m.render
     end
     
+    def textile(source)
+      m= Tilt['textile'].new { source }
+      m.render
+    end
     
     def gumdrop_version
       ::Gumdrop::VERSION

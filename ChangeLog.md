@@ -1,3 +1,9 @@
+# v0.2.12
+- Added textile view_helper
+- Allow paths prefixed with "/" in uri()
+- Context#render will now look for templates too
+- Fixed content_for(key, &block) in slim -- not tested in any other template engines -- be sure and use '=' tag: = content_for :sidebar do
+
 # v0.2.11
 - Updated server to reload on .css and .js file requests too.
 
