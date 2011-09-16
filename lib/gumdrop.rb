@@ -27,7 +27,7 @@ module Gumdrop
   
   class << self
     
-    attr_accessor :root_path, :source_path, :site, :layouts, :generators, :partials, :config, :data
+    attr_accessor :root_path, :source_path, :site, :layouts, :generators, :partials, :config, :data, :content_filters
     
     def run(opts={})
       # Opts
@@ -49,6 +49,8 @@ module Gumdrop
       @root_path   = root.split '/'
       @source_path = src.split '/'
       @data        = Gumdrop::DeferredLoader.new()
+
+      @content_filters= []
       
       if File.exists? "#{root}/lib/site.rb"
         # In server mode, we want to reload it every time... right?
@@ -87,16 +89,18 @@ module Gumdrop
         generator.execute()
       end
       
+      
       # Render
       unless opts[:dry_run]
         site.keys.sort.each do |path|
           node= site[path]
           output_path= "output/#{node.to_s}"
           FileUtils.mkdir_p File.dirname(output_path)
-          node.renderTo output_path
+          node.renderTo output_path, @content_filters
         end
         puts "Done."
       end
+      
     end
 
   end

@@ -43,9 +43,10 @@ module Gumdrop
       content
     end
     
-    def renderTo(output_path, opts={})
+    def renderTo(output_path, filters=[], opts={})
       return copyTo(output_path, opts) unless useLayout?
       output= render()
+      filters.each {|f| output= f.call(output, self) }
       File.open output_path, 'w' do |f|
         puts " Rendering: #{@uri}"
         f.write output

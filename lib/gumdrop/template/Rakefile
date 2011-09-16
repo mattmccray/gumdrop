@@ -7,16 +7,14 @@ USER='user'
 SERVER='server.com'
 FOLDER="~/#{SERVER}"
 
-
 desc "Build source files into output"
 task :build do
-  Gumdrop.run()
+  system("bundle exec gumdrop -b")
 end
 
 desc "Run development server"
 task :serve do
-  Gumdrop.config.auto_run= true
-  Gumdrop::Server
+  system("bundle exec gumdrop -s")
 end
 
 desc "Syncs with public server using rsync (if configured)"
@@ -33,5 +31,5 @@ task :version do
 end
 
 task :default do
-  `rake -T`
+  puts `rake -T`
 end

@@ -23,3 +23,5 @@ gem "coffee-script"
 
 # For xml generation support:
 # gem 'builder'
+
+# gem 'jsmin'

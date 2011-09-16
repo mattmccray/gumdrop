@@ -11,6 +11,18 @@ end
 require 'slim'
 Slim::Engine.set_default_options :pretty => true
 
+# Example of using a content filter to compress CoffeeScript/JS output
+# require 'jsmin'
+# content_filter do |content, info|
+#   if info.ext == '.js'
+#     puts "  Compress: #{info.filename}"
+#     JSMin.minify content
+#   else
+#     content
+#   end
+# end
+
+
 # Example site-level generator
 # generate do
 #

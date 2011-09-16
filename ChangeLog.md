@@ -1,3 +1,7 @@
+# v0.2.13
+- Adding content_filters for altering rendered output -- BUILD ONLY!
+- Tweaks to template site
+
 # v0.2.12
 - Added textile view_helper
 - Allow paths prefixed with "/" in uri()

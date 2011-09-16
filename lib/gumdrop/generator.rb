@@ -77,6 +77,10 @@ module Gumdrop
       Gumdrop.generators[Gumdrop.generators.keys.length] = Generator.new(block)
     end
     
+    def self.content_filter(&block)
+      Gumdrop.content_filters << block
+    end
+    
   end
 
 end
