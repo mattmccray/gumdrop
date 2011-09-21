@@ -2,6 +2,18 @@
 require 'trollop'
 
 opts = Trollop::options do
+  banner ""
+  banner <<-EOS
+  Gumdrop v#{ Gumdrop::VERSION }
+  The simple, static, CMS.
+  
+  Examples:
+      gumdrop --create my_new_site --template twitter
+    Is the same as:
+      gumdrop -c my_new_site -t twitter
+  
+  Options:
+EOS
   opt :verbose,"Verbose output"
   opt :debug,  "Enable debugging output"
   opt :quiet,  "No output"

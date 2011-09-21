@@ -1,3 +1,7 @@
+# v0.2.15
+- Fixed minor regression.
+- CLI now will report gumdrop version when show help.
+
 # v0.2.14
 - Added new template type: twitter
 - Added cli option -t / --template to specify default|twitter template when creating a new project

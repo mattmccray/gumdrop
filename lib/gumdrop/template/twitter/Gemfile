@@ -4,7 +4,7 @@ gem "i18n"
 gem "sinatra"
 gem "active_support"
 gem "rake"
-gem "gumdrop", :path=>File.expand_path("~/Projects/OpenSource/gumdrop")
+gem "gumdrop"
 
 # Add your dependencies here:
 
