@@ -66,21 +66,4 @@ module Gumdrop
     # Nothing special, per se...
   end
   
-  module GenerationDSL
-    
-    # attr_accessor :generators
-    # @generators=[]
-    
-    def self.generate(&block)
-      
-      # Auto-generated, numerical, key for a site-level generator
-      Gumdrop.generators[Gumdrop.generators.keys.length] = Generator.new(block)
-    end
-    
-    def self.content_filter(&block)
-      Gumdrop.content_filters << block
-    end
-    
-  end
-
 end

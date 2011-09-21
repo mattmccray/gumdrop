@@ -45,10 +45,10 @@ module Gumdrop
     
     def renderTo(output_path, filters=[], opts={})
       return copyTo(output_path, opts) unless useLayout?
+      Gumdrop.report " Rendering: #{@uri}", :warning
       output= render()
       filters.each {|f| output= f.call(output, self) }
       File.open output_path, 'w' do |f|
-        puts " Rendering: #{@uri}"
         f.write output
       end
     end
@@ -60,10 +60,10 @@ module Gumdrop
         true
       end
       if do_copy
-        puts "   Copying: #{@uri}"
+        Gumdrop.report "   Copying: #{@uri}", :warning
         FileUtils.cp_r @path, output, opts
       else
-        puts "    (same): #{@uri}"
+        Gumdrop.report "    (same): #{@uri}", :info
       end
     end
     

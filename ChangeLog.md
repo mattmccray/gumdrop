@@ -1,3 +1,7 @@
+# v0.2.14
+- Added new template type: twitter
+- Added cli option -t / --template to specify default|twitter template when creating a new project
+
 # v0.2.13
 - Adding content_filters for altering rendered output -- BUILD ONLY!
 - Tweaks to template site

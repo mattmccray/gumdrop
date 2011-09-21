@@ -1,0 +1,28 @@
+source "http://rubygems.org"
+
+gem "i18n"
+gem "sinatra"
+gem "active_support"
+gem "rake"
+gem "gumdrop", :path=>File.expand_path("~/Projects/OpenSource/gumdrop")
+
+# Add your dependencies here:
+
+gem "slim"
+gem "sass"
+gem "less"
+gem "coffee-script"
+
+
+# For markdown support, a couple of options:
+# gem "rdiscount"
+gem 'maruku'
+
+# For template support:
+# gem "less"
+# gem "haml"
+
+# For xml generation support:
+# gem 'builder'
+
+# gem 'jsmin'

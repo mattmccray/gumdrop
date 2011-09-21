@@ -6,6 +6,7 @@ opts = Trollop::options do
   opt :debug,  "Enable debugging output"
   opt :quiet,  "No output"
   opt :create, "Create a gumdrop project", :type=>String
+    opt :template, "Specify template to use for new project (default || twitter)", :type=>String, :default=>'default'
   opt :build,  "Build HTML output"
   opt :server, "Runs development server"
     opt :port, "Specifies port to run server on", :type=>:int
@@ -22,17 +23,23 @@ end
 if opts[:create_given]
   require 'fileutils'
   here= File.dirname(__FILE__)
-  there= File.expand_path(opts[:create])
-
+  there= File.expand_path( opts[:create] )
+  template_name = opts[:template]
+  
   if File.file? there
     puts "You cannot specify a file as the target!" 
   elsif !File.directory? there
     FileUtils.mkdir_p there
   end
   
-  FileUtils.cp_r Dir[File.join(here, "template", "*")], there
-
-  puts "Done."
+  if File.directory? File.join(here, 'template', template_name)
+    # FileUtils.cp_r Dir[File.join(here, "template", template_name, "*")], there
+    puts "Creating gumdrop project based on #{template_name} template at #{there}"
+    FileUtils.cp_r File.join(here, "template", template_name, "."), there
+    puts "Done."
+  else
+    puts "Invalid template '#{template_name}'!"
+  end
   
 elsif opts[:build_given]
   Gumdrop.run(opts)
