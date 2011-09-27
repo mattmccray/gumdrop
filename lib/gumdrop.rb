@@ -8,7 +8,8 @@ DEFAULT_OPTIONS= {
   :auto_run => false,
   :force_reload => false,
   :root => ".",
-  :log_level => :info
+  :log_level => :info,
+  :output_dir => "./output"
 }
 
 LOG_LEVELS = {
@@ -16,6 +17,12 @@ LOG_LEVELS = {
   :warning => 1,
   :error => 2
 }
+
+# LOG_LEVELS = {
+#   info: 0,
+#   warning: 1,
+#   error: 2
+# }
 
 module Gumdrop
   
@@ -105,10 +112,11 @@ module Gumdrop
       
       # Render
       unless opts[:dry_run]
+        output_base_path= File.expand_path(Gumdrop.config.output_dir)
         site.keys.sort.each do |path|
           #unless @blacklist.detect {|p| path.starts_with?(p) }
             node= site[path]
-            output_path= "output/#{node.to_s}"
+            output_path= File.join(output_base_path, node.to_s)
             FileUtils.mkdir_p File.dirname(output_path)
             node.renderTo output_path, @content_filters
           # else

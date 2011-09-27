@@ -1,3 +1,7 @@
+# v0.2.16
+- Added option to specify output folder, still defaults to "output"
+- Bugfix: content wasn't looking for layouts right, causing exception
+
 # v0.2.15
 - Fixed minor regression.
 - CLI now will report gumdrop version when show help.

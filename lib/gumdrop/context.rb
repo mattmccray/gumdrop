@@ -114,7 +114,7 @@ module Gumdrop
         page= Gumdrop.site[path]
         page= Gumdrop.site["#{path}.html"] if page.nil? # Bit of a hack...
         page= Gumdrop.partials[path] if page.nil?
-        page= Gumdrop.templates[path] if page.nil? # ???
+        page= Gumdrop.layouts[path] if page.nil? # ???
         page
       end
       

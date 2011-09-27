@@ -7,7 +7,7 @@ USER='user'
 SERVER='server.com'
 FOLDER="~/#{SERVER}"
 
-desc "Build source files into output"
+desc "Build source files into output_dir"
 task :build do
   system("bundle exec gumdrop -b")
 end
