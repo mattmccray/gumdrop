@@ -1,0 +1,16 @@
+# For clean urls
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Do not do anything for already existing files and folders
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule .+ - [L]
+
+    # add .html file extension (if such file does exist)
+    RewriteCond %{DOCUMENT_ROOT}/$1\.html -f
+    RewriteRule ^(.+[^/])/?$ $1.html [L,QSA]
+</IfModule>
