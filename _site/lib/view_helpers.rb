@@ -10,8 +10,8 @@ module Gumdrop::ViewHelpers
     end
   end
   
-  #
-  # Your custom helpers go here!
-  #
+  def page_classes(extra="")
+    %Q|#{ page.slug } #{ page.uri.gsub('/','-').gsub('.html', '') } #{ extra }|
+  end
   
 end

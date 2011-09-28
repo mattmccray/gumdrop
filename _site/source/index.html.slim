@@ -1,0 +1,70 @@
+.row
+  .span16
+    markdown:
+      # Gumdrop
+
+      Gumdrop is a small and sweet cms/prototype tool. It can generate static html with relative paths, and includes a dev server that can be run via any rack server (including POW!).
+
+
+.row
+  .span5
+    h3 Build Static HTML
+    pre gumdrop --build
+    p or
+    pre gumdrop -b
+    p or using Rake
+    pre rake build
+
+  .span5
+    h3 Start Dev Server
+    pre gumdrop --server
+    p or
+    pre gumdrop -s
+    p or using Rake
+    pre rake server
+
+  .span6
+    h3 Create New Site
+    pre  gumdrop --create my_new_site
+    p or 
+    pre  gumdrop -c my_new_site
+
+.row
+  .span16
+    markdown:
+      # Gumdrop Site Structure
+
+        This is the file structure that is generated when you run `gumdrop --create site_root`. You can change whatever you'd like under `source/`, this is just a starting point.
+
+            site_root/
+              data/
+                config.yml
+              lib/
+                view_helpers.rb
+              source/
+                favicon.ico
+                index.html.erb
+                theme/
+                  screen.css.scss
+                  scripts/
+                    app.js.coffee
+                  styles/
+                    _tools.css.scss
+                  templates/
+                    site.template.erb
+              Gemfile
+              config.ru
+              Rakefile
+              
+
+        When you run `gumdrop --build` or `rake build` it will generate an `output/` folder.
+
+            site_root/
+              output/    (** GENERATED CONTENT **)
+                index.html
+                theme/
+                  screen.css
+                  scripts/
+                    app.js
+
+        You'll notice the templates and partials aren't included in the output.

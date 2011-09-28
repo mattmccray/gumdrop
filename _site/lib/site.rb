@@ -11,6 +11,8 @@ end
 require 'slim'
 Slim::Engine.set_default_options :pretty => true
 
+Gumdrop.config.output_dir= "../"
+
 skip "theme/twitter/lib"
 skip "theme/twitter/docs"
 skip "theme/twitter/examples"
