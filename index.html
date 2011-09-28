@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>Gumdrop</title><!--[if le IE 9]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js">
-    </script><![endif]--><link charset="utf-8" href="theme/screen.css?v=1317171332" media="screen" rel="stylesheet" type="text/css" />
+    </script><![endif]--><link charset="utf-8" href="theme/screen.css?v=1317171555" media="screen" rel="stylesheet" type="text/css" />
     <script src="theme/scripts/jquery.js">
     </script>
     <script src="theme/twitter/bootstrap-alerts.js">
@@ -33,10 +33,13 @@
               <a href="http://darthapo.github.com/gumdrop/">Home</a>
             </li>
             <li>
-              <a href="#about">About</a>
+              <a href="https://github.com/darthapo/gumdrop">Source</a>
             </li>
             <li>
-              <a href="#contact">Contact</a>
+              <a href="https://github.com/darthapo/gumdrop/wiki">Wiki</a>
+            </li>
+            <li>
+              <a href="https://github.com/darthapo/gumdrop/issues">Issues</a>
             </li>
           </ul>
         </div>
@@ -46,19 +49,81 @@
       <!--Main hero unit for a primary marketing message or call to action--><div class="hero-unit">
         <h1>Gumdrop</h1>
         <p>The Small &amp; sweet cms&#47;prototyping tool.</p>
-      </div><p>
-        Twitter bootstrap examples:
-      </p>
-      <p>
-        <ul>
-          <li><a href="/hero.html">Hero</a></li>
-          <li><a href="/container-app.html">Container App</a></li>
-          <li><a href="/fluid.html">Fluid</a></li>
-        </ul>
-      </p>
-      <!--Example row of columns--><footer>
-        <p>&copy; Company 2011</p>
-      </footer>
+      </div><div class="row">
+  <div class="span16"><h1 id='gumdrop'>Gumdrop</h1> 
+    <p>Gumdrop is a small and sweet cms/prototype tool. It can generate static html with relative paths, and includes a dev server that can be run via any rack server (including POW!).</p>
+  </div>
+</div>
+<div class="row">
+  <div class="span5">
+    <h3>Build Static HTML</h3>
+    <pre>gumdrop --build</pre>
+    <p>or</p>
+    <pre>gumdrop -b</pre>
+    <p>or using Rake</p>
+    <pre>rake build</pre>
+  </div>
+  <div class="span5">
+    <h3>Start Dev Server</h3>
+    <pre>gumdrop --server</pre>
+    <p>or</p>
+    <pre>gumdrop -s</pre>
+    <p>or using Rake</p>
+    <pre>rake server</pre>
+  </div>
+  <div class="span6">
+    <h3>Create New Site</h3>
+    <pre> gumdrop --create my_new_site</pre>
+    <p>or </p>
+    <pre> gumdrop -c my_new_site</pre>
+  </div>
+</div>
+<div class="row">
+  <div class="span16"><h1 id='gumdrop_site_structure'>Gumdrop Site Structure</h1> 
+<p>This is the file structure that is generated when you run <code>gumdrop --create site_root</code>. You can change whatever you&#8217;d like under <code>source/</code>, this is just a starting point.</p>
+
+<pre><code>  site_root/
+    data/
+      config.yml
+    lib/
+      view_helpers.rb
+    source/
+      favicon.ico
+      index.html.erb
+      theme/
+        screen.css.scss
+        scripts/
+          app.js.coffee
+        styles/
+          _tools.css.scss
+        templates/
+          site.template.erb
+    Gemfile
+    config.ru
+    Rakefile</code></pre>
+
+<p>When you run <code>gumdrop --build</code> or <code>rake build</code> it will generate an <code>output/</code> folder.</p>
+
+<pre><code>  site_root/
+    output/    (** GENERATED CONTENT **)
+      index.html
+      theme/
+        screen.css
+        scripts/
+          app.js</code></pre>
+
+<p>You&#8217;ll notice the templates and partials aren&#8217;t included in the output.</p>
+  </div>
+</div>
+      <!--Example row of columns--><footer><p>Gumdrop created by Matt McCray. This site&#8217;s design is built on top of <a href='http://twitter.github.com/bootstrap/'>twitter-bootstrap</a>.</p></footer>
     </div>
   </body>
 </html>
+<script type="text/javascript">var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-632821-25']);
+  _gaq.push(['_trackPageview']); 
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();</script>
