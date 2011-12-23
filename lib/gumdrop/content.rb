@@ -37,7 +37,7 @@ module Gumdrop
       return content if ignore_layout
       layout= Context.get_template()
       while !layout.nil?
-        content = layout.template.render(Context, :content=>content) { content }
+        content = layout.template.render(Context, content:content) { content }
         layout= Context.get_template()
       end
       content
@@ -52,6 +52,7 @@ module Gumdrop
         f.write output
       end
     end
+          
     
     def copyTo(output, layout=nil, opts={})
       do_copy= if File.exists? output

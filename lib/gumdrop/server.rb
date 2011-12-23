@@ -1,39 +1,55 @@
 # Rework this to be nicer.. Extend Sintra::Base
 
 require 'sinatra/base'
+require 'logger'
+
 
 module Gumdrop
 
   class Server < Sinatra::Base
 
     set :port, Gumdrop.config.port if Gumdrop.config.port
+
+
+    server_log= 'logs/server.log'
     
     # get '/' do
     #   redirect '/index.html'
     # end
     
-    Gumdrop.run :dry_run=>true
+    Gumdrop.run dry_run:true, log:server_log
 
     get '/*' do
       file_path= get_content_path params[:splat].join('/')
       
-      if Gumdrop.config.force_reload
-        unless %w(.jpg .jpe .jpeg .gif .ico .png).include? File.extname(file_path).to_s
-          Gumdrop.run :dry_run=>true
-        end
-      end
+      Gumdrop.log.info "[#{$$}] GET /#{params[:splat].join('/')}"
+      #Gumdrop.log.debug " last built: #{Gumdrop.last_run}"
+
       
       if Gumdrop.site.has_key? file_path
         content= Gumdrop.site[file_path]
         if content.useLayout?
+          # Only do a force_reload if the resource is dynamic!
+          if Gumdrop.config.force_reload
+            unless %w(.jpg .jpe .jpeg .gif .ico .png).include? File.extname(file_path).to_s
+              since_last_build= Time.now.to_i - Gumdrop.last_run.to_i
+              if since_last_build > 2
+                Gumdrop.log.debug "[#{$$}] !!> REBUILDING"
+                Gumdrop.run dry_run:true, log:server_log
+              end
+            end
+          end
+          Gumdrop.log.info "[#{$$}]  *Dynamic: #{file_path}"
           content_type :css if content.ext == '.css' # Meh?
           content_type :js if content.ext == '.js' # Meh?
           content_type :xml if content.ext == '.xml' # Meh?
           content.render
         else
+          Gumdrop.log.info "[#{$$}]  *Static: #{file_path}"
           send_file "source/#{file_path}"
         end
       else
+        Gumdrop.log.error "[#{$$}]  *Missing: #{file_path}"
         puts "NOT FOUND: #{file_path}"
         "#{file_path} Not Found"
       end
@@ -54,15 +70,15 @@ module Gumdrop
     end
     
     if Gumdrop.config.auto_run
-      Gumdrop.run :dry_run=>true 
+      Gumdrop.run dry_run:true 
       run!
     end    
 
     def self.start(opts={})
       # Options
-      opts.reverse_merge! :auto_run => true, :cache_data => false
+      opts.reverse_merge! auto_run:true, cache_data:false
       Gumdrop.config.merge! opts
-      Gumdrop.run :dry_run=>true 
+      Gumdrop.run dry_run:true, log:server_log
       ::Gumdrop::Server
     end
 

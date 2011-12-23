@@ -7,6 +7,9 @@ USER='user'
 SERVER='server.com'
 FOLDER="~/#{SERVER}"
 
+# Build folder (change if you change Gumdrop.config.output_dir)
+OUTPUT="output/"
+
 desc "Build source files into output_dir"
 task :build do
   system("bundle exec gumdrop -b")
@@ -19,7 +22,7 @@ end
 
 desc "Syncs with public server using rsync (if configured)"
 task :sync do
-  cmd= "rsync -avz --delete output/ #{USER}@#{SERVER}:#{FOLDER}"
+  cmd= "rsync -avz --delete #{OUTPUT} #{USER}@#{SERVER}:#{FOLDER}"
   puts "Running:\n#{cmd}\n"
   system(cmd)
   puts "Done."

@@ -11,10 +11,10 @@ module Gumdrop
       @current_page=1
       @page_sets.each do |art_ary|
         @pages << HashObject.new({
-          'items' => art_ary,
-          'page' => @current_page,
-          'uri' => "#{base_path}/#{current_page}",
-          'pager' => self
+          items: art_ary,
+          page: @current_page,
+          uri: "#{base_path}/#{current_page}",
+          pager: self
         })
         @current_page += 1
       end

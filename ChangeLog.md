@@ -1,3 +1,13 @@
+# v0.3
+- Better logging support
+- Removed twitter-bootstrap template
+- Initial support for stitch-rb via a `stitch` generator command.
+
+# v0.2.17
+- Updated syntax to Ruby 1.9
+- Tweaked template Rakefile(s)
+- Added some initial specs
+
 # v0.2.16
 - Added option to specify output folder, still defaults to "output"
 - Bugfix: content wasn't looking for layouts right, causing exception
