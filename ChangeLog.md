@@ -1,3 +1,6 @@
+# v0.3.1
+- Early version of a backbone (webapp) site template
+
 # v0.3
 - Better logging support
 - Removed twitter-bootstrap template

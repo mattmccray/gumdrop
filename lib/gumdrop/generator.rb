@@ -1,18 +1,3 @@
-
-require 'stitch'
-require 'jsmin'
-
-class Stitch::Source
-  # Patch for gumdrop style filenames
-  def name
-    name = path.relative_path_from(root)
-    name = name.dirname + name.basename(".*")
-    name.to_s.gsub(".js", '')
-  end
-end
-
-
-
 module Gumdrop
 
   class Generator
@@ -68,9 +53,11 @@ module Gumdrop
     end
     
     def stitch(name, opts)
+      require 'gumdrop/stitch_ex'
       page name do
         content= Stitch::Package.new(opts).compile
         if opts[:compress]
+          require 'jsmin'
           JSMin.minify content
         else
           content

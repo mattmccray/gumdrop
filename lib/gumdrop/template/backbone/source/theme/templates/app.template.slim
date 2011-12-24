@@ -1,0 +1,14 @@
+doctype html
+html lang="en" 
+  head
+    meta charset="utf-8" 
+    title= data.config.title
+    /[if le IE 9]
+      script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"
+    /link rel="stylesheet" href==uri('theme/screen.css') type="text/css" media="screen" charset="utf-8"
+  body
+    == yield
+  script src==uri('lib.js')
+  script src==uri('app.js')
+  javascript:
+    app('init');
