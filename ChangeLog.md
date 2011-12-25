@@ -1,3 +1,6 @@
+# v0.3.2
+- Removed references to 'twitter' from cli message.
+
 # v0.3.1
 - Early version of a backbone (webapp) site template
 

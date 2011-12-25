@@ -8,9 +8,9 @@ opts = Trollop::options do
   The simple, static, CMS.
   
   Examples:
-      gumdrop --create my_new_site --template twitter
+      gumdrop --create my_new_site --template backbone
     Is the same as:
-      gumdrop -c my_new_site -t twitter
+      gumdrop -c my_new_site -t backbone
   
   Options:
 EOS
@@ -18,7 +18,7 @@ EOS
   opt :debug,  "Enable debugging output"
   opt :quiet,  "No output"
   opt :create, "Create a gumdrop project", :type=>String
-    opt :template, "Specify template to use for new project (default || twitter)", :type=>String, :default=>'default'
+    opt :template, "Specify template to use for new project (default || backbone)", :type=>String, :default=>'default'
   opt :build,  "Build HTML output"
   opt :server, "Runs development server"
     opt :port, "Specifies port to run server on", :type=>:int
