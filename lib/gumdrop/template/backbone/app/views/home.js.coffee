@@ -8,7 +8,6 @@ class HomeView extends Backbone.View
   styles: require('./styles/home')
 
   render: -> 
-    log @styles
     @styles.add()
     @el.innerHTML= @template({})
     @
