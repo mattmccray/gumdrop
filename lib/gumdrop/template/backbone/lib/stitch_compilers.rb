@@ -24,9 +24,9 @@ module CssJsCode
           node = null;
       module.exports= {
         content: css,
-        apply: function(to){
+        add: function(to){
           if(node != null) return;
-          if(to == null) to= document.body;
+          if(to == null) to= document.getElementsByTagName('HEAD')[0] || document.body;
           node= document.createElement('style');
           node.innerHTML= css;
           to.appendChild(node);

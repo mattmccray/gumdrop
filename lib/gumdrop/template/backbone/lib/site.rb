@@ -15,7 +15,7 @@ require 'stitch_compilers'
 
 generate do
 
-  stitch 'app.js', :identifier=>'app', :paths=>['./app_src'], :root=>'./app_src', :prune=>false, :compress=>false
+  stitch 'app.js', :identifier=>'app', :paths=>['./app'], :root=>'./app', :prune=>false, :compress=>false
   stitch 'lib.js', :identifier=>'lib', :paths=>['./lib/javascript'], :root=>'./lib/javascript', :prune=>true, :compress=>false
 
   # Create minified 'production' versions

@@ -1,3 +1,6 @@
+# v0.3.3
+- Updated Backbone template to include a default view (and some core bugfixes)
+
 # v0.3.2
 - Removed references to 'twitter' from cli message.
 

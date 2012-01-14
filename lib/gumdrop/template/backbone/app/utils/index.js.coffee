@@ -20,10 +20,8 @@
   
   module.exports= log_methods
   module.exports.globalize= (ctx=window)->
-    for nam, fn of log_methods
+    for name, fn of log_methods
       ctx[name]= fn
 
 )(window.console?)
 
-
-  
