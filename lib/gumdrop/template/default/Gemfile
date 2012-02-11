@@ -2,7 +2,7 @@ source "http://rubygems.org"
 
 gem "i18n"
 gem "sinatra"
-gem "active_support"]
+gem "active_support"
 
 gem "rake"
 gem "gumdrop"

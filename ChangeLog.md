@@ -1,3 +1,6 @@
+# v0.3.4
+- Fixed a bug in the default template
+
 # v0.3.3
 - Updated Backbone template to include a default view (and some core bugfixes)
 

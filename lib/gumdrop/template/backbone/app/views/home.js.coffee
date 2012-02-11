@@ -4,12 +4,13 @@
 class HomeView extends Backbone.View
   className: 'home'
 
-  template: require('./templates/home')
-  styles: require('./styles/home')
+  src:
+    template: require('./templates/home')
+    styles: require('./styles/home')
 
   render: -> 
-    @styles.add()
-    @el.innerHTML= @template({})
+    @src.styles.add()
+    @el.innerHTML= @src.template({})
     @
 
 
