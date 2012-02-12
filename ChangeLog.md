@@ -1,5 +1,7 @@
 # v0.3.4
 - Fixed a bug in the default template
+- Added custom Stitch compilers for hogan, css/sass, and serenade files.
+- Added -r --reload switches to commandline to force reloading on server, per request.
 
 # v0.3.3
 - Updated Backbone template to include a default view (and some core bugfixes)

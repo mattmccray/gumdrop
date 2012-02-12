@@ -54,6 +54,7 @@ module Gumdrop
     
     def stitch(name, opts)
       require 'gumdrop/stitch_ex'
+      require 'gumdrop/stitch_compilers'
       page name do
         content= Stitch::Package.new(opts).compile
         if opts[:compress]

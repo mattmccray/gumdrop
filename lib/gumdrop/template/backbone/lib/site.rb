@@ -11,7 +11,8 @@ end
 require 'slim'
 Slim::Engine.set_default_options pretty:true
 
-require 'stitch_compilers'
+# If you want to specify custom stitch compilers, uncomment this:
+#require 'stitch_compilers'
 
 generate do
 

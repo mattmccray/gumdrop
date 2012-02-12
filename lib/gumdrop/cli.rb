@@ -22,6 +22,7 @@ EOS
   opt :build,  "Build HTML output"
   opt :server, "Runs development server"
     opt :port, "Specifies port to run server on", :type=>:int
+    opt :reload, "Force reloading on dev server"
 end
 
 # Trollop::die :volume, "must be non-negative" if opts[:volume] < 0
@@ -58,6 +59,7 @@ elsif opts[:build_given]
 
 elsif opts[:server_given]
   Gumdrop.config.auto_run= true
+  Gumdrop.config.force_reload= opts[:reload_given]
   Gumdrop::Server
 
 else
