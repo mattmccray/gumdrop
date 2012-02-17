@@ -20,7 +20,7 @@ generate do
   stitch 'lib.js', :identifier=>'lib', :paths=>['./lib/javascript'], :root=>'./lib/javascript', :prune=>true, :compress=>false
 
   # Create minified 'production' versions
-  #stitch 'app.min.js', :identifier=>'app', :paths=>['./app_src'], :root=>'./app_src', :prune=>false, :compress=>true
+  stitch 'app-min.js', :identifier=>'app', :paths=>['./app'], :root=>'./app', :prune=>false, :compress=>true
   #stitch 'lib.min.js', :identifier=>'lib', :paths=>['./lib/javascript'], :root=>'./lib/javascript', :prune=>true, :compress=>true
 
   

@@ -1,3 +1,7 @@
+# v0.3.5
+- Updated gemspec to include bundle and i18n dependencies
+- Updated backbone template to build minified version by default
+
 # v0.3.4
 - Fixed a bug in the default template
 - Added custom Stitch compilers for hogan, css/sass, and serenade files.
