@@ -28,5 +28,7 @@ Gem::Specification.new do |s|
    s.add_dependency 'trollop'
    s.add_dependency 'haml'
    s.add_dependency 'sass'
-   
+   s.add_dependency 'i18n'
+   s.add_dependency 'bundle'
+
 end

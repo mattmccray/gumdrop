@@ -1,3 +1,7 @@
+# v0.3.6
+- Correctly added deps to gemspec for i18n and bundle. *ahem*
+- Version bump
+
 # v0.3.5
 - Updated gemspec to include bundle and i18n dependencies
 - Updated backbone template to build minified version by default
