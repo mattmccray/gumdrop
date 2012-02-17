@@ -11,7 +11,7 @@ module Gumdrop
       @level= (@path.split('/').length - 2)
       @source_filename= File.basename path
       filename_parts= @source_filename.split('.')
-      @filename= filename_parts[0..1].join('.')      
+      @filename= filename_parts[0..1].join('.') # TODO: Fix this! breaks on files like jquery-1.7.1.min.js ...  becomes jquery-1
       path_parts= @path.split('/')
       path_parts.shift
       path_parts.pop

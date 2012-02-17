@@ -65,7 +65,7 @@ module Gumdrop
         end
       end
       if opts[:prune] and opts[:root]
-        sp = File.expand_path('./source')
+        sp = File.expand_path( Gumdrop.config.source_dir )
         rp = File.expand_path(opts[:root])
         relative_root = rp.gsub(sp, '')[1..-1]
         rrlen= relative_root.length - 1

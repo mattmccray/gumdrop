@@ -65,6 +65,7 @@ module Gumdrop
     def render
       unless opts[:dry_run]
         output_base_path= File.expand_path(Gumdrop.config.output_dir)
+        Gumdrop.report "[Compiling to #{output_base_path}]", :info
         Gumdrop.site.keys.sort.each do |path|
           node= Gumdrop.site[path]
           output_path= File.join(output_base_path, node.to_s)

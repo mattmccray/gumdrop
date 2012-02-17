@@ -46,7 +46,8 @@ module Gumdrop
           content.render
         else
           Gumdrop.log.info "[#{$$}]  *Static: #{file_path}"
-          send_file "source/#{file_path}"
+          source_base_path= File.expand_path(Gumdrop.config.source_dir)
+          send_file File.join( source_base_path, file_path)
         end
       else
         Gumdrop.log.error "[#{$$}]  *Missing: #{file_path}"

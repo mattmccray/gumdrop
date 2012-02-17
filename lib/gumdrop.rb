@@ -12,6 +12,8 @@ DEFAULT_OPTIONS= {
   root: ".",
   log_level: :info,
   output_dir: "./output",
+  lib_dir: "./lib",
+  source_dir: "./source",
   log: 'logs/build.log'
 }
 
@@ -58,11 +60,12 @@ module Gumdrop
       Gumdrop.config.merge! opts
       
       root= File.expand_path Gumdrop.config.root
-      src= File.join root, 'source'
-      $: << "#{root}/lib"
-      if File.exists? "#{root}/lib/view_helpers.rb"
+      src= File.expand_path Gumdrop.config.source_dir #File.join root, 'source'      
+      lib_path= File.expand_path Gumdrop.config.lib_dir
+      $: << lib_path # "#{root}/lib"
+      if File.exists? File.join(lib_path,"view_helpers.rb")
         # In server mode, we want to reload it every time... right?
-        load "#{root}/lib/view_helpers.rb"
+        load File.join(lib_path,"view_helpers.rb")
       end
 
       @site        = Hash.new {|h,k| h[k]= nil }
@@ -86,10 +89,14 @@ module Gumdrop
       @content_filters= []
       @blacklist      = []
       
-      if File.exists? "#{root}/lib/site.rb"
+      if File.exists? File.join(lib_path, "site.rb")  # "#{root}/lib/site.rb"
         # In server mode, we want to reload it every time... right?
-        source= IO.readlines("#{root}/lib/site.rb").join('')
+        source= IO.readlines( File.join(lib_path,"site.rb") ).join('')
         DSL.class_eval source
+        # TODO: Find a good place to define where source folder should be defined.
+        # In case the source folder has changed.
+        src= File.expand_path Gumdrop.config.source_dir #File.join root, 'source'      
+        @source_path= src.split '/'
       end
 
       Build.run root, src, opts

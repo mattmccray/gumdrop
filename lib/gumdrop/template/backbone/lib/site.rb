@@ -46,6 +46,9 @@ generate do
 
 end
 
+# Example of skipping a source file from compilation (stitch ignores this setting)
+# skip 'file-to-ignore.html'
+
 # Example of using a content filter to compress CoffeeScript/JS output
 # require 'jsmin'
 # content_filter do |content, info|

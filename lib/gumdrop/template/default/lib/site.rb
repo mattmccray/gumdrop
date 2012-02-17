@@ -36,7 +36,7 @@ Slim::Engine.set_default_options pretty:true
 #     """
 #   end
 #
-#   stitch 'app.js', :paths=>['source/app_src'], :root=>'source/app_src', :compress=>true, :prune=>true # Prune will remove the source files from the output tree -- you can add :dependencies=>['dir'] too
+#   stitch 'app.js', :identifier=>'app', :paths=>['source/app_src'], :root=>'source/app_src', :compress=>true, :prune=>true # Prune will remove the source files from the output tree -- you can add :dependencies=>['dir'] too
 #
 #   # Maybe for a tumblr-like pager
 #   pager= Gumdrop.data.pager_for :posts, base_path:'posts/page', page_size:5
@@ -45,3 +45,6 @@ Slim::Engine.set_default_options pretty:true
 #   end
 #   
 # end
+
+# Example of skipping a source file from compilation (stitch ignores this setting)
+# skip 'file-to-ignore.html'

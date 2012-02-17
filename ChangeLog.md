@@ -1,3 +1,7 @@
+# v0.3.7
+- Added lib_dir and source_dir to config for more customization possibilities
+- Added blacklisting example to templates
+
 # v0.3.6
 - Correctly added deps to gemspec for i18n and bundle. *ahem*
 - Version bump
