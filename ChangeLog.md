@@ -1,3 +1,6 @@
+# v0.3.8
+- Bugfix: Filenames won't break if the have extra '.' in them.
+
 # v0.3.7
 - Added lib_dir and source_dir to config for more customization possibilities
 - Added blacklisting example to templates

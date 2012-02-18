@@ -34,9 +34,10 @@ module Gumdrop
 
           elsif File.basename(path).starts_with?("_")
             partial_name= File.basename(path)[1..-1].gsub(File.extname(File.basename(path)), '')
+            partial_node_path= File.join File.dirname(path), partial_name
             # puts "Creating partial #{partial_name} from #{path}"
             Gumdrop.partials[partial_name]= node
-          
+            Gumdrop.partials[partial_node_path]= node
           else
             Gumdrop.site[path]= node
           end

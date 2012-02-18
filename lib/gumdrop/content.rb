@@ -2,6 +2,8 @@
 module Gumdrop
   
   class Content
+
+    
     
     attr_accessor :path, :level, :filename, :source_filename, :type, :ext, :uri, :slug, :template, :params
     
@@ -10,13 +12,20 @@ module Gumdrop
       @path= path
       @level= (@path.split('/').length - 2)
       @source_filename= File.basename path
+
       filename_parts= @source_filename.split('.')
-      @filename= filename_parts[0..1].join('.') # TODO: Fix this! breaks on files like jquery-1.7.1.min.js ...  becomes jquery-1
+      ext= filename_parts.pop
+      while !Tilt[ext].nil?
+        ext= filename_parts.pop
+      end
+      @filename= filename_parts.join('.')
+
       path_parts= @path.split('/')
       path_parts.shift
       path_parts.pop
       path_parts.push @filename
-      @type= filename_parts.last
+
+      @type= File.extname @source_filename
       @ext= File.extname @filename
       @uri= path_parts.join('/')
       @slug=@uri.gsub('/', '-').gsub(@ext, '')
@@ -29,6 +38,7 @@ module Gumdrop
     
     def render(ignore_layout=false, reset_context=true, locals={})
       if reset_context
+
         default_layout= (@ext == '.css' or @ext == '.js' or @ext == '.xml') ? nil : 'site'
         Context.reset_data 'current_depth'=>@level, 'current_slug'=>@slug, 'page'=>self, 'layout'=>default_layout, 'params'=>self.params
       end
