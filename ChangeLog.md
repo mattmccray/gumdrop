@@ -1,3 +1,6 @@
+# v0.3.9
+- Bugfix: Filenames won't break if the have extra '.' in them... For realz this time. *ahem*
+
 # v0.3.8
 - Bugfix: Filenames won't break if the have extra '.' in them.
 

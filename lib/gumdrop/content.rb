@@ -2,8 +2,6 @@
 module Gumdrop
   
   class Content
-
-    
     
     attr_accessor :path, :level, :filename, :source_filename, :type, :ext, :uri, :slug, :template, :params
     
@@ -18,6 +16,7 @@ module Gumdrop
       while !Tilt[ext].nil?
         ext= filename_parts.pop
       end
+      filename_parts << ext # push the last file ext back on there!
       @filename= filename_parts.join('.')
 
       path_parts= @path.split('/')
