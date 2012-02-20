@@ -56,7 +56,7 @@ module Gumdrop
       Gumdrop.blacklist.each do |skip_path|
         Gumdrop.site.keys.each do |source_path|
           if source_path.starts_with? skip_path
-            Gumdrop.report " -ignoring: #{source_path}", :info
+            Gumdrop.report "-excluding: #{source_path}", :info
             Gumdrop.site.delete source_path
           end
         end
@@ -68,10 +68,14 @@ module Gumdrop
         output_base_path= File.expand_path(Gumdrop.config.output_dir)
         Gumdrop.report "[Compiling to #{output_base_path}]", :info
         Gumdrop.site.keys.sort.each do |path|
-          node= Gumdrop.site[path]
-          output_path= File.join(output_base_path, node.to_s)
-          FileUtils.mkdir_p File.dirname(output_path)
-          node.renderTo output_path, Gumdrop.content_filters
+          unless Gumdrop.greylist.any? {|p| path.starts_with?(p) }
+            node= Gumdrop.site[path]
+            output_path= File.join(output_base_path, node.to_s)
+            FileUtils.mkdir_p File.dirname(output_path)
+            node.renderTo output_path, Gumdrop.content_filters
+          else
+            Gumdrop.report " -ignoring: #{path}", :info
+          end
         end
       end
     end

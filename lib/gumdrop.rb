@@ -52,6 +52,7 @@ module Gumdrop
                   :data, 
                   :content_filters, 
                   :blacklist,
+                  :greylist,
                   :log,
                   :last_run
     
@@ -88,6 +89,7 @@ module Gumdrop
 
       @content_filters= []
       @blacklist      = []
+      @greylist       = []
       
       if File.exists? File.join(lib_path, "site.rb")  # "#{root}/lib/site.rb"
         # In server mode, we want to reload it every time... right?

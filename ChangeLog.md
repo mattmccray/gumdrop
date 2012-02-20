@@ -1,3 +1,6 @@
+# v0.3.10
+- Added 'ignore' dsl command -- keeps the node in the memory, but doesn't render/copy it on build.
+
 # v0.3.9
 - Bugfix: Filenames won't break if the have extra '.' in them... For realz this time. *ahem*
 
