@@ -1,3 +1,15 @@
+#
+# Based on code from MiddleMan Proxy: 
+#  https://github.com/middleman/middleman-proxy/blob/master/lib/middleman-proxy.rb
+#
+# Which in turn looks to be based on Apple Code:
+#  # ===========================================================================
+#  # Original Project:   Abbot - SproutCore Build Tools
+#  # Copyright: ©2009 Apple Inc.
+#  #            portions copyright @2006-2011 Strobe Inc.
+#  #            and contributors
+#  # ===========================================================================
+
 begin
   require 'net/https'
   HTTPS_ENABLED = true
@@ -17,12 +29,6 @@ module Gumdrop
       $stderr.puts"    If you are using Ubuntu, you can run `apt-get install libopenssl-ruby`\n"
       proxy[:secure] = false
     end
-    # url = if proxy[:secure]
-    #   "https://#{proxy_url}" #env['PATH_INFO']
-    # else
-    #   "http://#{proxy_url}"
-    # end
-    # proxy[:to]= url
 
     origin_host = env['SERVER_NAME'] # capture the origin host for cookies
     http_method = env['REQUEST_METHOD'].to_s.downcase
