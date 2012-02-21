@@ -3,7 +3,6 @@
 require 'sinatra/base'
 require 'logger'
 
-
 module Gumdrop
 
   class Server < Sinatra::Base
@@ -18,6 +17,48 @@ module Gumdrop
     # end
     
     Gumdrop.run dry_run:true, log:server_log
+    
+    if Gumdrop.config.proxy_enabled
+      require 'gumdrop/proxy_handler'
+      Gumdrop.report 'Enabled proxy at /-proxy/*', :info
+      get '/-proxy/*' do
+        proxy_to= params[:splat][0]
+        proxy_parts= proxy_to.split('/')
+        host= proxy_parts.shift
+        path_info= "/#{proxy_parts.join('/')}"
+        #puts "HOST: #{host}  PATH_INFO: #{path_info}"
+        opts={ :to=>host, :path_info=>path_info  }
+        Gumdrop.handle_proxy opts, proxy_to, env
+      end
+      post '/-proxy/*' do
+        proxy_to= params[:splat][0]
+        proxy_parts= proxy_to.split('/')
+        host= proxy_parts.shift
+        path_info= "/#{proxy_parts.join('/')}"
+        #puts "HOST: #{host}  PATH_INFO: #{path_info}"
+        opts={ :to=>host, :path_info=>path_info  }
+        Gumdrop.handle_proxy opts, proxy_to, env
+      end
+      delete '/-proxy/*' do
+        proxy_to= params[:splat][0]
+        proxy_parts= proxy_to.split('/')
+        host= proxy_parts.shift
+        path_info= "/#{proxy_parts.join('/')}"
+        #puts "HOST: #{host}  PATH_INFO: #{path_info}"
+        opts={ :to=>host, :path_info=>path_info  }
+        Gumdrop.handle_proxy opts, proxy_to, env
+      end
+      put '/-proxy/*' do
+        proxy_to= params[:splat][0]
+        proxy_parts= proxy_to.split('/')
+        host= proxy_parts.shift
+        path_info= "/#{proxy_parts.join('/')}"
+        #puts "HOST: #{host}  PATH_INFO: #{path_info}"
+        opts={ :to=>host, :path_info=>path_info  }
+        Gumdrop.handle_proxy opts, proxy_to, env
+      end
+      
+    end
 
     get '/*' do
       file_path= get_content_path params[:splat].join('/')
@@ -50,9 +91,26 @@ module Gumdrop
           send_file File.join( source_base_path, file_path)
         end
       else
-        Gumdrop.log.error "[#{$$}]  *Missing: #{file_path}"
-        puts "NOT FOUND: #{file_path}"
-        "#{file_path} Not Found"
+        # uri_path= params[:splat].join('/')
+        # puts "LOOKING FOR: #{uri_path}"
+        # if uri_path =~ /^\-proxy\/(.*)$/
+        #   uri= URI.parse "http://#{$1}"
+        #   
+        #   puts "PROXY TO: #{uri}"
+        #   
+        #   http = Net::HTTP.new(uri.host, uri.port)
+        #   response = http.request(Net::HTTP::Get.new(uri.request_uri))
+        #   
+        #   #[response.code, response.body]
+        #    #halt response.code, {}, response.body.to_s
+        #    puts "Responded with: #{response.body.to_s}"
+        #    #response
+        #    [response.code.to_i, {}, response.body.to_s]
+        # else
+          Gumdrop.log.error "[#{$$}]  *Missing: #{file_path}"
+          puts "NOT FOUND: #{file_path}"
+          "#{file_path} Not Found"
+        # end
       end
     end
     
@@ -71,7 +129,7 @@ module Gumdrop
     end
     
     if Gumdrop.config.auto_run
-      Gumdrop.run dry_run:true 
+      #Gumdrop.run dry_run:true 
       run!
     end    
 

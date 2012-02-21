@@ -1,3 +1,6 @@
+# v0.4
+- Added support for special dev proxy at /-proxy/ENDPOINT_URL -- Useful for working with external (non-CORS) apis/websites. Enabled by default. To disable, set Gumdrop.config.proxy_enabled= false
+
 # v0.3.10
 - Added 'ignore' dsl command -- keeps the node in the memory, but doesn't render/copy it on build.
 
