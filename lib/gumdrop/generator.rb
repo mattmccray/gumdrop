@@ -55,12 +55,37 @@ module Gumdrop
     def stitch(name, opts)
       require 'gumdrop/stitch_ex'
       require 'gumdrop/stitch_compilers'
+      content= Stitch::Package.new(opts).compile
       page name do
-        content= Stitch::Package.new(opts).compile
-        if opts[:compress]
+        case opts[:compress]
+
+        when true, :jsmin
           require 'jsmin'
           JSMin.minify content
+
+        when :yuic
+          require "yui/compressor"
+          compressor = YUI::JavaScriptCompressor.new(:munge => opts[:obfuscate])
+          compressor.compress(content)
+
+        when :uglify
+          require "uglifier"
+          Uglifier.compile( content, :mangle=>opts[:obfuscate])
+
         else
+          # UNKNOWN Compressor type!
+          content
+        end
+        # if opts[:compress]
+        #   require 'jsmin'
+        #   JSMin.minify content
+        # else
+        #   content
+        # end
+      end
+      if opts[:keep_src] or opts[:keep_source]
+        ext= File.extname name
+        page name.gsub(ext, "#{opts.fetch(:source_postfix, '-src')}#{ext}") do
           content
         end
       end

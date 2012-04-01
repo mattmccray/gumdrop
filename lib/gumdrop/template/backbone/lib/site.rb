@@ -16,12 +16,23 @@ Slim::Engine.set_default_options pretty:true
 
 generate do
 
-  stitch 'app.js', :identifier=>'app', :paths=>['./app'], :root=>'./app', :prune=>false, :compress=>false
-  stitch 'lib.js', :identifier=>'lib', :paths=>['./lib/javascript'], :root=>'./lib/javascript', :prune=>true, :compress=>false
+  stitch 'app.js',        # JavaScript to assemble
+    :identifier=>'app',   # variable name for the library
+    :paths=>['./app'],
+    :root=>'./app', 
+    :prune=>false,        # If true, removes the source files from Gumdrop.site hash
+    :compress=>:jsmin,    # Options are :jsmin, :yuic, :uglify
+    :obfuscate=>false,    # For compressors that support munging/mangling
+    :keep_src=>true       # Creates another file, ex: app-src.js
 
-  # Create minified 'production' versions
-  stitch 'app-min.js', :identifier=>'app', :paths=>['./app'], :root=>'./app', :prune=>false, :compress=>true
-  #stitch 'lib.min.js', :identifier=>'lib', :paths=>['./lib/javascript'], :root=>'./lib/javascript', :prune=>true, :compress=>true
+  stitch 'lib.js', 
+    :identifier=>'lib', 
+    :paths=>['./lib/javascript'], 
+    :root=>'./lib/javascript', 
+    :prune=>true, 
+    :compress=>false, 
+    :obfuscate=>false, 
+    :keep_src=>false
 
   
 # Examples of other generatory things:
@@ -36,8 +47,6 @@ generate do
 #     """
 #   end
 #
-#   stitch 'app.js', :paths=>['source/app_src'], :root=>'source/app_src', :compress=>true, :prune=>true # Prune will remove the source files from the output tree -- you can add :dependencies=>['dir'] too
-#
 #   # Maybe for a tumblr-like pager
 #   pager= Gumdrop.data.pager_for :posts, base_path:'posts/page', page_size:5
 #   pager.each do |page|
@@ -49,14 +58,14 @@ end
 # Example of skipping a source file from compilation (stitch ignores this setting)
 # skip 'file-to-ignore.html'
 
-# Example of using a content filter to compress CoffeeScript/JS output
-# require 'jsmin'
+# Example of using a content filter to compress CSS output
+# require 'yui/compressor'
 # content_filter do |content, info|
-#   if info.ext == '.js'
+#   if info.ext == '.css'
 #     puts "  Compress: #{info.filename}"
-#     JSMin.minify content
+#     compressor= YUI::CssCompressor.new
+#     compressor.compress( content )
 #   else
 #     content
 #   end
 # end
-
