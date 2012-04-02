@@ -1,5 +1,10 @@
 # v0.5
-- Data folder path is now configurable: `Gumdrop.config.data_dir`
+- Gumdrop projects now require a `Gumdrop` file at the root -- contents are what you used to put in lib/site.rb.
+- Added new `configure` and `view_helpers` methods for use in `Gumdrop` site file.
+- Smarter CLI, knows when you're in a gumdrop site or not.
+- Local templates supported for new sites (looks under ~/.gumdrop/templates)
+- You can list installed templates using `gumdrop --list`
+- Data folder path is now configurable: `Gumdrop.config.data_dir` or `set :data_dir, "PATH"`
 - Added `data.site` and `data.site_all` to `DefferedLoader`. Useful for listing all non-grey-listed files or all files.
 - Data will now load from data/COLLECTION_NAME/*.(json | yaml | yml). Loads as an array array of all entries, adds a key '_id' that's the base filename.
 - Extra stitch generator options:

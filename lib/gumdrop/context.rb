@@ -62,6 +62,11 @@ module Gumdrop
       def data
         Gumdrop.data
       end
+
+      # Access to settings from configure block
+      def config
+        Gumdrop.config
+      end
     
       def reset_data(preset={})
         # TODO: Add a setting for reloading data on every request/page

@@ -10,12 +10,11 @@ DEFAULT_OPTIONS= {
   auto_run: false,
   force_reload: false,
   proxy_enabled: true,
-  log_level: :info,
-  root: ".",
   output_dir: "./output",
   lib_dir: "./lib",
   source_dir: "./source",
   data_dir: './data',
+  log_level: :info,
   log: 'logs/build.log'
 }
 
@@ -59,54 +58,51 @@ module Gumdrop
                   :last_run
     
     def run(opts={})
-      # Opts
-      Gumdrop.config.merge! opts
-      
-      root= File.expand_path Gumdrop.config.root
-      src= File.expand_path Gumdrop.config.source_dir #File.join root, 'source'      
-      lib_path= File.expand_path Gumdrop.config.lib_dir
-      $: << lib_path # "#{root}/lib"
-      if File.exists? File.join(lib_path,"view_helpers.rb")
+      site_file= Gumdrop.fetch_site_file
+
+      unless site_file.nil?
+        @generators  = Hash.new {|h,k| h[k]= nil }
+        @content_filters= []
+        @blacklist      = []
+        @greylist       = []
+
         # In server mode, we want to reload it every time... right?
-        load File.join(lib_path,"view_helpers.rb")
-      end
-
-      @site        = Hash.new {|h,k| h[k]= nil }
-      @layouts     = Hash.new {|h,k| h[k]= nil }
-      @generators  = Hash.new {|h,k| h[k]= nil }
-      @partials    = Hash.new {|h,k| h[k]= nil }
-      @root_path   = root.split '/'
-      @source_path = src.split '/'
-      @data        = Gumdrop::DeferredLoader.new( Gumdrop.config.data_dir )
-      @last_run    = Time.now
-
-      begin
-        @log         = Logger.new Gumdrop.config.log, 'daily'
-      rescue
-        @log        = Logger.new STDOUT
-      end
-      @log.formatter = proc do |severity, datetime, progname, msg|
-        "#{datetime}: #{msg}\n"
-      end
-
-      @content_filters= []
-      @blacklist      = []
-      @greylist       = []
-      
-      if File.exists? File.join(lib_path, "site.rb")  # "#{root}/lib/site.rb"
-        # In server mode, we want to reload it every time... right?
-        source= IO.readlines( File.join(lib_path,"site.rb") ).join('')
+        source= IO.readlines( site_file ).join('')
         DSL.class_eval source
-        # TODO: Find a good place to define where source folder should be defined.
-        # In case the source folder has changed.
-        src= File.expand_path Gumdrop.config.source_dir #File.join root, 'source'      
-        @source_path= src.split '/'
-        @data        = Gumdrop::DeferredLoader.new( Gumdrop.config.data_dir )
-      end
 
-      Build.run root, src, opts
+        Gumdrop.config.merge! opts # These beat those in the Gumdrop file?
+        
+        root= File.expand_path File.dirname(site_file)
+        Dir.chwd root
+
+        src= File.expand_path Gumdrop.config.source_dir #File.join root, 'source'      
+        lib_path= File.expand_path Gumdrop.config.lib_dir
+
+        @root_path   = root.split '/'
+        @source_path = src.split '/'
+        @site        = Hash.new {|h,k| h[k]= nil }
+        @layouts     = Hash.new {|h,k| h[k]= nil }
+        @partials    = Hash.new {|h,k| h[k]= nil }
+        @data        = Gumdrop::DeferredLoader.new( Gumdrop.config.data_dir )
+        @last_run    = Time.now
+
+        begin
+          @log         = Logger.new Gumdrop.config.log, 'daily'
+        rescue
+          @log        = Logger.new STDOUT
+        end
+        @log.formatter = proc do |severity, datetime, progname, msg|
+          "#{datetime}: #{msg}\n"
+        end
+
+        Build.run root, src, opts
+        
+        puts "Done."
       
-      puts "Done."
+      else
+        puts "Not in a valid Gumdrop site directory."
+
+      end
     end
 
     # levels: info, warning, error
@@ -114,10 +110,8 @@ module Gumdrop
       ll= Gumdrop.config.log_level
       case level
       when :info
-        #puts msg if ll == :info
         @log.info msg
       when :warning
-        #puts msg if ll == :info or ll == :warning
         @log.warn msg
       else
         puts msg
@@ -126,18 +120,21 @@ module Gumdrop
     end
 
     def in_site_folder?(filename="Gumdrop")
+      !fetch_site_file(filename).nil?
+    end
+
+    def fetch_site_file(filename="Gumdrop")
       here= Dir.pwd
       found= File.file? File.join( here, filename )
-      # puts "Looking for #{filename} at #{here}: #{found} -- #{File.dirname(here)}"
-      # while !found and File.directory?(here) and File.dirname(here) != "/"
       while !found and File.directory?(here) and File.dirname(here).length > 3
-        # length > 3 to handle C:\ for windoze?
         here= File.expand_path File.join(here, '../')
         found= File.file? File.join( here, filename )
-        # puts "Looking for #{filename} at #{here}: #{found}  -- #{File.dirname(here)}"
       end
-      found
-      # true
+      if found
+        File.expand_path File.join(here, filename)
+      else
+        nil
+      end
     end
 
   end
