@@ -16,7 +16,7 @@ module Gumdrop
     #   redirect '/index.html'
     # end
     
-    Gumdrop.run dry_run:true, log:server_log
+    Gumdrop.run dry_run:true, log:server_log, auto_run:true
     
     if Gumdrop.config.proxy_enabled
       require 'gumdrop/proxy_handler'
@@ -61,11 +61,11 @@ module Gumdrop
     end
 
     get '/*' do
+      # Gumdrop.log.info "[#{$$}] !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
       file_path= get_content_path params[:splat].join('/')
-      
-      Gumdrop.log.info "[#{$$}] GET /#{params[:splat].join('/')}"
-      #Gumdrop.log.debug " last built: #{Gumdrop.last_run}"
-
+      Gumdrop.log.info "[#{$$}] GET /#{params[:splat].join('/')} -> #{file_path}"
+      # Gumdrop.log.info " last built: #{Gumdrop.last_run}"
+      # Gumdrop.log.info "#{Gumdrop.config.inspect}"
       
       if Gumdrop.site.has_key? file_path
         content= Gumdrop.site[file_path]
@@ -74,13 +74,14 @@ module Gumdrop
           if Gumdrop.config.force_reload
             unless %w(.jpg .jpe .jpeg .gif .ico .png).include? File.extname(file_path).to_s
               since_last_build= Time.now.to_i - Gumdrop.last_run.to_i
-              if since_last_build > 2
-                Gumdrop.log.debug "[#{$$}] !!> REBUILDING"
+              # Gumdrop.log.info "!>!>>>>> since_last_build: #{since_last_build}"
+              if since_last_build > 10
+                Gumdrop.log.info "[#{$$}] Rebuilding from Source"
                 Gumdrop.run dry_run:true, log:server_log
               end
             end
           end
-          Gumdrop.log.info "[#{$$}]  *Dynamic: #{file_path}"
+          Gumdrop.log.info "[#{$$}]  *Dynamic: #{file_path} (#{content.ext})"
           content_type :css if content.ext == '.css' # Meh?
           content_type :js if content.ext == '.js' # Meh?
           content_type :xml if content.ext == '.xml' # Meh?
@@ -91,26 +92,12 @@ module Gumdrop
           send_file File.join( source_base_path, file_path)
         end
       else
-        # uri_path= params[:splat].join('/')
-        # puts "LOOKING FOR: #{uri_path}"
-        # if uri_path =~ /^\-proxy\/(.*)$/
-        #   uri= URI.parse "http://#{$1}"
-        #   
-        #   puts "PROXY TO: #{uri}"
-        #   
-        #   http = Net::HTTP.new(uri.host, uri.port)
-        #   response = http.request(Net::HTTP::Get.new(uri.request_uri))
-        #   
-        #   #[response.code, response.body]
-        #    #halt response.code, {}, response.body.to_s
-        #    puts "Responded with: #{response.body.to_s}"
-        #    #response
-        #    [response.code.to_i, {}, response.body.to_s]
-        # else
-          Gumdrop.log.error "[#{$$}]  *Missing: #{file_path}"
-          puts "NOT FOUND: #{file_path}"
-          "#{file_path} Not Found"
-        # end
+        Gumdrop.log.error "[#{$$}]  *Missing: #{file_path}"
+        # Gumdrop.log.info "------------------------"
+        # Gumdrop.log.info Gumdrop.site.keys.join("\n")
+        # Gumdrop.log.info "------------------------"
+        puts "NOT FOUND: #{file_path}"
+        "#{file_path} Not Found"
       end
     end
     

@@ -1,3 +1,6 @@
+# v0.5.1
+- Bugfix: dev server was rescanning source files multiple times per pages load if build time exceeded 2 seconds... Will now wait 10 seconds before rescanning source.
+
 # v0.5
 - Gumdrop projects now require a `Gumdrop` file at the root -- contents are what you used to put in lib/site.rb.
 - Added new `configure` and `view_helpers` methods for use in `Gumdrop` site file.
