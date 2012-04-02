@@ -11,12 +11,10 @@ module Gumdrop
     end
   
     def self.skip(path)
-      Gumdrop.report " blacklist: #{path}", :info
       Gumdrop.blacklist << path
     end
 
     def self.ignore(path)
-      Gumdrop.report "  greylist: #{path}", :info
       Gumdrop.greylist << path
     end
 

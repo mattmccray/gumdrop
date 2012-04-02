@@ -17,6 +17,15 @@ module Gumdrop
     end
 
     def build_tree
+      Gumdrop.report "[Scanning from #{src}]", :info
+      # Report blacklists and greylists
+      Gumdrop.blacklist.each do |path|
+        Gumdrop.report " blacklist: #{path}", :info
+      end
+      Gumdrop.greylist.each do |path|
+        Gumdrop.report "  greylist: #{path}", :info
+      end
+
       # Scan Filesystem
       #puts "Running in: #{root}"
       Dir.glob("#{src}/**/*", File::FNM_DOTMATCH).each do |path|
@@ -47,6 +56,7 @@ module Gumdrop
     end
 
     def run_generators
+      Gumdrop.report "[Executing Generators]", :info
       Gumdrop.generators.each_pair do |path, generator|
         generator.execute()
       end

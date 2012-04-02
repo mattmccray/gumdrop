@@ -1,6 +1,5 @@
 .DS_Store
 *.gem
-*.lock
 examples/**/output
 .sass-cache
 old_examples
