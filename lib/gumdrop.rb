@@ -15,6 +15,7 @@ DEFAULT_OPTIONS= {
   output_dir: "./output",
   lib_dir: "./lib",
   source_dir: "./source",
+  data_dir: './data',
   log: 'logs/build.log'
 }
 
@@ -76,7 +77,7 @@ module Gumdrop
       @partials    = Hash.new {|h,k| h[k]= nil }
       @root_path   = root.split '/'
       @source_path = src.split '/'
-      @data        = Gumdrop::DeferredLoader.new()
+      @data        = Gumdrop::DeferredLoader.new( Gumdrop.config.data_dir )
       @last_run    = Time.now
 
       begin
@@ -100,6 +101,7 @@ module Gumdrop
         # In case the source folder has changed.
         src= File.expand_path Gumdrop.config.source_dir #File.join root, 'source'      
         @source_path= src.split '/'
+        @data        = Gumdrop::DeferredLoader.new( Gumdrop.config.data_dir )
       end
 
       Build.run root, src, opts
@@ -122,8 +124,35 @@ module Gumdrop
         @log.error msg
       end
     end
+
+    def in_site_folder?(filename="Gumdrop")
+      here= Dir.pwd
+      found= File.file? File.join( here, filename )
+      # puts "Looking for #{filename} at #{here}: #{found} -- #{File.dirname(here)}"
+      # while !found and File.directory?(here) and File.dirname(here) != "/"
+      while !found and File.directory?(here) and File.dirname(here).length > 3
+        # length > 3 to handle C:\ for windoze?
+        here= File.expand_path File.join(here, '../')
+        found= File.file? File.join( here, filename )
+        # puts "Looking for #{filename} at #{here}: #{found}  -- #{File.dirname(here)}"
+      end
+      found
+      # true
+    end
+
   end
 
+
   Gumdrop.config= Gumdrop::HashObject.new(DEFAULT_OPTIONS)
+
+
+  module Configurator
+    class << self
+      def set(key,value)
+        # puts "Setting Gumdrop.config.#{key} = #{value}"
+        Gumdrop.config[key.to_sym]= value
+      end
+    end
+  end
   
 end

@@ -19,6 +19,14 @@ module Gumdrop
       Gumdrop.report "  greylist: #{path}", :info
       Gumdrop.greylist << path
     end
+
+    def self.view_helpers(&block)
+      Gumdrop::ViewHelpers.class_eval &block
+    end
+
+    def self.configure(&block)
+      Gumdrop::Configurator.instance_eval &block
+    end
   
   end
 end

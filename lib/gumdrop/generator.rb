@@ -74,14 +74,9 @@ module Gumdrop
 
         else
           # UNKNOWN Compressor type!
+          Gumdrop.report :warning, "Unknown javascript compressor type! (#{ opts[:compressor] })"
           content
         end
-        # if opts[:compress]
-        #   require 'jsmin'
-        #   JSMin.minify content
-        # else
-        #   content
-        # end
       end
       if opts[:keep_src] or opts[:keep_source]
         ext= File.extname name

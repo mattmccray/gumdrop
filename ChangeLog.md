@@ -1,3 +1,13 @@
+# v0.5
+- Data folder path is now configurable: `Gumdrop.config.data_dir`
+- Added `data.site` and `data.site_all` to `DefferedLoader`. Useful for listing all non-grey-listed files or all files.
+- Data will now load from data/COLLECTION_NAME/*.(json | yaml | yml). Loads as an array array of all entries, adds a key '_id' that's the base filename.
+- Extra stitch generator options:
+    - `compress` takes `:jsmin`, `:yuic`, or `:uglify` now. (`true` defaults to `:jsmin`)
+    - `obfuscate: true|false` -- Sets munging/mangling for compressors that support it.
+    - `keep_src: true|false` -- Creates a second filename with :source_postfix added to the end of the filename
+    - `source_postfix: "-src"` 
+
 # v0.4
 - Added support for special dev proxy at /-proxy/ENDPOINT_URL -- Useful for working with external (non-CORS) apis/websites. Enabled by default. To disable, set Gumdrop.config.proxy_enabled= false
 
