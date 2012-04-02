@@ -4,9 +4,11 @@
 - Smarter CLI, knows when you're in a gumdrop site or not.
 - Local templates supported for new sites (looks under ~/.gumdrop/templates)
 - You can list installed templates using `gumdrop --list`
+- You can install the current site as a local template using `gumdrop -t new_template_name` in a site folder.
 - Data folder path is now configurable: `Gumdrop.config.data_dir` or `set :data_dir, "PATH"`
 - Added `data.site` and `data.site_all` to `DefferedLoader`. Useful for listing all non-grey-listed files or all files.
 - Data will now load from data/COLLECTION_NAME/*.(json | yaml | yml). Loads as an array array of all entries, adds a key '_id' that's the base filename.
+- Initial `redirect` options for use in generate blocks.
 - Extra stitch generator options:
     - `compress` takes `:jsmin`, `:yuic`, or `:uglify` now. (`true` defaults to `:jsmin`)
     - `obfuscate: true|false` -- Sets munging/mangling for compressors that support it.

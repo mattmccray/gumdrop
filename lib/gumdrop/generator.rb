@@ -51,6 +51,22 @@ module Gumdrop
       
       Gumdrop.site[content.uri]= content
     end
+
+    # FIXME: Does redirect require abs-paths?
+    def redirect(from, opts={})
+      if opts[:to]
+        page from do
+          <<-EOF
+          <meta http-equiv="refresh" content="0;url=#{ opts[:to] }">
+          <script> window.location.href='#{ opts[:to] }'; </script>
+          EOF
+        end
+        opts[:from]= from
+        Gumdrop.redirects << opts
+      else
+        Gumdrop.report "You must specify :to in a redirect", :warning
+      end
+    end
     
     def stitch(name, opts)
       require 'gumdrop/stitch_ex'
@@ -72,9 +88,12 @@ module Gumdrop
           require "uglifier"
           Uglifier.compile( content, :mangle=>opts[:obfuscate])
 
+        when false
+          content
+
         else
           # UNKNOWN Compressor type!
-          Gumdrop.report :warning, "Unknown javascript compressor type! (#{ opts[:compressor] })"
+          Gumdrop.report "Unknown javascript compressor type! (#{ opts[:compressor] })", :warning
           content
         end
       end

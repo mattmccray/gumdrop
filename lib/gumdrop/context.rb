@@ -25,7 +25,7 @@ module Gumdrop
       
       def url(path)
         path= path[1..-1] if path.starts_with?('/')
-        "#{data.config.url}/#{path}"
+        "#{Gumdrop.config.site_url}/#{path}"
       end
     
       def slug

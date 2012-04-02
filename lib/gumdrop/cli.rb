@@ -43,8 +43,8 @@ Examples:
 Options:
 EOS
     opt :create, "Create a gumdrop project", :type=>String
-      opt :template, "Specify template to use for new project (default || backbone)", :type=>String, :default=>'default'
-    opt :list, "List known templates"
+    opt :template, "Template to create new project from", :type=>String, :default=>'default'
+    opt :list, "List available templates"
   end
 
 end
@@ -57,22 +57,21 @@ end
 
 
 
-
 if opts[:build_given]
+  puts banner_text unless opts[:quiet_given]
   Gumdrop.run(opts)
 
 
 elsif opts[:server_given]
+  puts banner_text unless opts[:quiet_given]
   Gumdrop.config.auto_run= true
   Gumdrop.config.force_reload= opts[:reload_given]
   Gumdrop::Server
 
-elsif opts[:template_given]
-  # Save as template...
-
 
 elsif opts[:list_given]
   # List templates
+  puts banner_text unless opts[:quiet_given]
   here= File.dirname(__FILE__)
   lib_dir= File.expand_path File.join(here, '../../templates', '*')
   user_dir=  File.expand_path File.join("~", ".gumdrop", "templates", "*")
@@ -87,10 +86,13 @@ elsif opts[:list_given]
 
 
 elsif opts[:new_given]
+  puts banner_text unless opts[:quiet_given]
   puts "Not implemented yet..."
 
 
 elsif opts[:create_given]
+  puts banner_text unless opts[:quiet_given]
+
   require 'fileutils'
   here= File.dirname(__FILE__)
   lib_root= File.expand_path File.join(here, '../../')
@@ -107,14 +109,16 @@ elsif opts[:create_given]
   # from gem...
   if File.directory? File.join(lib_root, 'templates', template_name)
     # FileUtils.cp_r Dir[File.join(here, "template", template_name, "*")], there
-    puts "Creating gumdrop project based on #{template_name} template at #{there}"
+    puts "Creating gumdrop project (from template:#{template_name})"
+    puts "  #{there}"
     FileUtils.cp_r File.join(lib_root, "templates", template_name, "."), there
     puts "Done."
 
   # local template...
   elsif File.directory? File.join(user_gumdrop_dir, 'templates', template_name)
     # FileUtils.cp_r Dir[File.join(here, "template", template_name, "*")], there
-    puts "Creating gumdrop project based on #{template_name} template at #{there} (local template used)"
+    puts "Creating gumdrop project (from local template:#{template_name})"
+    puts "  #{there}"
     FileUtils.cp_r File.join(user_gumdrop_dir, "templates", template_name, "."), there
     puts "Done."
 
@@ -123,7 +127,28 @@ elsif opts[:create_given]
   end
 
 
+elsif opts[:template_given]
+  # Save as template...
+  puts banner_text unless opts[:quiet_given]
+  template= opts[:template]
+  template_path = File.expand_path File.join('~', '.gumdrop', 'templates', template)
+  if File.exists? template_path
+    puts "A template named '#{template}' already exists!"
+  else
+    require 'fileutils'
+    puts "Creating template:  #{template}"
+    puts "  ~/.gumdrop/templates/#{template}"
+    site_root= Gumdrop.site_folder
+    FileUtils.mkdir_p File.dirname(template_path)
+    FileUtils.cp_r File.join(site_root, "."), template_path
+    puts "Done."
+  end
+  
+
+
+
 else
+  puts banner_text
   require 'pp'
   puts "Unknown options"
   pp opts

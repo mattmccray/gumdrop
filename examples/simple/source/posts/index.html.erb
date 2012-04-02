@@ -1,6 +1,0 @@
-<h2>Post Archive</h2>
-<ul>
-<% data.blog.each do |post| %>
-  <li><a href="<%= uri "/posts/#{post.slug}" %>"><%= post.title %></a></li>
-<% end %>
-</ul>

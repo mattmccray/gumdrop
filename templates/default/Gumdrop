@@ -1,22 +1,21 @@
 puts "Gumdrop v#{Gumdrop::VERSION} building..."
 
 configure do
+
+  set :site_title,   "My Site"
+  set :site_tagline, "My home on thar intarwebs!"
+  set :site_author,  "Me"
+  set :site_url,     "http://www.mysite.com"
   
   #  All the supported build configuration settings and their defaults:
-
   # set :output_dir, "./output"
   # set :lib_dir, "./lib"
   # set :source_dir, "./source"
   # set :data_dir, './data'
-
   # set :relative_paths, true
   # set :proxy_enabled, true
-
   # set :log_level, :info
   # set :log, 'logs/build.log'
-
-  # You can add your own config settings
-
 end
 
 

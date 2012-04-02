@@ -49,6 +49,7 @@ module Gumdrop
                   :layouts, 
                   :generators, 
                   :partials, 
+                  :redirects,
                   :config, 
                   :data, 
                   :content_filters, 
@@ -61,19 +62,19 @@ module Gumdrop
       site_file= Gumdrop.fetch_site_file
 
       unless site_file.nil?
-        @generators  = Hash.new {|h,k| h[k]= nil }
-        @content_filters= []
-        @blacklist      = []
-        @greylist       = []
+        @generators      = Hash.new {|h,k| h[k]= nil }
+        @content_filters = []
+        @blacklist       = []
+        @greylist        = []
+        @redirects       = []
 
         # In server mode, we want to reload it every time... right?
-        source= IO.readlines( site_file ).join('')
-        DSL.class_eval source
+        load_site_file site_file
 
         Gumdrop.config.merge! opts # These beat those in the Gumdrop file?
         
         root= File.expand_path File.dirname(site_file)
-        Dir.chwd root
+        Dir.chdir root
 
         src= File.expand_path Gumdrop.config.source_dir #File.join root, 'source'      
         lib_path= File.expand_path Gumdrop.config.lib_dir
@@ -123,6 +124,12 @@ module Gumdrop
       !fetch_site_file(filename).nil?
     end
 
+    def load_site_file(site_file=nil)
+      site_file= fetch_site_file if site_file.nil?
+      source= IO.readlines( site_file ).join('')
+      DSL.class_eval source
+    end
+
     def fetch_site_file(filename="Gumdrop")
       here= Dir.pwd
       found= File.file? File.join( here, filename )
@@ -135,6 +142,10 @@ module Gumdrop
       else
         nil
       end
+    end
+
+    def site_folder(filename="Gumdrop")
+      File.dirname( fetch_site_file( filename ) )
     end
 
   end

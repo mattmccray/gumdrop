@@ -124,7 +124,7 @@ module Gumdrop
       else
         #FIXME: Should it die if it can't find data?\
         # raise "No data found for #{path}"
-        Gumdrop.report :warning, "No data found for #{path}"
+        Gumdrop.report "No data found for #{path}", :warning
         nil
       end
     end

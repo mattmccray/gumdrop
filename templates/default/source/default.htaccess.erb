@@ -14,3 +14,13 @@ DirectoryIndex index.html
     RewriteCond %{DOCUMENT_ROOT}/$1\.html -f
     RewriteRule ^(.+[^/])/?$ $1.html [L,QSA]
 </IfModule>
+
+# BEGIN Gzip
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/text text/html text/plain text/xml text/css application/x-javascript application/javascript
+</IfModule>
+# END Gzip
+
+<% Gumdrop.redirects.each do |opts| %>
+# Redirect <%= opts[:from] %> <%= opts[:to] %>
+<% end %>
