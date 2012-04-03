@@ -70,7 +70,7 @@ module Gumdrop
     
       def reset_data(preset={})
         # TODO: Add a setting for reloading data on every request/page
-        #@data= DeferredLoader.new if @data.nil? or !Gumdrop.config.cache_data
+        #  was this for the server?
         Gumdrop.data.reset if !Gumdrop.config.cache_data
         @state = preset
       end

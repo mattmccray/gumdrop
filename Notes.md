@@ -1,15 +1,37 @@
 # Future Features/Changes
-- HTML Manifest generation??
 - Some kind of admin? What would that even do?
   - If you could specify a 'prototype' for data collections, could be cool.
 - Multiple source_dir?
   - `set :source_dir, ['./source/a', './source/b']
   - What would happen with conflicts, last one in wins?
 - Multiple data_dir too?
+- Refactor code to not use Gumdrop as a singleton (static really)
+- Add YamlDoc support for nodes?
+
 
 # TODO:
 - New/Update Doc Site
 - API for retrieving pages and pages under a path (simple query)
-- Cleanup api and verbiage around blacklisting and ignoring
-- YamlDoc support (in data anyway)
-- Templates should be stored as short name/path and full path (like partials)
+- Need test coverage.
+
+
+# Possible New Internals
+- Gumdrop (module)
+  - Site (class)
+    - SiteFileDSL (was DSL)
+    - Node (was Content)
+    - NodeGenerator (was Generator)
+  - Data (module)
+    - Manager (was DataManager)
+    - Collection
+    - Object
+    - Pager
+  - Server (module)
+    - NodeHandler
+    - ProxyHandler
+  - Render (module)
+    - Context
+    - ViewHelpers
+    - StitchCompilers
+  - Utils (module)
+    - Logging

@@ -19,11 +19,10 @@ end
 
 module Gumdrop
   
-  class DeferredLoader
+  class DataManager
     attr_reader :cache
   
     def initialize(data_dir="data")
-      #puts "@!@"
       @dir= data_dir
       @cache= {}
       @persisted= {}
@@ -48,16 +47,22 @@ module Gumdrop
       end
     end
 
+    # TODO: This is not a great place for this. MOVE IT!
+    # This'll go on the Site class for query support: .find()/.all()/.paths()/.nodes()
     def site
-      # TODO: This is not a great place for this!
       site= Hash.new {|h,k| h[k]= nil }
       Gumdrop.site.keys.sort.each do |path|
-        unless Gumdrop.greylist.any? {|p| path.starts_with?(p) }
+        unless Gumdrop.greylist.any? {|pattern| path_match path, pattern }
           site[path]= Gumdrop.site[path]    
         end
       end
       site
     end
+    # Oh dear god! This belongs elsewhere!
+    def path_match(path, pattern)
+      File.fnmatch pattern, path, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_CASEFOLD
+    end
+
 
     def site_all
       Gumdrop.site
@@ -87,27 +92,70 @@ module Gumdrop
       path=get_filename(key)
       return nil if path.nil?
       if File.extname(path) == ".yamldb"
-        docs=[]
-        File.open(path, 'r') do |f|
-          YAML.load_documents(f) do |doc|
-            docs << hashes2ostruct( doc ) unless doc.has_key?("__proto__")
-          end
-        end
-        docs
+        load_from_yamldb path
       elsif File.extname(path) == ""
-        all=[]
-        Dir[ File.join( "#{path}", "{*.yaml,*.json,*.yml}" ) ].each do |filename|
-          # Gumdrop.report ">> Loading data file: #{filename}"
-          id= File.basename filename
-          raw_hash= YAML.load_file(filename) 
-          raw_hash['_id']= id
-          obj_hash= hashes2ostruct( raw_hash )
-          all << obj_hash
-        end
-        all
+        load_from_directory path
       else
-        hashes2ostruct( YAML.load_file(path)  )
+        load_from_file path
       end
+    end
+
+    def load_from_file( filename )
+      ext=File.extname(filename)
+      if ext == '.yamldoc' or ext == '.ymldoc'
+        load_from_yamldoc filename
+      elsif ext == '.yaml' or ext == '.yml' or ext == '.json'
+        hashes2ostruct( YAML.load_file(filename)  )
+      else
+        raise "Unknown data type (#{ext}) for #{filename}"
+      end
+    end
+
+    def load_from_yamldb( filename )
+      docs=[]
+      File.open(filename, 'r') do |f|
+        YAML.load_documents(f) do |doc|
+          docs << hashes2ostruct( doc ) unless doc.has_key?("__proto__")
+        end
+      end
+      docs
+    end
+
+    def load_from_yamldoc( filename )
+      source = File.read(filename)
+
+      if source =~ /^(\s*---(.+)---\s*)/m
+        yaml = $2.strip
+        content = source.sub($1, '')
+        data= YAML.load(yaml)
+      else
+        content= source
+        data={}
+      end
+
+      content_set= false
+      data.each_pair do |key, value|
+        if value == '_YAMLDOC_'
+          data[key]= content
+          content_set= true
+        end
+      end
+
+      data['content']= content unless content_set
+      
+      hashes2ostruct(data)
+    end
+
+    def load_from_directory( filepath )
+      all=[]
+      Dir[ File.join( "#{filepath}", "{*.yaml,*.json,*.yml,*.yamldoc,*.ymldoc}" ) ].each do |filename|
+        # Gumdrop.report ">> Loading data file: #{filename}"
+        id= File.basename filename
+        obj_hash= load_from_file filename
+        obj_hash._id = id
+        all << obj_hash
+      end
+      all
     end
 
     def get_filename(path)
@@ -132,5 +180,9 @@ module Gumdrop
     def local_path_to(filename)
       File.join(@dir.to_s, filename.to_s)
     end
+  end
+
+  class YamlDoc
+
   end
 end

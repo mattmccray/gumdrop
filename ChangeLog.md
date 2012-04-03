@@ -1,3 +1,9 @@
+# v0.5.2
+- DeferredLoader changed to DataManager
+- Added YamlDoc support to data collections -- a data format (.yamldoc) that strips YAML front matter and puts the content under the key 'content', or it will use a custom key from the front matter if the value of the pair is '_YAMLDOC_'
+- Templates are stored under their short name and full path now.
+- skip/ignore (blacklist and greylist) now use File.fnmatch instead of starts_with? for matching paths
+
 # v0.5.1
 - Bugfix: dev server was rescanning source files multiple times per pages load if build time exceeded 2 seconds... Will now wait 10 seconds before rescanning source.
 

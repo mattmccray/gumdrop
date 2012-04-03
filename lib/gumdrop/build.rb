@@ -36,6 +36,7 @@ module Gumdrop
 
           # Sort out Layouts, Generators, and Partials
           if File.extname(path) == ".template"
+            Gumdrop.layouts[path]= node
             Gumdrop.layouts[File.basename(path)]= node
 
           elsif File.extname(path) == ".generator"
@@ -62,10 +63,11 @@ module Gumdrop
       end
     end
 
+    # Expunge blacklisted files
     def filter_tree
-      Gumdrop.blacklist.each do |skip_path|
+      Gumdrop.blacklist.each do |blacklist_pattern|
         Gumdrop.site.keys.each do |source_path|
-          if source_path.starts_with? skip_path
+          if path_match source_path, blacklist_pattern
             Gumdrop.report "-excluding: #{source_path}", :info
             Gumdrop.site.delete source_path
           end
@@ -78,7 +80,7 @@ module Gumdrop
         output_base_path= File.expand_path(Gumdrop.config.output_dir)
         Gumdrop.report "[Compiling to #{output_base_path}]", :info
         Gumdrop.site.keys.sort.each do |path|
-          unless Gumdrop.greylist.any? {|p| path.starts_with?(p) }
+          unless Gumdrop.greylist.any? {|pattern| path_match path, pattern }
             node= Gumdrop.site[path]
             output_path= File.join(output_base_path, node.to_s)
             FileUtils.mkdir_p File.dirname(output_path)
@@ -97,6 +99,12 @@ module Gumdrop
       render()
       self
     end
+
+    # Match a path using a glob-like file pattern
+    def path_match(path, pattern)
+      File.fnmatch pattern, path, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_CASEFOLD
+    end
+
 
     class << self
       def run(root, src, opts={})

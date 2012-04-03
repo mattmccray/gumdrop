@@ -29,7 +29,7 @@ module Gumdrop
   autoload :Build, "gumdrop/build"
   autoload :Context, "gumdrop/context"
   autoload :Content, "gumdrop/content"
-  autoload :DeferredLoader, "gumdrop/deferred_loader"
+  autoload :DataManager, "gumdrop/data_manager"
   autoload :DSL, "gumdrop/dsl"
   autoload :Generator, "gumdrop/generator"
   autoload :GeneratedrContent, "gumdrop/generator"
@@ -84,7 +84,7 @@ module Gumdrop
         @site        = Hash.new {|h,k| h[k]= nil }
         @layouts     = Hash.new {|h,k| h[k]= nil }
         @partials    = Hash.new {|h,k| h[k]= nil }
-        @data        = Gumdrop::DeferredLoader.new( Gumdrop.config.data_dir )
+        @data        = Gumdrop::DataManager.new( Gumdrop.config.data_dir )
         @last_run    = Time.now
 
         begin

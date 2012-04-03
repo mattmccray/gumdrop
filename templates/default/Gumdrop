@@ -21,14 +21,13 @@ end
 
 #  Skipping files entirely from build process... Like they don't exist.
 # skip 'file-to-ignore.html'
-# skip 'dont-show/'
+# skip 'dont-show/**/*'
 
 #  Ignores source file(s) from compilation, but does load the content into memory
-# ignore 'pages/'
+# ignore 'pages/**/*.*'
 
-#  NOTE: Skipping and ignoring matches simply with starts_with?... So if a path, from the
-#  source directory, starts with the specified string, it'll skip or ignor it. (this
-#  doesn't work for files detected by stitch)
+#  NOTE: Skipping and ignoring matches like a file glob (it use File.fnmatch in fact)
+#       (this doesn't work for files detected by stitch)
 
 
 # Example site-level generator
