@@ -1,81 +1,42 @@
 require 'yaml'
 require 'ostruct'
 
-def hashes2ostruct(object)
-  return case object
-  when Hash
-    object = object.clone
-    object.each do |key, value|
-      object[key] = hashes2ostruct(value)
-    end
-    OpenStruct.new(object)
-  when Array
-    object = object.clone
-    object.map! { |i| hashes2ostruct(i) }
-  else
-    object
-  end
-end
-
-# Supported Data File Types:
-DATA_DOC_EXTS= %w(json yml yaml ymldb yamldb yamldoc ymldoc)
-
 module Gumdrop
-  
+
+  # Supported Data File Types:
+  DATA_DOC_EXTS= %w(json yml yaml ymldb yamldb yamldoc ymldoc)
+
   class DataManager
     attr_reader :cache
   
-    def initialize(data_dir="data")
-      @dir= data_dir
+    def initialize(site, data_dir="./data")
+      @site= site
+      @dir= File.expand_path data_dir
       @cache= {}
-      @persisted= {}
     end
   
     def method_missing(key, value=nil)
-      cache_or_load_data(key)
+      cache_dataset(key)
       @cache[key]
     end
   
-    def set(key, value, opts={})
+    def set(key, value)
       @cache[key]= value
-      @persisted[key]= value #unless opts[:persist] == false
     end
   
-    def reset(hard=false)
-      if hard
-        @cache={}
-        @persisted={}
-      else
-        @cache= @persisted.clone #Hash.new(@persisted)  #{|h,k| h[k]= load_data(k) }
-      end
+    def reset
+      @cache={}
     end
 
-    # TODO: This is not a great place for this. MOVE IT!
-    # This'll go on the Site class for query support: .find()/.all()/.paths()/.nodes()
-    def site
-      site= Hash.new {|h,k| h[k]= nil }
-      Gumdrop.site.keys.sort.each do |path|
-        unless Gumdrop.greylist.any? {|pattern| path_match path, pattern }
-          site[path]= Gumdrop.site[path]    
-        end
-      end
-      site
-    end
-    # Oh dear god! This belongs elsewhere!
-    def path_match(path, pattern)
-      File.fnmatch pattern, path, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_CASEFOLD
-    end
-
-
-    def site_all
-      Gumdrop.site
+    def site(pattern=nil, opts={})
+      @site.contents(pattern, opts)
     end
     
     def pager_for(key, opts={})
       base_path= opts.fetch(:base_path, 'page')
       page_size= opts.fetch(:page_size, 5)
       data= if key.is_a? Symbol
-        cache_or_load_data(key)
+        cache_dataset(key)
         @cache[key]
       else
         key
@@ -86,9 +47,8 @@ module Gumdrop
   
   private
   
-    def cache_or_load_data(key)
+    def cache_dataset(key)
       @cache[key]= load_data(key) unless @cache.has_key? key
-      @persisted[key]= @cache[key] # New persist data loaded from file?
     end
 
     def load_data(key)
@@ -180,5 +140,22 @@ module Gumdrop
     def local_path_to(filename)
       File.join(@dir.to_s, filename.to_s)
     end
+
+    def hashes2ostruct(object)
+      return case object
+      when Hash
+        object = object.clone
+        object.each do |key, value|
+          object[key] = hashes2ostruct(value)
+        end
+        OpenStruct.new(object)
+      when Array
+        object = object.clone
+        object.map! { |i| hashes2ostruct(i) }
+      else
+        object
+      end
+    end
+
   end
 end

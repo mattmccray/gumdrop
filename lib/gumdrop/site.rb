@@ -3,22 +3,63 @@
 
 module Gumdrop
 
+  DEFAULT_OPTIONS= {
+    relative_paths: true,
+    proxy_enabled: true,
+    log_level: :info,
+    output_dir: "./output",
+    source_dir: "./source",
+    data_dir: './data',
+    log: './logs/build.log',
+    ignore: %w(.DS_Store .gitignore .git .svn .sass-cache)
+  }
+
+  LOG_LEVELS = {
+    info: 0,
+    warning: 1,
+    error: 2
+  }
+
+  # SKIP= %w(.DS_Store .gitignore .git .svn .sass-cache)
+
   class Site
-    attr_reader :root_path, :src, :opts, :node_tree
     include Logging
 
-    SKIP= %w(.DS_Store .gitignore .git .svn .sass-cache)
+    attr_reader :opts,
+                :root_path, 
+                :root_path_parts,
+                :blacklist,
+                :greylist,
+                :content_filters,
+                :config,
+                :data,
+                :last_run
+    
 
     def initialize(sitefile, src, opts={})
       @sitefile= sitefile
       @root_path= File.dirname @sitefile
-      @root_path_parts= root.split('/')
-      @src= src
-      @opts= opts
-      @node_tree= {}
+      @root_path_parts = root.split('/')
+      @content_filters = []
+      @blacklist       = []
+      @greylist        = []
+      @redirects       = []
+      @opts            = opts
+
+      @node_tree   = Hash.new {|h,k| h[k]= nil }
+      @layouts     = Hash.new {|h,k| h[k]= nil }
+      @partials    = Hash.new {|h,k| h[k]= nil }
+      @config      = Gumdrop::Config.new DEFAULT_OPTIONS
+      @generators  = Hash.new {|h,k| h[k]= nil }
+      @last_run    = nil
+
+      load_sitefile()
+      
+      @data        = Gumdrop::DataManager.new self, @config.data_dir
+
     end
 
-    def nodes(pattern=nil, opts={})
+    def contents(pattern=nil, opts={})
       if pattern.nil?
         if opts[:as] == :hash
           @node_tree
@@ -38,6 +79,36 @@ module Gumdrop
         end
         nodes
       end
+    end
+
+    def scan
+      build_tree()
+      run_generators()
+      filter_tree()
+      self
+    end
+
+    def rescan
+      # Clear out generators, and other stuff...
+      load_sitefile
+      # Do stuff incrementally?
+      run_generators()
+      filter_tree()
+      self
+    end
+
+    def run
+      scan()
+      render()
+      self
+    end
+
+
+  private
+
+    def load_sitefile
+      source= IO.readlines( @sitefile ).join('')
+      SitefileDSL.class_eval source
     end
 
     def build_tree
@@ -116,14 +187,6 @@ module Gumdrop
       end
     end
 
-    def run
-      build_tree()
-      run_generators()
-      filter_tree()
-      render()
-      self
-    end
-
     # Match a path using a glob-like file pattern
     def path_match(path, pattern)
       File.fnmatch pattern, path, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_CASEFOLD
@@ -135,6 +198,57 @@ module Gumdrop
         new(root, src, opts).run()
       end
     end
+  end
+
+  class SitefileDSL
+
+    def initialize(site)
+      @site= site
+    end
+  
+    def generate(&block)
+      # Auto-generated, numerical, key for a site-level generator
+      @site.generators[@site.generators.keys.length] = Generator.new(block)
+    end
+  
+    def self.content_filter(&block)
+      @site.content_filters << block
+    end
+  
+    def self.skip(path)
+      @site.blacklist << path
+    end
+    alias_method :blacklist, :skip
+
+    def self.ignore(path)
+      @site.greylist << path
+    end
+    alias_method :greylist, :ignore
+    alias_method :graylist, :ignore
+
+    def self.view_helpers(&block)
+      Gumdrop::ViewHelpers.class_eval &block
+    end
+
+    def self.configure(&block)
+      if block.arity > 0
+        block.call @site.config
+      else
+        @site.config.instance_eval &block
+      end
+    end
+  
+  end
+
+  class Config < HashObject
+    
+    def set(key, value)
+      self[key]= value
+    end
+    def get(key)
+      self[key]
+    end
+
   end
 
 end

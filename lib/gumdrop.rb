@@ -4,25 +4,25 @@ require 'tilt'
 require 'fileutils'
 require 'active_support/all'
 
-DEFAULT_OPTIONS= {
-  cache_data: false,
-  relative_paths: true,
-  auto_run: false,
-  force_reload: false,
-  proxy_enabled: true,
-  output_dir: "./output",
-  lib_dir: "./lib",
-  source_dir: "./source",
-  data_dir: './data',
-  log_level: :info,
-  log: 'logs/build.log'
-}
+# DEFAULT_OPTIONS= {
+#   cache_data: false,
+#   relative_paths: true,
+#   auto_run: false,
+#   force_reload: false,
+#   proxy_enabled: true,
+#   output_dir: "./output",
+#   lib_dir: "./lib",
+#   source_dir: "./source",
+#   data_dir: './data',
+#   log_level: :info,
+#   log: 'logs/build.log'
+# }
 
-LOG_LEVELS = {
-  info: 0,
-  warning: 1,
-  error: 2
-}
+# LOG_LEVELS = {
+#   info: 0,
+#   warning: 1,
+#   error: 2
+# }
 
 module Gumdrop
   
