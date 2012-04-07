@@ -17,6 +17,9 @@ def hashes2ostruct(object)
   end
 end
 
+# Supported Data File Types:
+DATA_DOC_EXTS= %w(json yml yaml ymldb yamldb yamldoc ymldoc)
+
 module Gumdrop
   
   class DataManager
@@ -89,11 +92,9 @@ module Gumdrop
     end
 
     def load_data(key)
-      path=get_filename(key)
+      path=get_filename key 
       return nil if path.nil?
-      if File.extname(path) == ".yamldb"
-        load_from_yamldb path
-      elsif File.extname(path) == ""
+      if File.directory? path
         load_from_directory path
       else
         load_from_file path
@@ -104,10 +105,14 @@ module Gumdrop
       ext=File.extname(filename)
       if ext == '.yamldoc' or ext == '.ymldoc'
         load_from_yamldoc filename
+      elsif ext == '.yamldb' or ext == '.ymldb'
+        load_from_yamldb filename
       elsif ext == '.yaml' or ext == '.yml' or ext == '.json'
         hashes2ostruct( YAML.load_file(filename)  )
       else
-        raise "Unknown data type (#{ext}) for #{filename}"
+        # raise "Unknown data type (#{ext}) for #{filename}"
+        Gumdrop.report "Unknown data type (#{ext}) for #{filename}", :warning
+        nil
       end
     end
 
@@ -148,7 +153,7 @@ module Gumdrop
 
     def load_from_directory( filepath )
       all=[]
-      Dir[ File.join( "#{filepath}", "{*.yaml,*.json,*.yml,*.yamldoc,*.ymldoc}" ) ].each do |filename|
+      Dir[ File.join "#{filepath}", "{*.#{ DATA_DOC_EXTS.join ',*.'}}" ].each do |filename|
         # Gumdrop.report ">> Loading data file: #{filename}"
         id= File.basename filename
         obj_hash= load_from_file filename
@@ -159,19 +164,14 @@ module Gumdrop
     end
 
     def get_filename(path)
-      if File.exists? local_path_to("#{path}.json")
-        local_path_to "#{path}.json"
-      elsif File.exists? local_path_to("#{path}.yml")
-        local_path_to "#{path}.yml"
-      elsif File.exists? local_path_to("#{path}.yaml")
-        local_path_to  "#{path}.yaml"
-      elsif File.exists? local_path_to("#{path}.yamldb")
-        local_path_to "#{path}.yamldb"
-      elsif File.directory? local_path_to(path)
-        local_path_to(path)
+      lpath= local_path_to(path)
+      if File.directory? lpath
+        lpath
       else
-        #FIXME: Should it die if it can't find data?\
-        # raise "No data found for #{path}"
+        DATA_DOC_EXTS.each do |ext|
+          lpath= local_path_to("#{path}.#{ext}")
+          return lpath if File.exists? lpath
+        end
         Gumdrop.report "No data found for #{path}", :warning
         nil
       end
@@ -180,9 +180,5 @@ module Gumdrop
     def local_path_to(filename)
       File.join(@dir.to_s, filename.to_s)
     end
-  end
-
-  class YamlDoc
-
   end
 end

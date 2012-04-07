@@ -4,12 +4,16 @@ require 'logger'
 
 module Gumdrop
 
+  # def self.logger
+  #   @log ||= Logger.new( 'log.txt', 'daily' )
+  # end
+
   module Logging
 
     class << self
 
       def log
-
+        Gumdrop.logger.info
       end
 
       def info

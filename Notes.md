@@ -9,10 +9,18 @@
 - Add YamlDoc support for nodes?
 
 
+- `Gumdrop.mode` :build, :serve (other?)
+- `Gumdrop.env` (specified via -e on cli, default: production)
+  - Easy access to ENV in RenderingContext (MODE as well)
+
+- configure block for each env/mode?
+
 # TODO:
 - New/Update Doc Site
 - API for retrieving pages and pages under a path (simple query)
 - Need test coverage.
+
+- Extract Build class into a Site class that can be instansiated (so multiple site can be loaded/run in memory)
 
 
 # Possible New Internals

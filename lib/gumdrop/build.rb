@@ -48,6 +48,7 @@ module Gumdrop
             # puts "Creating partial #{partial_name} from #{path}"
             Gumdrop.partials[partial_name]= node
             Gumdrop.partials[partial_node_path]= node
+          
           else
             Gumdrop.site[path]= node
           end
