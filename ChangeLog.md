@@ -1,3 +1,6 @@
+# v0.6
+- Extracted Gumdrop::Build into Gumdrop::Site. Removed static Gumdrop#site.
+
 # v0.5.2
 - DeferredLoader changed to DataManager
 - Added YamlDoc support to data collections -- a data format (.yamldoc) that strips YAML front matter and puts the content under the key 'content', or it will use a custom key from the front matter if the value of the pair is '_YAMLDOC_'
