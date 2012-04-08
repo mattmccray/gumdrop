@@ -49,6 +49,7 @@ EOS
 
 end
 
+# NO COMMANDS GIVEN
 
 unless opts[:create_given] or opts[:build_given] or opts[:server_given] or opts[:new_given] or opts[:template_given] or opts[:list_given]
   puts banner_text
@@ -56,18 +57,21 @@ unless opts[:create_given] or opts[:build_given] or opts[:server_given] or opts[
 end
 
 
+# BUILD
 
 if opts[:build_given]
   puts banner_text unless opts[:quiet_given]
   Gumdrop.run(opts)
 
 
+# SERVER
+
 elsif opts[:server_given]
   puts banner_text unless opts[:quiet_given]
-  Gumdrop.config.auto_run= true
-  Gumdrop.config.force_reload= opts[:reload_given]
   Gumdrop::Server
 
+
+# LIST TEMPLATES
 
 elsif opts[:list_given]
   # List templates
@@ -85,10 +89,14 @@ elsif opts[:list_given]
   end
 
 
+# NEW DATA COLLECTION ITEM
+
 elsif opts[:new_given]
   puts banner_text unless opts[:quiet_given]
   puts "Not implemented yet..."
 
+
+# CREATE NEW SITE
 
 elsif opts[:create_given]
   puts banner_text unless opts[:quiet_given]
@@ -127,6 +135,8 @@ elsif opts[:create_given]
   end
 
 
+# SAVE CURRENT SITE AS TEMPLATE
+
 elsif opts[:template_given]
   # Save as template...
   puts banner_text unless opts[:quiet_given]
@@ -145,7 +155,7 @@ elsif opts[:template_given]
   end
   
 
-
+# UNKNOWN COMMAND
 
 else
   puts banner_text

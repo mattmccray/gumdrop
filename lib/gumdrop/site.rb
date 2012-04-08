@@ -1,3 +1,4 @@
+require 'pathname'
 
 # WORK IN PROGRESS!
 
@@ -6,12 +7,14 @@ module Gumdrop
   DEFAULT_OPTIONS= {
     relative_paths: true,
     proxy_enabled: true,
-    log_level: :info,
+    # log_level: :info, # What's this really used for?
     output_dir: "./output",
     source_dir: "./source",
     data_dir: './data',
     log: './logs/build.log',
-    ignore: %w(.DS_Store .gitignore .git .svn .sass-cache)
+    ignore: %w(.DS_Store .gitignore .git .svn .sass-cache),
+    server_timeout: 15,
+    server_port: 4567
   }
 
   LOG_LEVELS = {
@@ -23,40 +26,32 @@ module Gumdrop
   # SKIP= %w(.DS_Store .gitignore .git .svn .sass-cache)
 
   class Site
-    include Logging
+    # include Logging
 
     attr_reader :opts,
                 :root_path, 
                 :root_path_parts,
+                :src_path,
+                :src_path_parts,
                 :blacklist,
                 :greylist,
+                :redirects,
                 :content_filters,
+                :layouts,
+                :partials,
+                :generators,
                 :config,
                 :data,
+                :sitefile,
+                :node_tree,
                 :last_run
     
 
-    def initialize(sitefile, src, opts={})
-      @sitefile= sitefile
-      @root_path= File.dirname @sitefile
-      @root_path_parts = root.split('/')
-      @content_filters = []
-      @blacklist       = []
-      @greylist        = []
-      @redirects       = []
-      @opts            = opts
-
-      @node_tree   = Hash.new {|h,k| h[k]= nil }
-      @layouts     = Hash.new {|h,k| h[k]= nil }
-      @partials    = Hash.new {|h,k| h[k]= nil }
-      @config      = Gumdrop::Config.new DEFAULT_OPTIONS
-      @generators  = Hash.new {|h,k| h[k]= nil }
-      @last_run    = nil
-
-      load_sitefile()
-      
-      @data        = Gumdrop::DataManager.new self, @config.data_dir
-
+    def initialize(sitefile, opts={})
+      @sitefile        = File.expand_path sitefile
+      @root_path       = File.dirname @sitefile
+      @root_path_parts = @root_path.split('/')
+      reset_all()
     end
 
     def contents(pattern=nil, opts={})
@@ -85,66 +80,131 @@ module Gumdrop
       build_tree()
       run_generators()
       filter_tree()
+      @last_run= Time.now
       self
     end
 
     def rescan
-      # Clear out generators, and other stuff...
-      load_sitefile
-      # Do stuff incrementally?
-      run_generators()
-      filter_tree()
+      reset_all()
+      scan()
+      @last_run= Time.now
       self
     end
 
-    def run
+    def build
       scan()
       render()
+      @last_run= Time.now
       self
+    end
+
+    def report(msg, level=:info)
+      # ll= @config.log_level
+      case level
+      when :info
+        @log.info msg
+      when :warning
+        @log.warn msg
+      else
+        puts msg
+        @log.error msg
+      end
+    end
+
+    # FIXME: Should a new Context be created for every page? For now
+    #        it's a single context for whole site
+    def render_context
+      @context ||= Context.new self
+      @context
     end
 
 
   private
 
+    def reset_all
+      @content_filters = []
+      @blacklist       = []
+      @greylist        = []
+      @redirects       = []
+      @opts            = opts
+      @last_run        = nil
+      @node_tree       = Hash.new {|h,k| h[k]= nil }
+      @layouts         = Hash.new {|h,k| h[k]= nil }
+      @partials        = Hash.new {|h,k| h[k]= nil }
+      @generators      = Hash.new {|h,k| h[k]= nil }
+      @config          = Gumdrop::Config.new DEFAULT_OPTIONS
+
+      load_sitefile()
+      
+      @data_path       = get_expanded_path(@config.data_dir)
+      @data            = Gumdrop::DataManager.new self, @data_path
+      @src_path        = get_expanded_path(@config.source_dir)
+      @src_path_parts  = @src_path.split('/')
+      @out_path        = get_expanded_path(@config.output_dir)
+
+      init_logging()
+    end
+
+    def init_logging
+      begin
+        @log           = Logger.new @config.log, 'daily'
+      rescue
+        @log           = Logger.new STDOUT
+      end
+      @log.formatter = proc do |severity, datetime, progname, msg|
+        "#{datetime}: #{msg}\n"
+      end
+    end
+
+    def get_expanded_path(path)
+      if (Pathname.new path).absolute?
+        path
+      else
+        File.expand_path File.join(@root_path, path)
+      end
+    end
+
     def load_sitefile
       source= IO.readlines( @sitefile ).join('')
-      SitefileDSL.class_eval source
+      dsl = SitefileDSL.new self
+      dsl.instance_eval source
+      dsl
     end
 
     def build_tree
-      Gumdrop.report "[Scanning from #{src}]", :info
+      report "[Scanning from #{src_path}]", :info
       # Report blacklists and greylists
-      Gumdrop.blacklist.each do |path|
-        Gumdrop.report " blacklist: #{path}", :info
+      blacklist.each do |path|
+        report " blacklist: #{path}", :info
       end
-      Gumdrop.greylist.each do |path|
-        Gumdrop.report "  greylist: #{path}", :info
+      greylist.each do |path|
+        report "  greylist: #{path}", :info
       end
 
       # Scan Filesystem
       #puts "Running in: #{root}"
-      Dir.glob("#{src}/**/*", File::FNM_DOTMATCH).each do |path|
-        unless File.directory? path or Build::SKIP.include?( File.basename(path) )
-          file_path = (path.split('/') - @root_path).join '/'
-          node= Content.new(file_path)
+      Dir.glob("#{src_path}/**/*", File::FNM_DOTMATCH).each do |path|
+        unless File.directory? path or @config.ignore.include?( File.basename(path) )
+          file_path = (path.split('/') - @root_path_parts).join '/'
+          node= Content.new(file_path, self)
           path= node.to_s
 
           # Sort out Layouts, Generators, and Partials
           if File.extname(path) == ".template"
-            Gumdrop.layouts[path]= node
-            Gumdrop.layouts[File.basename(path)]= node
+            layouts[path]= node
+            layouts[File.basename(path)]= node
 
           elsif File.extname(path) == ".generator"
-            Gumdrop.generators[File.basename(path)]= Generator.new( node )
+            generators[File.basename(path)]= Generator.new( node, self )
 
           elsif File.basename(path).starts_with?("_")
             partial_name= File.basename(path)[1..-1].gsub(File.extname(File.basename(path)), '')
             partial_node_path= File.join File.dirname(path), partial_name
             # puts "Creating partial #{partial_name} from #{path}"
-            Gumdrop.partials[partial_name]= node
-            Gumdrop.partials[partial_node_path]= node
+            partials[partial_name]= node
+            partials[partial_node_path]= node
           else
-            Gumdrop.site[path]= node
+            @node_tree[path]= node
           end
         end
       end
@@ -152,19 +212,19 @@ module Gumdrop
     end
 
     def run_generators
-      Gumdrop.report "[Executing Generators]", :info
-      Gumdrop.generators.each_pair do |path, generator|
+      report "[Executing Generators]", :info
+      generators.each_pair do |path, generator|
         generator.execute()
       end
     end
 
     # Expunge blacklisted files
     def filter_tree
-      Gumdrop.blacklist.each do |blacklist_pattern|
-        Gumdrop.site.keys.each do |source_path|
+      blacklist.each do |blacklist_pattern|
+        @node_tree.keys.each do |source_path|
           if path_match source_path, blacklist_pattern
-            Gumdrop.report "-excluding: #{source_path}", :info
-            Gumdrop.site.delete source_path
+            report "-excluding: #{source_path}", :info
+            @node_tree.delete source_path
           end
         end
       end
@@ -172,16 +232,15 @@ module Gumdrop
 
     def render
       unless opts[:dry_run]
-        output_base_path= File.expand_path(Gumdrop.config.output_dir)
-        Gumdrop.report "[Compiling to #{output_base_path}]", :info
-        Gumdrop.site.keys.sort.each do |path|
-          unless Gumdrop.greylist.any? {|pattern| path_match path, pattern }
-            node= Gumdrop.site[path]
-            output_path= File.join(output_base_path, node.to_s)
+        report "[Compiling to #{@out_path}]", :info
+        @node_tree.keys.sort.each do |path|
+          unless greylist.any? {|pattern| path_match path, pattern }
+            node= @node_tree[path]
+            output_path= File.join(@out_path, node.to_s)
             FileUtils.mkdir_p File.dirname(output_path)
-            node.renderTo output_path, Gumdrop.content_filters
+            node.renderTo render_context, output_path, content_filters
           else
-            Gumdrop.report " -ignoring: #{path}", :info
+            report " -ignoring: #{path}", :info
           end
         end
       end
@@ -190,13 +249,6 @@ module Gumdrop
     # Match a path using a glob-like file pattern
     def path_match(path, pattern)
       File.fnmatch pattern, path, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_CASEFOLD
-    end
-
-
-    class << self
-      def run(root, src, opts={})
-        new(root, src, opts).run()
-      end
     end
   end
 
@@ -208,29 +260,29 @@ module Gumdrop
   
     def generate(&block)
       # Auto-generated, numerical, key for a site-level generator
-      @site.generators[@site.generators.keys.length] = Generator.new(block)
+      @site.generators[@site.generators.keys.length] = Generator.new(block, @site)
     end
   
-    def self.content_filter(&block)
+    def content_filter(&block)
       @site.content_filters << block
     end
   
-    def self.skip(path)
+    def skip(path)
       @site.blacklist << path
     end
     alias_method :blacklist, :skip
 
-    def self.ignore(path)
+    def ignore(path)
       @site.greylist << path
     end
     alias_method :greylist, :ignore
     alias_method :graylist, :ignore
 
-    def self.view_helpers(&block)
+    def view_helpers(&block)
       Gumdrop::ViewHelpers.class_eval &block
     end
 
-    def self.configure(&block)
+    def configure(&block)
       if block.arity > 0
         block.call @site.config
       else

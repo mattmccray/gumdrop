@@ -13,9 +13,9 @@ Gem::Specification.new do |s|
 
    s.authors = ["Matt McCray"]
    s.email = %q{matt@elucidata.net}
-   s.summary = %q{A simple cms/prototyping tool.}
+   s.summary = %q{A sweet 'n simple cms/prototyping tool.}
    s.homepage = %q{https://github.com/darthapo/gumdrop}
-   s.description = %q{A simple cms/prototyping tool.}
+   s.description = %q{A sweet 'n simple cms/prototyping tool for creating static html websites and webapps.}
 
    s.files         = `git ls-files`.split("\n")
    s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
@@ -26,8 +26,8 @@ Gem::Specification.new do |s|
    s.add_dependency 'tilt'
    s.add_dependency 'active_support'
    s.add_dependency 'trollop'
-   s.add_dependency 'haml'
-   s.add_dependency 'sass'
+   # s.add_dependency 'haml'
+   # s.add_dependency 'sass'
    s.add_dependency 'i18n'
    s.add_dependency 'bundle'
 

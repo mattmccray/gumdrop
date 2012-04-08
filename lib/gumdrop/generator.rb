@@ -3,7 +3,8 @@ module Gumdrop
   class Generator
     attr_reader :filename, :base_path, :params, :pages
     
-    def initialize(content, opts={})
+    def initialize(content, site, opts={})
+      @site= site
       @content= content
       if @content.is_a? Proc
         @filename= ""
@@ -25,7 +26,7 @@ module Gumdrop
     end
     
     def data
-      Gumdrop.data
+      @site.data
     end
     
     def set(var_name, value)
@@ -40,16 +41,16 @@ module Gumdrop
       else
         "/#{@base_path}/#{name}"
       end
-      content= GeneratedContent.new(filepath, block, opts)
+      content= GeneratedContent.new(filepath, block, @site, opts)
       if opts.has_key? :template and !opts[:template].nil?
-        content.template = if Gumdrop.layouts.has_key?( opts[:template] )
-          Gumdrop.layouts[ opts[:template] ]
+        content.template = if @site.layouts.has_key?( opts[:template] )
+          @site.layouts[ opts[:template] ]
         else
-          Gumdrop.layouts[ "#{opts[:template]}.template" ]
+          @site.layouts[ "#{opts[:template]}.template" ]
         end.template
       end
       
-      Gumdrop.site[content.uri]= content
+      @site.node_tree[content.uri]= content
     end
 
     # FIXME: Does redirect require abs-paths?
@@ -62,9 +63,9 @@ module Gumdrop
           EOF
         end
         opts[:from]= from
-        Gumdrop.redirects << opts
+        @site.redirects << opts
       else
-        Gumdrop.report "You must specify :to in a redirect", :warning
+        @site.report "You must specify :to in a redirect", :warning
       end
     end
     
@@ -93,7 +94,7 @@ module Gumdrop
 
         else
           # UNKNOWN Compressor type!
-          Gumdrop.report "Unknown javascript compressor type! (#{ opts[:compressor] })", :warning
+          @site.report "Unknown javascript compressor type! (#{ opts[:compressor] })", :warning
           content
         end
       end
@@ -104,13 +105,13 @@ module Gumdrop
         end
       end
       if opts[:prune] and opts[:root]
-        sp = File.expand_path( Gumdrop.config.source_dir )
+        sp = File.expand_path( @site.config.source_dir )
         rp = File.expand_path(opts[:root])
         relative_root = rp.gsub(sp, '')[1..-1]
         rrlen= relative_root.length - 1
-        Gumdrop.site.keys.each do |path|
+        @site.node_tree.keys.each do |path|
           if path[0..rrlen] == relative_root and name != path
-            Gumdrop.site.delete path
+            @site.node_tree.delete path
           end
         end
       end
@@ -131,14 +132,14 @@ module Gumdrop
   class GeneratedContent < Content
     # Nothing special, per se...
 
-    def initialize(path, block, params={})
+    def initialize(path, block, site, params={})
       @content_block= block
-      super(path, params)
+      super(path, site, params)
     end
 
-    def render(ignore_layout=false,  reset_context=true, locals={})
+    def render(context=nil, ignore_layout=false,  reset_context=true, locals={})
       if @content_block.nil?
-        super(ignore_layout, reset_context, locals)
+        super(context, ignore_layout, reset_context, locals)
       else
         @content_block.call
       end

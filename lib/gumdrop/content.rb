@@ -3,9 +3,10 @@ module Gumdrop
   
   class Content
     
-    attr_accessor :path, :level, :filename, :source_filename, :type, :ext, :uri, :slug, :template, :params
+    attr_accessor :path, :level, :filename, :source_filename, :type, :ext, :uri, :slug, :template, :params, :site
     
-    def initialize(path, params={})
+    def initialize(path, site, params={})
+      @site= site
       @params= HashObject.new params
       @path= path
       @level= (@path.split('/').length - 2)
@@ -35,27 +36,28 @@ module Gumdrop
       end
     end
     
-    def render(ignore_layout=false, reset_context=true, locals={})
+    def render(context=nil, ignore_layout=false, reset_context=true, locals={})
+      context= @site.render_context if context.nil?
       if reset_context
 
         default_layout= (@ext == '.css' or @ext == '.js' or @ext == '.xml') ? nil : 'site'
-        Context.reset_data 'current_depth'=>@level, 'current_slug'=>@slug, 'page'=>self, 'layout'=>default_layout, 'params'=>self.params
+        context.reset_data 'current_depth'=>@level, 'current_slug'=>@slug, 'page'=>self, 'layout'=>default_layout, 'params'=>self.params
       end
-      Context.set_content self, locals
-      content= @template.render(Context) 
+      context.set_content self, locals
+      content= @template.render(context) 
       return content if ignore_layout
-      layout= Context.get_template()
+      layout= context.get_template()
       while !layout.nil?
-        content = layout.template.render(Context, content:content) { content }
-        layout= Context.get_template()
+        content = layout.template.render(context, content:content) { content }
+        layout= context.get_template()
       end
       content
     end
     
-    def renderTo(output_path, filters=[], opts={})
+    def renderTo(context, output_path, filters=[], opts={})
       return copyTo(output_path, opts) unless useLayout?
-      Gumdrop.report " Rendering: #{@uri}", :warning
-      output= render()
+      @site.report " Rendering: #{@uri}", :warning
+      output= render(context)
       filters.each {|f| output= f.call(output, self) }
       File.open output_path, 'w' do |f|
         f.write output
@@ -70,10 +72,10 @@ module Gumdrop
         true
       end
       if do_copy
-        Gumdrop.report "   Copying: #{@uri}", :warning
+        @site.report "   Copying: #{@uri}", :warning
         FileUtils.cp_r @path, output, opts
       else
-        Gumdrop.report "    (same): #{@uri}", :info
+        @site.report "    (same): #{@uri}", :info
       end
     end
     
