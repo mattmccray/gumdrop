@@ -1,5 +1,4 @@
 .DS_Store
 *.gem
-examples/**/output
+output
 .sass-cache
-old_examples

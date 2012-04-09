@@ -3,32 +3,32 @@ module Gumdrop
   
   class Content
     
-    attr_accessor :path, :level, :filename, :source_filename, :type, :ext, :uri, :slug, :template, :params, :site, :ignored
+    attr_accessor :path, 
+                  :level, 
+                  :filename, 
+                  :source_filename, 
+                  :type, 
+                  :ext, 
+                  :uri, 
+                  :slug, 
+                  :template, 
+                  :params, 
+                  :site, 
+                  :ignored, 
+                  :full_path
     
     def initialize(path, site, params={})
       @site= site
       @params= HashObject.new params
-      @path= path
-      @level= (@path.split('/').length - 2)
-      @source_filename= File.basename path
+      @full_path= path
       @ignored= false
-
-      filename_parts= @source_filename.split('.')
-      ext= filename_parts.pop
-      while !Tilt[ext].nil?
-        ext= filename_parts.pop
-      end
-      filename_parts << ext # push the last file ext back on there!
-      @filename= filename_parts.join('.')
-
-      path_parts= @path.split('/')
-      path_parts.shift
-      path_parts.pop
-      path_parts.push @filename
-
+      @path= get_source_path
+      @level= (@path.split('/').length - 1)
+      @source_filename= File.basename path
+      @filename= get_target_filename
       @type= File.extname @source_filename
       @ext= File.extname @filename
-      @uri= path_parts.join('/')
+      @uri= get_uri
       @slug=@uri.gsub('/', '-').gsub(@ext, '')
       @template= unless Tilt[path].nil?
         Tilt.new path
@@ -67,21 +67,21 @@ module Gumdrop
     
     def copyTo(output, layout=nil, opts={})
       do_copy= if File.exists? output
-        !FileUtils.identical? @path, output
+        !FileUtils.identical? @full_path, output
       else
         true
       end
       if do_copy
         @site.report "   Copying: #{@uri}", :warning
-        FileUtils.cp_r @path, output, opts
+        FileUtils.cp_r @full_path, output, opts
       else
         @site.report "    (same): #{@uri}", :info
       end
     end
     
     def mtime
-      if File.exists? @path
-        File.new(@path).mtime
+      if File.exists? @full_path
+        File.new(@full_path).mtime
       else
         Time.now
       end
@@ -93,6 +93,36 @@ module Gumdrop
     
     def to_s
       @uri
+    end
+  
+  private
+
+    def get_source_path
+      path= @full_path.sub @site.src_path, ''
+      if path[0] == '/'
+        path[1..-1] 
+      else
+        path
+      end
+    end
+
+    def get_target_filename
+      filename_parts= @source_filename.split('.')
+      ext= filename_parts.pop
+      while !Tilt[ext].nil?
+        ext= filename_parts.pop
+      end
+      filename_parts << ext # push the last file ext back on there!
+      filename_parts.join('.')
+    end
+
+    def get_uri
+      uri= File.join File.dirname(@path), @filename #  path_parts.join('/')
+      if uri.starts_with? './'
+        uri[2..-1]
+      else
+        uri
+      end
     end
     
   end

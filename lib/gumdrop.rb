@@ -24,7 +24,12 @@ module Gumdrop
       unless site_file.nil?
         site= Site.new site_file, opts
 
+        old= Dir.pwd
+        Dir.chdir site.root_path
+
         site.build
+        
+        Dir.chdir old
         
         puts "Done."
       else

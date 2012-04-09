@@ -1,3 +1,9 @@
+# v0.6.2
+- Consolidated stitch support code into single file
+- Bugfix: Generates better relative paths for Content objects
+- Cleaned up paths in Content
+- Updated project templates
+
 # v0.6.1
 - Content filters are run for dev server requests now too.
 - Added config.env, defaults to 'production' (override from cli with -e)

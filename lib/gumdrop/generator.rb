@@ -17,6 +17,7 @@ module Gumdrop
       @pages= []
     end
     
+    # This should probably not be accessible to the generators
     def execute
       if @content.is_a? Proc
         run_dsl_from_proc @content
@@ -41,9 +42,9 @@ module Gumdrop
       name= name[1..-1] if name.starts_with?('/')
       opts= params.reverse_merge(opts)
       filepath= if @base_path.empty?
-        "/#{name}"
+        File.join @site.src_path, name
       else
-        "/#{@base_path}/#{name}"
+        File.join @site.src_path, @base_path, @name
       end
       content= GeneratedContent.new(filepath, block, @site, opts)
       if opts.has_key? :template and !opts[:template].nil?
@@ -119,6 +120,8 @@ module Gumdrop
         end
       end
     end
+
+  private
     
     def run_dsl_from_source(source)
       # puts source

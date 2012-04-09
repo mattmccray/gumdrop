@@ -180,3 +180,10 @@ Here's the `Gumdrop` file created by the default template:
 - Partials
 - Config and using in pages
 - Project Templates
+
+# Todo / Ideas / Changes
+- New/Update Doc site.
+- Need test coverage.
+- Some kind of admin? What would that even do?
+    - If you could specify a 'prototype' for data collections, could be cool.
+- Add YamlDoc support for nodes? (Tilt compiler? or in Content)

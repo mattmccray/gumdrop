@@ -21,9 +21,7 @@ module Gumdrop
     
     attr_reader :opts,
                 :root_path, 
-                :root_path_parts,
                 :src_path,
-                :src_path_parts,
                 :blacklist,
                 :greylist,
                 :redirects,
@@ -41,7 +39,6 @@ module Gumdrop
     def initialize(sitefile, opts={})
       @sitefile        = File.expand_path sitefile
       @root_path       = File.dirname @sitefile
-      @root_path_parts = @root_path.split('/')
       @opts            = opts
       reset_all()
     end
@@ -175,14 +172,12 @@ module Gumdrop
       #puts "Running in: #{root}"
       Dir.glob("#{src_path}/**/*", File::FNM_DOTMATCH).each do |path|
         unless File.directory? path or @config.ignore.include?( File.basename(path) )
-          file_path = (path.split('/') - @root_path_parts).join '/'
-          node= Content.new(file_path, self)
+          node= Content.new(path, self)
           path= node.to_s
           if blacklist.any? {|pattern| path_match path, pattern }
             report "-excluding: #{path}", :info
           else
             node.ignored= greylist.any? {|pattern| path_match path, pattern }
-
             # Sort out Layouts, Generators, and Partials
             if File.extname(path) == ".template"
               layouts[path]= node
@@ -203,7 +198,6 @@ module Gumdrop
           end
         end
       end
-      
     end
 
     def run_generators
