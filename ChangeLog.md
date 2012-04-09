@@ -1,5 +1,13 @@
 # v0.6.3
-- Added 'generated' flag to Content object
+- Added `generated` flag to Content object
+- Added `config` to Generator context
+- Added callbacks to site build process. Callbacks:
+    - on_start
+    - on_scan
+    - on_generate
+    - on_render
+    - on_end
+- Dev server doesn't check last build time for static assets.
 
 # v0.6.2
 - Consolidated stitch support code into single file

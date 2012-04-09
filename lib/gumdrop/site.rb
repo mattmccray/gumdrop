@@ -277,6 +277,23 @@ module Gumdrop
         @site.config.instance_eval &block
       end
     end
+    
+    # Callbacks
+    def on_start(&block)
+      @site.on_start &block
+    end
+    def on_scan(&block)
+      @site.on_scan &block
+    end
+    def on_generate(&block)
+      @site.on_generate &block
+    end
+    def on_render(&block)
+      @site.on_render &block
+    end
+    def on_end(&block)
+      @site.on_end &block
+    end
   
   end
 
