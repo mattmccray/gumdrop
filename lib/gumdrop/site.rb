@@ -71,19 +71,13 @@ module Gumdrop
       end
     end
 
-    def scan
-      build_tree()
-      on_scan()
-      run_generators()
-      on_generate()
-      @last_run= Time.now
-      self
-    end
-
     def rescan
+      on_start()
       reset_all()
       scan()
+      on_render()  # ?
       @last_run= Time.now
+      on_end()
       self
     end
 
@@ -119,6 +113,16 @@ module Gumdrop
 
   private
 
+    def scan
+      build_tree()
+      on_scan()
+      run_generators()
+      on_generate()
+      # @last_run= Time.now
+      self
+    end
+
+
     def reset_all
       @content_filters = []
       @blacklist       = []
@@ -131,6 +135,12 @@ module Gumdrop
       @generators      = Hash.new {|h,k| h[k]= nil }
       
       @config          = Gumdrop::Config.new DEFAULT_OPTIONS
+
+      clear_on_start()
+      clear_on_scan()
+      clear_on_generate()
+      clear_on_render()
+      clear_on_end()
 
       load_sitefile()
       

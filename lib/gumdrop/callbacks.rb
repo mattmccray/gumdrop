@@ -15,6 +15,9 @@ module Gumdrop
               end
             end
           end
+          def clear_#{name}()
+            @_#{name} = nil
+          end
         EOF
       end
     end
