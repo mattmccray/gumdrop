@@ -13,13 +13,8 @@ module Gumdrop
     log: './logs/build.log',
     ignore: %w(.DS_Store .gitignore .git .svn .sass-cache),
     server_timeout: 15,
-    # server_port: 4567
-  }
-
-  LOG_LEVELS = {
-    info: 0,
-    warning: 1,
-    error: 2
+    # server_port: 4567,
+    env: 'production'
   }
 
   class Site

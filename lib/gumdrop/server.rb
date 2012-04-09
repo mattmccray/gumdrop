@@ -43,7 +43,9 @@ module Gumdrop
             content_type :css if content.ext == '.css' # Meh?
             content_type :js if content.ext == '.js' # Meh?
             content_type :xml if content.ext == '.xml' # Meh?
-            content.render 
+            output= content.render 
+            site.content_filters.each {|f| output= f.call(output, self) }
+            output
           else
             site.report "[#{$$}]  *Static: #{file_path}"
             send_file File.join( site.src_path, file_path)

@@ -5,14 +5,7 @@
   - `set :source_dir, ['./source/a', './source/b']
   - What would happen with conflicts, last one in wins?
 - Multiple data_dir too?
-- Refactor code to not use Gumdrop as a singleton (static really)
 - Add YamlDoc support for nodes? (Tilt compiler? or in Content)
-
-
-- `Gumdrop.mode` :build, :serve (other?)
-- `Gumdrop.env` (specified via -e on cli, default: production)
-  - Easy access to ENV in RenderingContext (MODE as well)
-
 - configure block for each env/mode?
 
 # TODO:

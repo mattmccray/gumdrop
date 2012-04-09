@@ -1,3 +1,7 @@
+# v0.6.1
+- Content filters are run for dev server requests now too.
+- Added config.env, defaults to 'production' (override from cli with -e)
+
 # v0.6
 - Extracted Gumdrop::Build into Gumdrop::Site. Removed static Gumdrop#site.
 

@@ -28,6 +28,7 @@ Examples:
 Options:
 EOS
     opt :build,  "Build HTML output"
+      opt :environment, "Specify config.env", :type=>String, :default=>'production'
     opt :new, "Create new data item (specify collection name)", :type=>String
     opt :server, "Runs development server"
       opt :port, "Specifies port to run server on", :type=>:int
@@ -56,6 +57,7 @@ unless opts[:create_given] or opts[:build_given] or opts[:server_given] or opts[
   Trollop::die "No commands specified"
 end
 
+Gumdrop::DEFAULT_OPTIONS[:env]= opts[:environment] || 'production'
 
 # BUILD
 

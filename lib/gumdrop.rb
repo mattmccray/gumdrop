@@ -13,7 +13,7 @@ module Gumdrop
   autoload :HashObject, "gumdrop/hash_object"
   autoload :Pager, "gumdrop/data_manager"
   autoload :Server, "gumdrop/server"
-  autoload :Site, "gumdrop/site"
+  # autoload :Site, "gumdrop/site"
   autoload :VERSION, "gumdrop/version"
   autoload :ViewHelpers, "gumdrop/view_helpers"
   
@@ -57,3 +57,5 @@ module Gumdrop
   end
   
 end
+
+require 'gumdrop/site'
