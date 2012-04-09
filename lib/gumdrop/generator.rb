@@ -74,8 +74,7 @@ module Gumdrop
     end
     
     def stitch(name, opts)
-      require 'gumdrop/stitch_ex'
-      require 'gumdrop/stitch_compilers'
+      require 'gumdrop/stitch_support'
       content= Stitch::Package.new(opts).compile
       page name do
         case opts[:compress]

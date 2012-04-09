@@ -1,4 +1,19 @@
+
 require 'stitch-rb'
+# require 'stitch'
+
+class Stitch::Source
+  # Patch for gumdrop style filenames
+  def name
+    name = path.relative_path_from(root)
+    name = name.dirname + name.basename(".*")
+    name.to_s.gsub(".js", '')
+  end
+end
+
+
+# Custom Compilers
+
 
 class SerenadeCompiler < Stitch::Compiler
   
@@ -14,6 +29,7 @@ class SerenadeCompiler < Stitch::Compiler
   
 end
 
+# Not so sure on this one...
 class HoganCompiler < Stitch::Compiler
   # List of supported extensions
   extensions :mustache
