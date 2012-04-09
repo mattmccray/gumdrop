@@ -139,8 +139,9 @@ module Gumdrop
     # Nothing special, per se...
 
     def initialize(path, block, site, params={})
-      @content_block= block
       super(path, site, params)
+      @content_block= block
+      @generated= true
     end
 
     def render(context=nil, ignore_layout=false,  reset_context=true, locals={})

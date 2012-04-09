@@ -1,3 +1,6 @@
+# v0.6.3
+- Added 'generated' flag to Content object
+
 # v0.6.2
 - Consolidated stitch support code into single file
 - Bugfix: Generates better relative paths for Content objects

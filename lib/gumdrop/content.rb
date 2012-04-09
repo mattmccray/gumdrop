@@ -15,6 +15,7 @@ module Gumdrop
                   :params, 
                   :site, 
                   :ignored, 
+                  :generated,
                   :full_path
     
     def initialize(path, site, params={})
@@ -22,6 +23,7 @@ module Gumdrop
       @params= HashObject.new params
       @full_path= path
       @ignored= false
+      @generated= false
       @path= get_source_path
       @level= (@path.split('/').length - 1)
       @source_filename= File.basename path
