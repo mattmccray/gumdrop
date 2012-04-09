@@ -8,24 +8,24 @@ configure do
   set :site_url,     "http://www.mysite.com"
   
   #  All the supported build configuration settings and their defaults:
-
-  # set :output_dir, "./output"
-  # set :lib_dir, "./lib"
-  # set :source_dir, "./source"
-  # set :data_dir, './data'
   # set :relative_paths, true
   # set :proxy_enabled, true
-  # set :log_level, :info
-  # set :log, 'logs/build.log'
+  # set :output_dir, "./output"
+  # set :source_dir, "./source"
+  # set :data_dir, './data'
+  # set :log, './logs/build.log'
+  # set :ignore, %w(.DS_Store .gitignore .git .svn .sass-cache)
+  # set :server_timeout, 15
+  # set :server_port, 4567
 
 end
 
 #  Skipping files entirely from build process... Like they don't exist.
 # skip 'file-to-ignore.html'
-# skip 'dont-show/'
+# skip 'dont-show/**/*'
 
 #  Ignores source file(s) from compilation, but does load the content into memory
-# ignore 'pages/'
+# ignore 'pages/**/*'
 
 #  NOTE: Skipping and ignoring matches like a file glob (it use File.fnmatch in fact)
 #       (this doesn't work for files detected by stitch)

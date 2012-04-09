@@ -26,13 +26,13 @@ module Gumdrop
 
       get '/*' do
         site.report "- - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
-        
+
         file_path= get_content_path params[:splat].join('/'), site
         site.report "[#{$$}] GET /#{params[:splat].join('/')} -> #{file_path}"
         since_last_build= Time.now.to_i - site.last_run.to_i
         # site.report "!>!>>>>> since_last_build: #{since_last_build}"
-        if since_last_build > 10
-          site.report "[#{$$}] Rebuilding from Source"
+        if since_last_build > site.config.server_timeout
+          site.report "[#{$$}] Rebuilding from Source (#{since_last_build} > #{site.config.server_timeout})"
           site.rescan()
         end
         

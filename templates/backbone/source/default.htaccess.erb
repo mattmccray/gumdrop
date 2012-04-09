@@ -1,3 +1,4 @@
+<% use_layout nil %>
 # For clean urls
 DirectoryIndex index.html
 
@@ -21,6 +22,6 @@ DirectoryIndex index.html
 </IfModule>
 # END Gzip
 
-<% Gumdrop.redirects.each do |opts| %>
+<% site.redirects.each do |opts| %>
 # Redirect <%= opts[:from] %> <%= opts[:to] %>
 <% end %>

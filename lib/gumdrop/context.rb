@@ -47,13 +47,14 @@ module Gumdrop
     def use_template(name)
       @state['layout']= name
     end
+    alias_method :use_layout, :use_template
     
     def render(path, opts={})
       page= get_page path
       unless page.nil?
         #TODO: nested state for an inline rendered page?
         old_layout= @state['layout']
-        content= page.render(true, false, opts)
+        content= page.render(nil, true, false, opts)
         old_layout= @state['layout']
         content
       else

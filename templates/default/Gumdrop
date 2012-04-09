@@ -8,14 +8,16 @@ configure do
   set :site_url,     "http://www.mysite.com"
   
   #  All the supported build configuration settings and their defaults:
-  # set :output_dir, "./output"
-  # set :lib_dir, "./lib"
-  # set :source_dir, "./source"
-  # set :data_dir, './data'
   # set :relative_paths, true
   # set :proxy_enabled, true
-  # set :log_level, :info
-  # set :log, 'logs/build.log'
+  # set :output_dir, "./output"
+  # set :source_dir, "./source"
+  # set :data_dir, './data'
+  # set :log, './logs/build.log'
+  # set :ignore, %w(.DS_Store .gitignore .git .svn .sass-cache)
+  # set :server_timeout, 15
+  # set :server_port, 4567
+
 end
 
 

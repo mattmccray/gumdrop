@@ -3,7 +3,7 @@ module Gumdrop
   
   class Content
     
-    attr_accessor :path, :level, :filename, :source_filename, :type, :ext, :uri, :slug, :template, :params, :site
+    attr_accessor :path, :level, :filename, :source_filename, :type, :ext, :uri, :slug, :template, :params, :site, :ignored
     
     def initialize(path, site, params={})
       @site= site
@@ -11,6 +11,7 @@ module Gumdrop
       @path= path
       @level= (@path.split('/').length - 2)
       @source_filename= File.basename path
+      @ignored= false
 
       filename_parts= @source_filename.split('.')
       ext= filename_parts.pop
@@ -39,7 +40,6 @@ module Gumdrop
     def render(context=nil, ignore_layout=false, reset_context=true, locals={})
       context= @site.render_context if context.nil?
       if reset_context
-
         default_layout= (@ext == '.css' or @ext == '.js' or @ext == '.xml') ? nil : 'site'
         context.reset_data 'current_depth'=>@level, 'current_slug'=>@slug, 'page'=>self, 'layout'=>default_layout, 'params'=>self.params
       end

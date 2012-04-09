@@ -7,14 +7,13 @@ module Gumdrop
   DEFAULT_OPTIONS= {
     relative_paths: true,
     proxy_enabled: true,
-    # log_level: :info, # What's this really used for?
     output_dir: "./output",
     source_dir: "./source",
     data_dir: './data',
     log: './logs/build.log',
     ignore: %w(.DS_Store .gitignore .git .svn .sass-cache),
     server_timeout: 15,
-    server_port: 4567
+    # server_port: 4567
   }
 
   LOG_LEVELS = {
@@ -23,11 +22,8 @@ module Gumdrop
     error: 2
   }
 
-  # SKIP= %w(.DS_Store .gitignore .git .svn .sass-cache)
-
   class Site
-    # include Logging
-
+    
     attr_reader :opts,
                 :root_path, 
                 :root_path_parts,
@@ -51,6 +47,7 @@ module Gumdrop
       @sitefile        = File.expand_path sitefile
       @root_path       = File.dirname @sitefile
       @root_path_parts = @root_path.split('/')
+      @opts            = opts
       reset_all()
     end
 
@@ -79,7 +76,6 @@ module Gumdrop
     def scan
       build_tree()
       run_generators()
-      filter_tree()
       @last_run= Time.now
       self
     end
@@ -126,7 +122,6 @@ module Gumdrop
       @blacklist       = []
       @greylist        = []
       @redirects       = []
-      @opts            = opts
       @last_run        = nil
       @node_tree       = Hash.new {|h,k| h[k]= nil }
       @layouts         = Hash.new {|h,k| h[k]= nil }
@@ -188,23 +183,28 @@ module Gumdrop
           file_path = (path.split('/') - @root_path_parts).join '/'
           node= Content.new(file_path, self)
           path= node.to_s
-
-          # Sort out Layouts, Generators, and Partials
-          if File.extname(path) == ".template"
-            layouts[path]= node
-            layouts[File.basename(path)]= node
-
-          elsif File.extname(path) == ".generator"
-            generators[File.basename(path)]= Generator.new( node, self )
-
-          elsif File.basename(path).starts_with?("_")
-            partial_name= File.basename(path)[1..-1].gsub(File.extname(File.basename(path)), '')
-            partial_node_path= File.join File.dirname(path), partial_name
-            # puts "Creating partial #{partial_name} from #{path}"
-            partials[partial_name]= node
-            partials[partial_node_path]= node
+          if blacklist.any? {|pattern| path_match path, pattern }
+            report "-excluding: #{path}", :info
           else
-            @node_tree[path]= node
+            node.ignored= greylist.any? {|pattern| path_match path, pattern }
+
+            # Sort out Layouts, Generators, and Partials
+            if File.extname(path) == ".template"
+              layouts[path]= node
+              layouts[File.basename(path)]= node
+
+            elsif File.extname(path) == ".generator"
+              generators[File.basename(path)]= Generator.new( node, self )
+
+            elsif File.basename(path).starts_with?("_")
+              partial_name= File.basename(path)[1..-1].gsub(File.extname(File.basename(path)), '')
+              partial_node_path= File.join File.dirname(path), partial_name
+              # puts "Creating partial #{partial_name} from #{path}"
+              partials[partial_name]= node
+              partials[partial_node_path]= node
+            else
+              @node_tree[path]= node
+            end
           end
         end
       end
@@ -218,29 +218,18 @@ module Gumdrop
       end
     end
 
-    # Expunge blacklisted files
-    def filter_tree
-      blacklist.each do |blacklist_pattern|
-        @node_tree.keys.each do |source_path|
-          if path_match source_path, blacklist_pattern
-            report "-excluding: #{source_path}", :info
-            @node_tree.delete source_path
-          end
-        end
-      end
-    end
-
     def render
       unless opts[:dry_run]
         report "[Compiling to #{@out_path}]", :info
         @node_tree.keys.sort.each do |path|
-          unless greylist.any? {|pattern| path_match path, pattern }
-            node= @node_tree[path]
+          node= @node_tree[path]
+          unless node.ignored #greylist.any? {|pattern| path_match path, pattern }
+            # node= @node_tree[path]
             output_path= File.join(@out_path, node.to_s)
             FileUtils.mkdir_p File.dirname(output_path)
             node.renderTo render_context, output_path, content_filters
           else
-            report " -ignoring: #{path}", :info
+            report " -ignoring: #{node.to_s}", :info
           end
         end
       end

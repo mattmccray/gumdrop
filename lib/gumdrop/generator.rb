@@ -24,6 +24,10 @@ module Gumdrop
         run_dsl_from_source IO.readlines(@content.path).join('')
       end
     end
+
+    def site
+      @site
+    end
     
     def data
       @site.data
@@ -49,7 +53,7 @@ module Gumdrop
           @site.layouts[ "#{opts[:template]}.template" ]
         end.template
       end
-      
+      @site.report "-generated: #{content.uri}", :info
       @site.node_tree[content.uri]= content
     end
 

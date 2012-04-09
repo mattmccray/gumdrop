@@ -10,12 +10,8 @@ end
 
 require 'gumdrop'
 
-Gumdrop.config.auto_run= false
-Gumdrop.config.force_reload= true
-
 #require 'rack/static'
 #use Rack::Static, :urls => ["/media"], :root => "source"
 #use Rack::Static, :urls => ["/theme/images"], :root => "source"
-
 
 run Gumdrop::Server
