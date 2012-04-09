@@ -1,6 +1,5 @@
 
 require 'stitch-rb'
-# require 'stitch'
 
 class Stitch::Source
   # Patch for gumdrop style filenames

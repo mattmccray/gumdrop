@@ -13,7 +13,6 @@ module Gumdrop
   autoload :HashObject, "gumdrop/hash_object"
   autoload :Pager, "gumdrop/data_manager"
   autoload :Server, "gumdrop/server"
-  # autoload :Site, "gumdrop/site"
   autoload :VERSION, "gumdrop/version"
   autoload :ViewHelpers, "gumdrop/view_helpers"
   
@@ -30,7 +29,7 @@ module Gumdrop
         site.build
         
         Dir.chdir old
-        
+
         puts "Done."
       else
         puts "Not in a valid Gumdrop site directory."

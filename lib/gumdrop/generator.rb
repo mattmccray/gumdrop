@@ -20,9 +20,9 @@ module Gumdrop
     # This should probably not be accessible to the generators
     def execute
       if @content.is_a? Proc
-        run_dsl_from_proc @content
+        instance_eval &@content
       else
-        run_dsl_from_source IO.readlines(@content.path).join('')
+        instance_eval File.read(@content.path)
       end
     end
 
@@ -32,6 +32,10 @@ module Gumdrop
     
     def data
       @site.data
+    end
+
+    def config
+      @site.config
     end
     
     def set(var_name, value)
@@ -119,18 +123,6 @@ module Gumdrop
           end
         end
       end
-    end
-
-  private
-    
-    def run_dsl_from_source(source)
-      # puts source
-      instance_eval source
-    end
-
-    def run_dsl_from_proc(proc)
-      # puts source
-      instance_eval &proc
     end
     
   end

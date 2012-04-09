@@ -1,7 +1,5 @@
 require 'pathname'
 
-# WORK IN PROGRESS!
-
 module Gumdrop
 
   DEFAULT_OPTIONS= {
@@ -37,9 +35,10 @@ module Gumdrop
     
 
     def initialize(sitefile, opts={})
-      @sitefile        = File.expand_path sitefile
-      @root_path       = File.dirname @sitefile
-      @opts            = opts
+      @sitefile  = File.expand_path sitefile
+      @root_path = File.dirname @sitefile
+      @opts      = opts
+      @last_run  = nil
       reset_all()
     end
 
@@ -87,12 +86,11 @@ module Gumdrop
     end
 
     def report(msg, level=:info)
-      # ll= @config.log_level
       case level
-      when :info
-        @log.info msg
-      when :warning
-        @log.warn msg
+        when :info
+          @log.info msg
+        when :warning
+          @log.warn msg
       else
         puts msg
         @log.error msg
@@ -114,29 +112,30 @@ module Gumdrop
       @blacklist       = []
       @greylist        = []
       @redirects       = []
-      @last_run        = nil
+
       @node_tree       = Hash.new {|h,k| h[k]= nil }
       @layouts         = Hash.new {|h,k| h[k]= nil }
       @partials        = Hash.new {|h,k| h[k]= nil }
       @generators      = Hash.new {|h,k| h[k]= nil }
+      
       @config          = Gumdrop::Config.new DEFAULT_OPTIONS
 
       load_sitefile()
       
       @data_path       = get_expanded_path(@config.data_dir)
-      @data            = Gumdrop::DataManager.new self, @data_path
       @src_path        = get_expanded_path(@config.source_dir)
-      @src_path_parts  = @src_path.split('/')
       @out_path        = get_expanded_path(@config.output_dir)
+
+      @data            = Gumdrop::DataManager.new self, @data_path
 
       init_logging()
     end
 
     def init_logging
       begin
-        @log           = Logger.new @config.log, 'daily'
+        @log = Logger.new @config.log, 'daily'
       rescue
-        @log           = Logger.new STDOUT
+        @log = Logger.new STDOUT
       end
       @log.formatter = proc do |severity, datetime, progname, msg|
         "#{datetime}: #{msg}\n"
@@ -152,7 +151,7 @@ module Gumdrop
     end
 
     def load_sitefile
-      source= IO.readlines( @sitefile ).join('')
+      source= File.read( @sitefile )
       dsl = SitefileDSL.new self
       dsl.instance_eval source
       dsl
@@ -169,7 +168,6 @@ module Gumdrop
       end
 
       # Scan Filesystem
-      #puts "Running in: #{root}"
       Dir.glob("#{src_path}/**/*", File::FNM_DOTMATCH).each do |path|
         unless File.directory? path or @config.ignore.include?( File.basename(path) )
           node= Content.new(path, self)
@@ -192,6 +190,7 @@ module Gumdrop
               # puts "Creating partial #{partial_name} from #{path}"
               partials[partial_name]= node
               partials[partial_node_path]= node
+            
             else
               @node_tree[path]= node
             end
@@ -212,8 +211,7 @@ module Gumdrop
         report "[Compiling to #{@out_path}]", :info
         @node_tree.keys.sort.each do |path|
           node= @node_tree[path]
-          unless node.ignored #greylist.any? {|pattern| path_match path, pattern }
-            # node= @node_tree[path]
+          unless node.ignored 
             output_path= File.join(@out_path, node.to_s)
             FileUtils.mkdir_p File.dirname(output_path)
             node.renderTo render_context, output_path, content_filters

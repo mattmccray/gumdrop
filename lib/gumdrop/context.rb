@@ -70,21 +70,17 @@ module Gumdrop
       @site
     end
 
-    # Access to settings from configure block
+    # Access to settings as defined in the configure block
     def config
       @site.config
     end
   
     def reset_data(preset={})
-      # TODO: Add a setting for reloading data on every request/page
-      #  was this for the server?
-      # @site.data.reset if !Gumdrop.config.cache_data
       @state = preset
     end
 
     def method_missing(name, value=nil)
       @state=  Hash.new {|h,k| h[k]= nil } if @state.nil? 
-      # puts "Looking for >> #{name} in #{@state.keys}"
       unless value.nil?
         @state[name.to_s]= value
       else
