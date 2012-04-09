@@ -32,7 +32,14 @@ module Gumdrop
                 :sitefile,
                 :node_tree,
                 :last_run
-    
+
+    extend Callbacks
+
+    callbacks :on_start, 
+              :on_scan, 
+              :on_generate, 
+              :on_render, 
+              :on_end
 
     def initialize(sitefile, opts={})
       @sitefile  = File.expand_path sitefile
@@ -66,7 +73,9 @@ module Gumdrop
 
     def scan
       build_tree()
+      on_scan()
       run_generators()
+      on_generate()
       @last_run= Time.now
       self
     end
@@ -79,9 +88,12 @@ module Gumdrop
     end
 
     def build
+      on_start()
       scan()
       render()
+      on_render()
       @last_run= Time.now
+      on_end()
       self
     end
 

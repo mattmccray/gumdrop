@@ -6,6 +6,7 @@ require 'active_support/all'
 
 module Gumdrop
 
+  autoload :Callbacks, "gumdrop/callbacks"
   autoload :Context, "gumdrop/context"
   autoload :Content, "gumdrop/content"
   autoload :DataManager, "gumdrop/data_manager"

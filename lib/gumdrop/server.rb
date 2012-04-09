@@ -5,6 +5,8 @@ require 'logger'
 
 module Gumdrop
 
+  STATIC_ASSETS= %w(.jpg .jpe .jpeg .gif .ico .png)
+
   class Server < Sinatra::Base
     site_file= Gumdrop.fetch_site_file
     unless site_file.nil?
@@ -29,11 +31,13 @@ module Gumdrop
 
         file_path= get_content_path params[:splat].join('/'), site
         site.report "[#{$$}] GET /#{params[:splat].join('/')} -> #{file_path}"
-        since_last_build= Time.now.to_i - site.last_run.to_i
-        # site.report "!>!>>>>> since_last_build: #{since_last_build}"
-        if since_last_build > site.config.server_timeout
-          site.report "[#{$$}] Rebuilding from Source (#{since_last_build} > #{site.config.server_timeout})"
-          site.rescan()
+        unless static_asset file_path
+          since_last_build= Time.now.to_i - site.last_run.to_i
+          # site.report "!>!>>>>> since_last_build: #{since_last_build}"
+          if since_last_build > site.config.server_timeout
+            site.report "[#{$$}] Rebuilding from Source (#{since_last_build} > #{site.config.server_timeout})"
+            site.rescan()
+          end
         end
         
         if site.node_tree.has_key? file_path
@@ -77,6 +81,10 @@ module Gumdrop
         #puts "HOST: #{host}  PATH_INFO: #{path_info}"
         opts={ :to=>host, :path_info=>path_info  }
         Gumdrop.handle_proxy opts, proxy_to, env
+      end
+      
+      def static_asset(file_path)
+        STATIC_ASSETS.include? File.extname(file_path).to_s
       end
       
       run!
