@@ -9,7 +9,7 @@ module Gumdrop
             if block
               @_#{name} = [] if @_#{name}.nil?
               @_#{name} << block
-            elsif @_#{name}
+            elsif @_#{name} and !@_#{name}.nil?
               @_#{name}.each do |cb|
                 cb.call(*args)
               end

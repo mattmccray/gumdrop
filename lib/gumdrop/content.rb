@@ -46,7 +46,6 @@ module Gumdrop
         context.reset_data 'current_depth'=>@level, 'current_slug'=>@slug, 'page'=>self, 'layout'=>default_layout, 'params'=>self.params
       end
       context.set_content self, locals
-      @site.report " Rendering: #{@uri}", :warning
       content= @template.render(context) 
       return content if ignore_layout
       layout= context.get_template()
@@ -59,7 +58,7 @@ module Gumdrop
     
     def renderTo(context, output_path, filters=[], opts={})
       return copyTo(output_path, opts) unless useLayout?
-      # @site.report " Rendering: #{@uri}", :warning
+      @site.report " Rendering: #{@uri}", :warning
       output= render(context)
       filters.each {|f| output= f.call(output, self) }
       File.open output_path, 'w' do |f|
@@ -92,6 +91,10 @@ module Gumdrop
     
     def useLayout?
       !@template.nil?
+    end
+
+    def ignore?
+      @ignored
     end
     
     def to_s

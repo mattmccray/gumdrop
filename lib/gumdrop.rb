@@ -59,6 +59,11 @@ module Gumdrop
       File.dirname( fetch_site_file( filename ) )
     end
 
+    def change_log
+      here= File.dirname(__FILE__)
+      File.read File.join(here, "../ChangeLog.md")
+    end
+
   end
   
 end

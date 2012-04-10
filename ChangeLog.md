@@ -1,3 +1,9 @@
+# v0.6.4
+- Callbacks are cleared on each `Site#rescan()` to prevent duplicates.
+- Callback blocks are called with `site` as the parameter.
+- Added `Gumdrop.change_log`.
+- Added on_before* event for scan, generate, and render.
+
 # v0.6.3
 - Added `generated` flag to Content object
 - Added `config` to Generator context

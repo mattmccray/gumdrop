@@ -36,8 +36,11 @@ module Gumdrop
     extend Callbacks
 
     callbacks :on_start, 
+              :on_before_scan,
               :on_scan, 
+              :on_before_generate,
               :on_generate, 
+              :on_before_render,
               :on_render, 
               :on_end
 
@@ -49,7 +52,9 @@ module Gumdrop
       reset_all()
     end
 
-    def contents(pattern=nil, opts={})
+    def contents(*args)
+      opts= args.extract_options!
+      pattern= args[0] || nil
       if pattern.nil?
         if opts[:as] == :hash
           @node_tree
@@ -72,22 +77,21 @@ module Gumdrop
     end
 
     def rescan
-      on_start()
+      on_start(self)
       reset_all()
       scan()
-      on_render()  # ?
       @last_run= Time.now
-      on_end()
+      # TODO: should on_before_render and on_render be called for rescan()?
+      on_end(self)
       self
     end
 
     def build
-      on_start()
+      on_start(self)
       scan()
       render()
-      on_render()
       @last_run= Time.now
-      on_end()
+      on_end(self)
       self
     end
 
@@ -115,10 +119,7 @@ module Gumdrop
 
     def scan
       build_tree()
-      on_scan()
       run_generators()
-      on_generate()
-      # @last_run= Time.now
       self
     end
 
@@ -137,8 +138,11 @@ module Gumdrop
       @config          = Gumdrop::Config.new DEFAULT_OPTIONS
 
       clear_on_start()
+      clear_on_before_scan()
       clear_on_scan()
+      clear_on_before_generate()
       clear_on_generate()
+      clear_on_before_render()
       clear_on_render()
       clear_on_end()
 
@@ -158,6 +162,7 @@ module Gumdrop
         @log = Logger.new @config.log, 'daily'
       rescue
         @log = Logger.new STDOUT
+        report "Using STDOUT for logging because of exception: #{ $! }"
       end
       @log.formatter = proc do |severity, datetime, progname, msg|
         "#{datetime}: #{msg}\n"
@@ -174,13 +179,14 @@ module Gumdrop
 
     def load_sitefile
       source= File.read( @sitefile )
-      dsl = SitefileDSL.new self
+      dsl = Sitefile.new self
       dsl.instance_eval source
       dsl
     end
 
     def build_tree
       report "[Scanning from #{src_path}]", :info
+      on_before_scan(self)
       # Report blacklists and greylists
       blacklist.each do |path|
         report " blacklist: #{path}", :info
@@ -188,7 +194,6 @@ module Gumdrop
       greylist.each do |path|
         report "  greylist: #{path}", :info
       end
-
       # Scan Filesystem
       Dir.glob("#{src_path}/**/*", File::FNM_DOTMATCH).each do |path|
         unless File.directory? path or @config.ignore.include?( File.basename(path) )
@@ -219,21 +224,25 @@ module Gumdrop
           end
         end
       end
+      on_scan(self)
     end
 
     def run_generators
       report "[Executing Generators]", :info
+      on_before_generate(self)
       generators.each_pair do |path, generator|
         generator.execute()
       end
+      on_generate(self)
     end
 
     def render
       unless opts[:dry_run]
         report "[Compiling to #{@out_path}]", :info
+        on_before_render(self)
         @node_tree.keys.sort.each do |path|
           node= @node_tree[path]
-          unless node.ignored 
+          unless node.ignore?
             output_path= File.join(@out_path, node.to_s)
             FileUtils.mkdir_p File.dirname(output_path)
             node.renderTo render_context, output_path, content_filters
@@ -241,6 +250,7 @@ module Gumdrop
             report " -ignoring: #{node.to_s}", :info
           end
         end
+        on_render(self)
       end
     end
 
@@ -250,7 +260,7 @@ module Gumdrop
     end
   end
 
-  class SitefileDSL
+  class Sitefile
 
     def initialize(site)
       @site= site
@@ -292,11 +302,20 @@ module Gumdrop
     def on_start(&block)
       @site.on_start &block
     end
+    def on_before_scan(&block)
+      @site.on_before_scan &block
+    end
     def on_scan(&block)
       @site.on_scan &block
     end
+    def on_before_generate(&block)
+      @site.on_before_generate &block
+    end
     def on_generate(&block)
       @site.on_generate &block
+    end
+    def on_before_render(&block)
+      @site.on_before_render &block
     end
     def on_render(&block)
       @site.on_render &block
