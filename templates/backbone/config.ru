@@ -1,5 +1,8 @@
+Encoding.default_external = 'UTF-8'
+
 require 'rubygems'
 require 'bundler'
+
 begin
   Bundler.setup(:default, :development)
 rescue Bundler::BundlerError => e

@@ -44,6 +44,25 @@ module Gumdrop
       Pager.new( data, base_path, page_size )
     end
   
+    # Exposing these publicly because, well, they're useful:
+    def load_from_file( filename )
+      ext=File.extname(filename)
+      if ext == '.yamldoc' or ext == '.ymldoc'
+        load_from_yamldoc filename
+      elsif ext == '.yamldb' or ext == '.ymldb'
+        load_from_yamldb filename
+      elsif ext == '.yaml' or ext == '.yml' or ext == '.json'
+        hashes2ostruct( YAML.load_file(filename)  )
+      else
+        # raise "Unknown data type (#{ext}) for #{filename}"
+        Gumdrop.report "Unknown data type (#{ext}) for #{filename}", :warning
+        nil
+      end
+    end
+    def load_yamldoc(filename, source=nil)
+      load_from_yamldoc filename, source
+    end
+
   
   private
   
@@ -61,21 +80,6 @@ module Gumdrop
       end
     end
 
-    def load_from_file( filename )
-      ext=File.extname(filename)
-      if ext == '.yamldoc' or ext == '.ymldoc'
-        load_from_yamldoc filename
-      elsif ext == '.yamldb' or ext == '.ymldb'
-        load_from_yamldb filename
-      elsif ext == '.yaml' or ext == '.yml' or ext == '.json'
-        hashes2ostruct( YAML.load_file(filename)  )
-      else
-        # raise "Unknown data type (#{ext}) for #{filename}"
-        Gumdrop.report "Unknown data type (#{ext}) for #{filename}", :warning
-        nil
-      end
-    end
-
     def load_from_yamldb( filename )
       docs=[]
       File.open(filename, 'r') do |f|
@@ -86,8 +90,8 @@ module Gumdrop
       docs
     end
 
-    def load_from_yamldoc( filename )
-      source = File.read(filename)
+    def load_from_yamldoc( filename, source=nil )
+      source = File.read(filename) if source.nil?
 
       if source =~ /^(\s*---(.+)---\s*)/m
         yaml = $2.strip

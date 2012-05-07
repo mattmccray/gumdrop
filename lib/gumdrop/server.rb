@@ -11,7 +11,7 @@ module Gumdrop
     site_file= Gumdrop.fetch_site_file
     unless site_file.nil?
       site= Site.new site_file
-      site.scan()
+      site.rescan()
 
       set :port, site.config.server_port if site.config.server_port
       
@@ -48,7 +48,7 @@ module Gumdrop
             content_type :js if content.ext == '.js' # Meh?
             content_type :xml if content.ext == '.xml' # Meh?
             output= content.render 
-            site.content_filters.each {|f| output= f.call(output, self) }
+            site.content_filters.each {|f| output= f.call(output, content) }
             output
           else
             site.report "[#{$$}]  *Static: #{file_path}"
