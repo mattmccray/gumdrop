@@ -23,14 +23,14 @@ module Gumdrop
       site_file= Gumdrop.fetch_site_file
       unless site_file.nil?
         site= Site.new site_file, opts
-
+  
         old= Dir.pwd
         Dir.chdir site.root_path
-
+  
         site.build
         
         Dir.chdir old
-
+  
         puts "Done."
       else
         puts "Not in a valid Gumdrop site directory."

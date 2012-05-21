@@ -21,6 +21,7 @@ gem "coffee-script"
 #gem 'yui-compressor'
 gem 'jsmin'
 gem 'stitch-rb'
+#gem 'sprockets'
 
 # For markdown support, a couple of options:
 # gem "rdiscount"

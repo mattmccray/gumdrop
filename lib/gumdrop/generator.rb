@@ -78,6 +78,62 @@ module Gumdrop
       end
     end
     
+    def sprockets(name, opts)
+      require 'gumdrop/sprockets_support'
+      # require 'pp'
+      env = Sprockets::Environment.new @site.root_path
+      env.append_path @site.src_path
+      opts[:paths].each do |path|
+        # path = File.expand_path path
+        # puts ">>>> adding path #{path}"
+        env.append_path(path)
+      end
+      
+      content= env[ opts[:src] ].to_s
+      # pp env
+      # pp opts[:src]
+      # pp env[ opts[:src] ]
+      # puts "RENDERED OUTPUT!"
+      # pp content
+      page name do
+        case opts[:compress]
+
+        when true, :jsmin
+          require 'jsmin'
+          JSMin.minify content
+
+        when :yuic
+          require "yui/compressor"
+          compressor = YUI::JavaScriptCompressor.new(:munge => opts[:obfuscate])
+          compressor.compress(content)
+
+        when :uglify
+          require "uglifier"
+          Uglifier.compile( content, :mangle=>opts[:obfuscate])
+
+        when false
+          content
+
+        else
+          # UNKNOWN Compressor type!
+          @site.report "Unknown javascript compressor type! (#{ opts[:compressor] })", :warning
+          content
+        end
+      end
+      
+      if opts[:prune] and opts[:root]
+        sp = File.expand_path( @site.config.source_dir )
+        rp = File.expand_path(opts[:root])
+        relative_root = rp.gsub(sp, '')[1..-1]
+        rrlen= relative_root.length - 1
+        @site.node_tree.keys.each do |path|
+          if path[0..rrlen] == relative_root and name != path
+            @site.node_tree.delete path
+          end
+        end
+      end
+    end
+    
     def stitch(name, opts)
       require 'gumdrop/stitch_support'
       content= Stitch::Package.new(opts).compile
