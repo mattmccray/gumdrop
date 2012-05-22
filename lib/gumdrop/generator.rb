@@ -58,7 +58,11 @@ module Gumdrop
           @site.layouts[ "#{opts[:template]}.template" ]
         end.template
       end
-      @site.report "-generated: #{content.uri}", :info
+      content.ignored= site.greylist.any? {|pattern| site.path_match name, pattern }
+      unless content.ignored
+        content.ignored= site.blacklist.any? {|pattern| site.path_match name, pattern }
+      end      
+      @site.report " generated: #{content.uri}", :info
       @site.node_tree[content.uri]= content
     end
 

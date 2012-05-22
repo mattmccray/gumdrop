@@ -11,8 +11,8 @@ EOS
 opts = Trollop::options do
   banner banner_text
 
-  opt :verbose,"Verbose output"
-  opt :debug,  "Enable debugging output"
+  # opt :verbose,"Verbose output"
+  # opt :debug,  "Enable debugging output"
   opt :quiet,  "No console output"
 
   if Gumdrop.in_site_folder?

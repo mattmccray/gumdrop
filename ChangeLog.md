@@ -1,5 +1,10 @@
+# v0.7.1
+- Ignore/skip (greylist/blacklist) will now include/skip generated content too.
+- Quiet mode will actually be quiet.
+- Made build log output more consistent.
+
 # v0.7.0
-- Initial support for sprockets js generator
+- Initial support for sprockets js generator.
 
 # v0.6.4
 - Callbacks are cleared on each `Site#rescan()` to prevent duplicates.

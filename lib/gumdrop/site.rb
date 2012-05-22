@@ -114,6 +114,10 @@ module Gumdrop
       @context
     end
 
+    # Match a path using a glob-like file pattern
+    def path_match(path, pattern)
+      File.fnmatch pattern, path, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_CASEFOLD
+    end
 
   private
 
@@ -161,8 +165,13 @@ module Gumdrop
       begin
         @log = Logger.new @config.log, 'daily'
       rescue
-        @log = Logger.new STDOUT
-        report "Using STDOUT for logging because of exception: #{ $! }"
+        target= if @opts[:quiet] or @opts[:quiet_given]
+          nil
+        else
+          STDOUT
+        end
+        @log = Logger.new target
+        report "Using STDOUT for logging because of exception: #{ $! }" unless target.nil?
       end
       @log.formatter = proc do |severity, datetime, progname, msg|
         "#{datetime}: #{msg}\n"
@@ -247,17 +256,13 @@ module Gumdrop
             FileUtils.mkdir_p File.dirname(output_path)
             node.renderTo render_context, output_path, content_filters
           else
-            report " -ignoring: #{node.to_s}", :info
+            report "  ignoring: #{node.to_s}", :info
           end
         end
         on_render(self)
       end
     end
 
-    # Match a path using a glob-like file pattern
-    def path_match(path, pattern)
-      File.fnmatch pattern, path, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_CASEFOLD
-    end
   end
 
   class Sitefile
