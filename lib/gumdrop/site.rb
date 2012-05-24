@@ -209,7 +209,7 @@ module Gumdrop
           node= Content.new(path, self)
           path= node.to_s
           if blacklist.any? {|pattern| path_match path, pattern }
-            report "-excluding: #{path}", :info
+            report " excluding: #{path}", :info
           else
             node.ignored= greylist.any? {|pattern| path_match path, pattern }
             # Sort out Layouts, Generators, and Partials

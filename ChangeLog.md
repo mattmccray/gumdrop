@@ -1,3 +1,7 @@
+# v0.7.2
+- Now supports :packr as a type of compression for stitch/sprockets (be sure it's in your Gemfile)
+- Cleaned up generator internals
+
 # v0.7.1
 - Ignore/skip (greylist/blacklist) will now include/skip generated content too.
 - Quiet mode will actually be quiet.
