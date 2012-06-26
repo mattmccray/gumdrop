@@ -14,15 +14,19 @@ module Gumdrop
     def uri(path, opts={})
       path= path[1..-1] if path.starts_with?('/') # and path != "/"
       uri_string= if !@site.config.relative_paths or force_absolute
-        "/#{path}"
+        "/#{ path }"
       else
-        "#{'../'*@state['current_depth']}#{path}"
+        "#{ path_to_root }#{ path }"
       end
       if opts[:fresh] and @site.node_tree.has_key?(path)
         uri_string += "?v=#{ @site.node_tree[path].mtime.to_i }"
       end
       uri_string = "/" if uri_string == ""
       uri_string
+    end
+
+    def path_to_root
+      '../' * @state['current_depth']
     end
     
     def url(path)

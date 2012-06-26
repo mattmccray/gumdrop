@@ -1,3 +1,7 @@
+# v0.7.4
+- All rendered content (including layouts) will relativize paths starting with / on href="" and src="" for html files. Can be set to array of file exts to process at `config.relative_paths_for= ['.html']` or sett to process all files `config.relative_paths_for= :all` or turned off entirely by `config.relative_paths= false`
+- Proxy server is disabled by default. Enable it `configure.proxy = true`
+
 # v0.7.3
 - Bugfix: Correctly runs content through multiple processors (when multiple are specified in the filename. ie: test.js.erb.coffee gets sent through CoffeeScript then erb)
 

@@ -2,6 +2,8 @@
 module Gumdrop
   
   class Content
+
+    MUNGABLE_RE= Regexp.new(%Q<(href|data|src)([\s]*)=([\s]*)('|"|&quot;|&#34;|&#39;)?\\/([\\/]?)>, 'i')
     
     attr_accessor :path, 
                   :level, 
@@ -53,7 +55,7 @@ module Gumdrop
         content = layout.template.render(context, content:content) { content }
         layout= context.get_template()
       end
-      content
+      relativize content, context
     end
     
     def renderTo(context, output_path, filters=[], opts={})
@@ -148,6 +150,22 @@ module Gumdrop
       else
         uri
       end
+    end
+
+    def relativize(content, ctx)
+      if site.config.relative_paths
+        if site.config.relative_paths_for == :all or site.config.relative_paths_for.include?(@ext)
+          path_to_root= ctx.path_to_root
+          content = content.gsub MUNGABLE_RE do |match|
+            if $5 == '/'
+              "#{ $1 }#{ $2 }=#{ $3 }#{ $4 }/"
+            else
+              "#{ $1 }#{ $2 }=#{ $3 }#{ $4 }#{ path_to_root }"
+            end
+          end
+        end
+      end
+      content
     end
     
   end

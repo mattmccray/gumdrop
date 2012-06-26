@@ -4,7 +4,8 @@ module Gumdrop
 
   DEFAULT_OPTIONS= {
     relative_paths: true,
-    proxy_enabled: true,
+    relative_paths_for: ['.html', '.htm', '.php'],
+    proxy_enabled: false,
     output_dir: "./output",
     source_dir: "./source",
     data_dir: './data',

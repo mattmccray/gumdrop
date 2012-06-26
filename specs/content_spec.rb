@@ -1,6 +1,20 @@
 require 'minitest/spec'
 require 'minitest/autorun'
 require 'gumdrop'
+#require File.join File.dirname(__FILE__), 'diff.rb'
+
+fixture_src_path= File.join ".", "specs", "fixtures", "source"
+fixture_exp_path= File.join ".", "specs", "fixtures", "expected"
+
+def get_test_site
+  site= Gumdrop::Site.new File.join(".", "specs", "fixtures", "source", 'Gumdrop'), :quiet=>true
+  site.rescan
+end
+
+def get_expected(filename)
+  path= File.join ".", "specs", "fixtures", "expected", filename
+  File.read path
+end
 
 describe Gumdrop::Content do
   # before do
@@ -9,13 +23,15 @@ describe Gumdrop::Content do
 
   it "should process the content through all the engines specified in the file ext" do
     
-    path= File.join ".", "specs", "fixtures", 'Gumdrop'
-    site= Gumdrop::Site.new path
+    # path= File.join fixture_src_path, 'Gumdrop'
+    # site= Gumdrop::Site.new path, :quiet=>true
+    # site.rescan
+    site= get_test_site
 
-    path= File.join ".", "specs", "fixtures", 'test.js.erb.coffee'
+    path= File.join fixture_src_path, 'test.js.erb.coffee'
     content= Gumdrop::Content.new( path, site )
 
-    path= File.join ".", "specs", "fixtures", 'expected-test.js'
+    path= File.join fixture_exp_path, 'test.js'
     expected= File.read path
 
     content= content.render()
@@ -24,7 +40,32 @@ describe Gumdrop::Content do
     # puts expected
 
     content.must_equal expected
+  end
 
+  it "should relativize all absolute paths (when starts with /)" do
+    site= get_test_site
+    # puts site.node_tree.keys
+
+    page= site.contents('posts/post1.html').first
+    content= page.render
+    expected= get_expected('posts/post1.html')
+    # puts content
+    content.must_equal expected
+
+    page= site.contents('posts/post1.js').first
+    content= page.render
+    # puts content
+    content.must_equal get_expected('posts/post1.js')
+
+    page= site.contents('sub/sub/sub/test.html').first
+    content= page.render
+    # puts content
+    content.must_equal get_expected('sub/sub/sub/test.html')
+
+    page= site.contents('sub/sub/sub/test2.html').first
+    content= page.render
+    # puts content
+    content.must_equal get_expected('sub/sub/sub/test2.html')
   end
 
   # it "can be created with no arguments" do

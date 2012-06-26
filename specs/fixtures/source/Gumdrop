@@ -1,0 +1,13 @@
+require 'slim'
+
+configure do
+  
+  set :site_title,   "Test"
+  set :site_tagline, "a test site"
+  
+  set :source_dir,   "./"
+
+  # set :relative_paths_for, ['.html']
+  # set :relative_paths_for, :all #default
+
+end
