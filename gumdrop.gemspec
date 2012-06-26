@@ -3,13 +3,15 @@ $:.unshift lib unless $:.include?(lib)
 
 require 'gumdrop/version'
 
+now= Time.new
+
 Gem::Specification.new do |s|
    s.name = %q{gumdrop}
    s.version = Gumdrop::VERSION
    s.platform = Gem::Platform::RUBY
    s.rubyforge_project = 'gumdrop'
    s.has_rdoc = false
-   s.date = %q{2011-07-22}
+   s.date = now.strftime("%Y-%m-%d")
 
    s.authors = ["Matt McCray"]
    s.email = %q{matt@elucidata.net}
