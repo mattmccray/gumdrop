@@ -46,7 +46,7 @@ module Gumdrop
         context.reset_data 'current_depth'=>@level, 'current_slug'=>@slug, 'page'=>self, 'layout'=>default_layout, 'params'=>self.params
       end
       context.set_content self, locals
-      content= @template.render(context) 
+      content= render_all(context)
       return content if ignore_layout
       layout= context.get_template()
       while !layout.nil?
@@ -120,6 +120,25 @@ module Gumdrop
       end
       filename_parts << ext # push the last file ext back on there!
       filename_parts.join('.')
+    end
+
+    def render_all(ctx)
+      if @generated or !File.exists?(@full_path)
+        content= @template.render(ctx)
+      else
+        content= File.read @full_path
+        exts= @source_filename.gsub @filename, ''
+        exts.split('.').reverse.each do |ext|
+          unless ext.blank?
+            templateClass= Tilt[".#{ext}"]
+            template= templateClass.new(@full_path) do
+              content
+            end
+            content= template.render(ctx)
+          end
+        end
+      end
+      content
     end
 
     def get_uri

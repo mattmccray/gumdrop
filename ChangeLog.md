@@ -1,3 +1,6 @@
+# v0.7.3
+- Bugfix: Correctly runs content through multiple processors (when multiple are specified in the filename. ie: test.js.erb.coffee gets sent through CoffeeScript then erb)
+
 # v0.7.2
 - Now supports :packr as a type of compression for stitch/sprockets (be sure it's in your Gemfile)
 - Cleaned up generator internals

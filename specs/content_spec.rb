@@ -7,6 +7,26 @@ describe Gumdrop::Content do
   #   @ho= Gumdrop::HashObject.new one:"ONE", two:"TWO", three:'THREE'
   # end
 
+  it "should process the content through all the engines specified in the file ext" do
+    
+    path= File.join ".", "specs", "fixtures", 'Gumdrop'
+    site= Gumdrop::Site.new path
+
+    path= File.join ".", "specs", "fixtures", 'test.js.erb.coffee'
+    content= Gumdrop::Content.new( path, site )
+
+    path= File.join ".", "specs", "fixtures", 'expected-test.js'
+    expected= File.read path
+
+    content= content.render()
+
+    # puts content
+    # puts expected
+
+    content.must_equal expected
+
+  end
+
   # it "can be created with no arguments" do
   #   Gumdrop::HashObject.new.must_be_instance_of Gumdrop::HashObject
   # end
