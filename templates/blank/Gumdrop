@@ -1,0 +1,118 @@
+puts "Gumdrop v#{Gumdrop::VERSION} building..."
+
+configure do
+
+  #  All the supported build configuration settings and their defaults:
+
+  # set :relative_paths, true
+  # set :proxy_enabled,  true
+  # set :output_dir,     "./output"
+  # set :source_dir,     "./source"
+  # set :data_dir,       './data'
+  # set :log,            './logs/build.log'
+  # set :ignore,         %w(.DS_Store .gitignore .git .svn .sass-cache)
+  # set :server_timeout, 15
+  # set :server_port,    4567
+
+end
+
+
+#  Skipping files entirely from build process... Like they don't exist.
+# skip 'file-to-ignore.html'
+# skip 'dont-show/**/*'
+
+#  Ignores source file(s) from compilation, but does load the content into memory
+# ignore 'pages/**/*.*'
+
+#  NOTE: Skipping and ignoring matches like a file glob (it use File.fnmatch in fact)
+#       (this doesn't work for files detected by stitch)
+
+
+# Example site-level generator
+generate do
+  
+  #  Requires a about.template.XX file
+  # page "about.html", 
+  #   :template=>'about', 
+  #   :passthru=>'Available in the template'
+
+  # page 'robots.txt' do
+  #   # And content returned will be put in the file
+  #   """
+  #   User-Agent: *
+  #   Disallow: /
+  #   """
+  # end
+
+  #  Maybe for a tumblr-like pager
+  # pager= Gumdrop.data.pager_for :posts, base_path:'posts/page', page_size:5
+
+  # pager.each do |page|
+  #   page "#{page.uri}.html", 
+  #     template:'post_page', 
+  #     posts:page.items, 
+  #     pager:pager, 
+  #     current_page:pager.current_page
+  # end
+
+  #  Assemble javscript files in a CommonJS-like way with stitch-rb
+  # stitch 'app.js',        # JavaScript to assemble
+  #   :identifier=>'app',   # variable name for the library
+  #   :paths=>['./app'],
+  #   :root=>'./app', 
+  #   :dependencies=>[],    # List of scripts to prepend to top of file (non moduled)
+  #   :prune=>false,        # If true, removes the source files from Gumdrop.site hash
+  #   :compress=>:jsmin,    # Options are :jsmin, :yuic, :uglify
+  #   :obfuscate=>false,    # For compressors that support munging/mangling
+  #   :keep_src=>true       # Creates another file, ex: app-src.js
+  
+  # Or use sprockets 
+  # sprockets 'app.js', 
+  #   :src=>'app/index.js', 
+  #   :paths=>['./lib'], 
+  #   :prune=>true, 
+  #   :root=>'./src', 
+  #   :compress=>:packr, 
+  #   :keep_src=>true
+end
+
+# Example of using a content filter to compress CSS output
+# require 'yui/compressor'
+# content_filter do |content, info|
+#   if info.ext == '.css'
+#     puts "  Compress: #{info.filename}"
+#     compressor= YUI::CssCompressor.new
+#     compressor.compress( content )
+#   else
+#     content
+#   end
+# end
+
+# All Gumdrop Hooks: on_start, on_before_scan, on_scan, on_before_generate, on_generate, on_before_render, on_render, on_end
+# on_start do |site|  end
+# on_end do |site|  end
+
+
+# View helpers (available in rendering context):
+view_helpers do
+
+  # Calculate the years for a copyright
+  def copyright_years(start_year, divider="&#8211;")
+    end_year = Date.today.year
+    if start_year == end_year
+      "#{start_year}"
+    else
+      "#{start_year}#{divider}#{end_year}"
+    end
+  end
+  
+  #
+  # Your custom helpers go here!
+  #
+
+end
+
+# Any specialized code for your site goes here...
+
+# require 'slim'
+# Slim::Engine.set_default_options pretty:true

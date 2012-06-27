@@ -31,6 +31,7 @@ module Gumdrop
 
         file_path= get_content_path params[:splat].join('/'), site
         site.report "[#{$$}] GET /#{params[:splat].join('/')} -> #{file_path}"
+        
         unless static_asset file_path
           since_last_build= Time.now.to_i - site.last_run.to_i
           # site.report "!>!>>>>> since_last_build: #{since_last_build}"
@@ -54,6 +55,11 @@ module Gumdrop
             site.report "[#{$$}]  *Static: #{file_path}"
             send_file File.join( site.src_path, file_path)
           end
+        
+        elsif File.exists? File.join(site.config.output_dir, file_path)
+            site.report "[#{$$}]  *Static (from OUTPUT): #{file_path}"
+            send_file File.join(site.config.output_dir, file_path)
+        
         else
           site.report "[#{$$}]  *Missing: #{file_path}", :error
           "#{file_path} Not Found"
@@ -69,7 +75,7 @@ module Gumdrop
         if file_path == ""
           "index.html"
         else
-          keys.detect {|k| site.node_tree.has_key?(k) }
+          keys.detect {|k| site.node_tree.has_key?(k) } or file_path
         end
       end
 
@@ -84,6 +90,7 @@ module Gumdrop
       end
       
       def static_asset(file_path)
+        return false if file_path.nil? or File.extname(file_path).nil?
         STATIC_ASSETS.include? File.extname(file_path).to_s
       end
       

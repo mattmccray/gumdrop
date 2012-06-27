@@ -182,6 +182,8 @@ Here's the `Gumdrop` file created by the default template:
 - Project Templates
 
 # Todo / Ideas / Changes
+- Create guard-gumdrop.
+- Add automatic sqlite loading to `data_manager`?
 - New/Update Doc site.
 - Need test coverage.
 - Some kind of admin? What would that even do?
