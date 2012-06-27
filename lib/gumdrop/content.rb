@@ -156,6 +156,7 @@ module Gumdrop
       if site.config.relative_paths
         if site.config.relative_paths_for == :all or site.config.relative_paths_for.include?(@ext)
           path_to_root= ctx.path_to_root
+          content.force_encoding("UTF-8") if content.respond_to? :force_encoding
           content = content.gsub MUNGABLE_RE do |match|
             if $5 == '/'
               "#{ $1 }#{ $2 }=#{ $3 }#{ $4 }/"

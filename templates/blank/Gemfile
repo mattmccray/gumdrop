@@ -25,6 +25,7 @@ gem "gumdrop"
 
 # For markdown support, a couple of options:
 # gem "redcarpet"
+# gem "kramdown", :git => "git://github.com/darthapo/kramdown.git"
 # gem "rdiscount"
 # gem 'maruku'
 

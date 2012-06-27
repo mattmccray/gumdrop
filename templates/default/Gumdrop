@@ -9,7 +9,7 @@ configure do
   
   #  All the supported build configuration settings and their defaults:
   # set :relative_paths, true
-  # set :proxy_enabled, true
+  # set :proxy_enabled, false
   # set :output_dir, "./output"
   # set :source_dir, "./source"
   # set :data_dir, './data'
