@@ -4,7 +4,7 @@
   Test = (function() {
 
     function Test() {
-      this.img = $('<img src="../media/my-images.png">');
+      this.img = $('<img src="/media/my-images.png">');
     }
 
     return Test;

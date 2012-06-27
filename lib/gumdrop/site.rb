@@ -212,7 +212,7 @@ module Gumdrop
           if blacklist.any? {|pattern| path_match path, pattern }
             report " excluding: #{path}", :info
           else
-            node.ignored= greylist.any? {|pattern| path_match path, pattern }
+            node.ignore greylist.any? {|pattern| path_match path, pattern }
             # Sort out Layouts, Generators, and Partials
             if File.extname(path) == ".template"
               layouts[path]= node

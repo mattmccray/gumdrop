@@ -185,7 +185,7 @@ module Gumdrop
     end
 
     def useLayout?
-      !@content_block.nil? or !@template.nil?
+      !@content_block.nil? or !template.nil?
     end
 
   end
