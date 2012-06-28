@@ -13,6 +13,7 @@ module Gumdrop::CLI
     desc 'build', 'Build project'
     method_option :env, default:'production', aliases:'-e'
     method_option :quiet, default:false, aliases:'-q', type: :boolean
+    method_option :subdued, default:false, aliases:'-s', type: :boolean, desc:"Subdued output (....)"
     method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
     def build
       Gumdrop.run(options)
@@ -25,6 +26,7 @@ module Gumdrop::CLI
 
     desc 'watch', "Watch filesystem for changes and recompile"
     method_option :quiet, default:false, aliases:'-q', type: :boolean
+    method_option :subdued, default:false, aliases:'-s', type: :boolean, desc:"Subdued output (....)"
     method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
     def watch
       Gumdrop.run options

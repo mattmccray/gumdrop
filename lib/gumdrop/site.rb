@@ -113,11 +113,17 @@ module Gumdrop
     def report(msg, level=:info)
       case level
         when :info
-          @log.info msg unless @opts[:quiet]
-        when :warning
+          unless @opts[:quiet]
+            if @opts[:subdued]
+              print "."
+            else
+              @log.info msg 
+            end
+          end
+        when :warning, :warn
           @log.warn msg
       else
-        # puts msg if @opts[:quiet]
+        print "!" if @opts[:subdued]
         @log.error msg
       end
     end
