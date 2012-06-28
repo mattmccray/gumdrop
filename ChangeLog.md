@@ -1,6 +1,8 @@
 # v0.8.0
 - Leveraging Thor for new CLI support.
+- Added watch command to watch filesystem and auto-compile.
 - You can now add commands to the gumdrop command for your site. Use `tasks` block in Gumdrop file.
+- Report rendering errors better.
 - Code cleanup and reorganization.
 - Generators keep track of generated content.
 - Bugfix: Files without layouts won't throw an exception.

@@ -55,6 +55,10 @@ module Gumdrop
       reset_all()
     end
 
+    def opts=(opts={})
+      @opts= opts
+    end
+
     def contents(*args)
       opts= args.extract_options!
       pattern= args.first || nil
@@ -93,6 +97,7 @@ module Gumdrop
 
     def build(force_reset=false)
       on_start(self)
+      report "[#{ Time.new }]"
       reset_all() if force_reset
       scan()
       render()
@@ -108,11 +113,11 @@ module Gumdrop
     def report(msg, level=:info)
       case level
         when :info
-          @log.info msg
+          @log.info msg unless @opts[:quiet]
         when :warning
           @log.warn msg
       else
-        puts msg
+        # puts msg if @opts[:quiet]
         @log.error msg
       end
     end
@@ -185,7 +190,8 @@ module Gumdrop
         # report "Using STDOUT for logging because of exception: #{ $! }" unless target.nil?
       end
       @log.formatter = proc do |severity, datetime, progname, msg|
-        "#{datetime}: #{msg}\n"
+        # "#{datetime}: #{msg}\n"
+        "  #{msg}\n"
       end
     end
 
@@ -265,7 +271,13 @@ module Gumdrop
           unless node.ignore?
             output_path= File.join(@out_path, node.to_s)
             FileUtils.mkdir_p File.dirname(output_path)
-            node.renderTo render_context, output_path, content_filters
+            begin
+              node.renderTo render_context, output_path, content_filters
+            rescue => ex
+              report "[!>EXCEPTION<!]: #{path}", :error
+              report [ex.to_s, ex.backtrace].flatten.join("\n"), :error
+              exit 1 unless @opts[:resume]
+            end
           else
             report "  ignoring: #{node.to_s}", :info
           end

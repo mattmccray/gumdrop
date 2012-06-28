@@ -16,12 +16,9 @@ module Gumdrop::CLI
     desc 'build', 'Build project'
     method_option :env, default:'production', aliases:'-e'
     method_option :quiet, default:false, aliases:'-q', type: :boolean
+    method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
     def build
-      opts= {
-        :environment => options[:env] || 'production',
-        :quiet => options[:quiet] || false
-      }
-      Gumdrop.run(opts)
+      Gumdrop.run(options)
     end
 
     desc 'server', 'Run development server'
@@ -30,9 +27,10 @@ module Gumdrop::CLI
     end
 
     desc 'watch', "Watch filesystem for changes and recompile"
+    method_option :quiet, default:false, aliases:'-q', type: :boolean
+    method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
     def watch
-      # Listen to multiple directories.
-      Gumdrop.run
+      Gumdrop.run options
       paths= [SITE.src_path]
       paths << SITE.data_path if File.directory? SITE.data_path
       Listen.to(*paths, :latency => 0.5) do |m, a, r|
@@ -41,7 +39,7 @@ module Gumdrop::CLI
     end
 
     desc 'template [NAME]', "Create local template from this project"
-    def template()
+    def template(name)
       template= name
       template_path = home_template_path name
       if File.exists? template_path
@@ -59,7 +57,7 @@ module Gumdrop::CLI
     private
       
       def home_path(name="")
-        File.expand_path File.join("~", ".gumdrop")
+        File.expand_path File.join("~", ".gumdrop", name)
       end
 
       def home_template_path(template)

@@ -32,6 +32,7 @@ module Gumdrop
 
     def run(opts={})
       site= if defined?(SITE)
+        SITE.opts= opts
         SITE
       else
         site_file= Gumdrop.fetch_site_file
