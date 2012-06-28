@@ -77,12 +77,18 @@ module Gumdrop
       context.set_content self, locals
       content= render_all(context)
       return relativize content, context if ignore_layout
-      layout= context.get_template()
-      while !layout.nil? and !layout.template.nil?
-        content = layout.template.render(context, content:content) { content }
+      begin
         layout= context.get_template()
+        while !layout.nil? and !layout.template.nil?
+          content = layout.template.render(context, content:content) { content }
+          layout= context.get_template()
+        end
+      rescue => ex
+        raise StandardError, "Layout: #{ex.to_s}", ex.backtrace
       end
       relativize content, context
+    rescue => ex
+      raise StandardError, "Rendering exception: #{ex.to_s}", ex.backtrace
     end
     
     def renderTo(context, output_path, filters=[], opts={})

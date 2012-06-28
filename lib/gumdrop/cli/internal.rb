@@ -12,10 +12,11 @@ module Gumdrop::CLI
 
     desc 'build', 'Build project'
     method_option :env, default:'production', aliases:'-e'
+    method_option :assets, aliases:'-a', type: :array, desc:"List of assets to render."
     method_option :quiet, default:false, aliases:'-q', type: :boolean
     method_option :subdued, default:false, aliases:'-s', type: :boolean, desc:"Subdued output (....)"
     method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
-    def build
+    def build()
       Gumdrop.run(options)
     end
 

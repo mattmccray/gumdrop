@@ -44,7 +44,9 @@ module Gumdrop
               :on_before_generate,
               :on_generate, 
               :on_before_render,
-              :on_render, 
+              :on_render,
+              :on_before_render_item,
+              :on_render_item,
               :on_end
 
     def initialize(sitefile, opts={})
@@ -63,7 +65,7 @@ module Gumdrop
       opts= args.extract_options!
       pattern= args.first || nil
 
-      if pattern.nil?
+      if pattern.nil? or pattern.empty?
         if opts[:as] == :hash
           @content_hash
         else
@@ -71,17 +73,19 @@ module Gumdrop
         end
       
       else
-        nodes = opts[:as] == :hash ? {} : []
-        @content_hash.keys.each do |path|
-          if path_match path, pattern
-            if opts[:as] == :hash
-              nodes[path]= @content_hash[path]
+        if pattern.is_a? Array
+          nodes= opts[:as] == :hash ? {} : []
+          pattern.each do |subpattern|
+            if opts[:as]== :hash
+              nodes.merge! match_nodes(subpattern, opts)
             else
-              nodes << @content_hash[path]
+              nodes << match_nodes(subpattern, opts)
             end
           end
+          opts[:as]== :hash ? nodes : nodes.flatten
+        else
+          match_nodes(subpattern, opts)
         end
-        nodes
       end
     end
 
@@ -171,6 +175,8 @@ module Gumdrop
       clear_on_generate()
       clear_on_before_render()
       clear_on_render()
+      clear_on_before_render_item()
+      clear_on_render_item()
       clear_on_end()
 
       load_sitefile()
@@ -182,6 +188,20 @@ module Gumdrop
       @data            = Gumdrop::DataManager.new self, @data_path
 
       init_logging()
+    end
+
+    def match_nodes(pattern, opts={})
+      nodes = opts[:as] == :hash ? {} : []
+      @content_hash.keys.each do |path|
+        if path_match path, pattern
+          if opts[:as] == :hash
+            nodes[path]= @content_hash[path]
+          else
+            nodes << @content_hash[path]
+          end
+        end
+      end
+      nodes
     end
 
     def init_logging
@@ -273,26 +293,35 @@ module Gumdrop
       unless opts[:dry_run]
         report "[Compiling to #{@out_path}]", :info
         on_before_render(self)
-        @content_hash.keys.sort.each do |path|
-          node= @content_hash[path]
-          unless node.ignore?
-            output_path= File.join(@out_path, node.to_s)
-            FileUtils.mkdir_p File.dirname(output_path)
-            begin
-              node.renderTo render_context, output_path, content_filters
-            rescue => ex
-              report "[!>EXCEPTION<!]: #{path}", :error
-              report [ex.to_s, ex.backtrace].flatten.join("\n"), :error
-              exit 1 unless @opts[:resume]
-            end
-          else
-            report "  ignoring: #{node.to_s}", :info
-          end
+        nodes= if opts[:assets]
+          contents(opts[:assets])
+        else
+          contents()
+        end
+        nodes.each do |node|
+          render_content(node, render_context, content_filters)
         end
         on_render(self)
       end
     end
 
+    def render_content(node, ctx, filters)
+      unless node.ignore?
+        output_path= File.join(@out_path, node.to_s)
+        FileUtils.mkdir_p File.dirname(output_path)
+        begin
+          on_before_render_item(self, node)
+          node.renderTo ctx, output_path, filters
+          on_render_item(self, node)
+        rescue => ex
+          report "[!>EXCEPTION<!]: #{ node.to_s }", :error
+          report [ex.to_s, ex.backtrace].flatten.join("\n"), :error
+          exit 1 unless @opts[:resume]
+        end
+      else
+        report "  ignoring: #{ node.to_s }", :info
+      end
+    end
   end
 
   class Sitefile
@@ -357,6 +386,12 @@ module Gumdrop
       @site.on_before_render &block
     end
     def on_render(&block)
+      @site.on_render &block
+    end
+    def on_before_render_item(&block)
+      @site.on_before_render &block
+    end
+    def on_render_item(&block)
       @site.on_render &block
     end
     def on_end(&block)
