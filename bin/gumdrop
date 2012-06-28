@@ -14,7 +14,6 @@ begin
   else
     Gumdrop::CLI::External.start
   end
-  # Catapult::CLI.start
 rescue Interrupt => e
   puts "\nQuitting..."
   exit 1

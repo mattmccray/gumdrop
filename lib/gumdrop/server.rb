@@ -8,9 +8,9 @@ module Gumdrop
   STATIC_ASSETS= %w(.jpg .jpe .jpeg .gif .ico .png .swf)
 
   class Server < Sinatra::Base
-    site_file= Gumdrop.fetch_site_file
-    unless site_file.nil?
-      site= Site.new site_file
+    site= Gumdrop.fetch_site
+
+    unless site.nil?
       site.rescan()
 
       set :port, site.config.server_port if site.config.server_port

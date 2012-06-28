@@ -9,10 +9,6 @@ module Gumdrop::CLI
       File.expand_path('../../../..', __FILE__)
     end
 
-    # def self.banner(*stff)
-    #   "Gumdrop v#{ Gumdrop::VERSION }"
-    # end
-
     desc 'new [NAME]', 'Create new gumdrop project'
     method_option :template, aliases:'-t', desc:'Template to start from', required:true
     def new(name)

@@ -1,8 +1,5 @@
-# site_cli.rb
-# require 'pathname'
 require 'fileutils'
 require 'listen'
-# require 'rack'
 require 'thor'
 
 module Gumdrop::CLI

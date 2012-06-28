@@ -31,18 +31,7 @@ module Gumdrop
   class << self
 
     def run(opts={})
-      site= if defined?(SITE)
-        SITE.opts= opts
-        SITE
-      else
-        site_file= Gumdrop.fetch_site_file
-        unless site_file.nil?
-          Site.new site_file, opts
-        else
-          nil
-        end
-      end
-      
+      site= fetch_site opts
       unless site.nil?
         old= Dir.pwd
         Dir.chdir site.root_path
@@ -60,6 +49,20 @@ module Gumdrop
 
     def in_site_folder?(filename="Gumdrop")
       !fetch_site_file(filename).nil?
+    end
+
+    def fetch_site(opts={}, prefer_existing=true)
+      if defined?(SITE) and prefer_existing
+        SITE.opts= opts unless opts.empty?
+        SITE
+      else
+        site_file= Gumdrop.fetch_site_file
+        unless site_file.nil?
+          Site.new site_file, opts
+        else
+          nil
+        end
+      end
     end
 
     def fetch_site_file(filename="Gumdrop")
