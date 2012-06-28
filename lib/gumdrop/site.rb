@@ -103,6 +103,7 @@ module Gumdrop
       render()
       @last_run= Time.now
       on_end(self)
+      report "[Done]"
       self
     end
     

@@ -40,7 +40,7 @@ module Gumdrop
         
         Dir.chdir old
   
-        puts "Done." unless opts[:quiet]
+        # puts "\nDone." unless opts[:quiet]
 
       else
         puts "Not in a valid Gumdrop site directory."

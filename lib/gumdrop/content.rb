@@ -76,7 +76,7 @@ module Gumdrop
       end
       context.set_content self, locals
       content= render_all(context)
-      return relativize content if ignore_layout
+      return relativize content, context if ignore_layout
       layout= context.get_template()
       while !layout.nil? and !layout.template.nil?
         content = layout.template.render(context, content:content) { content }
