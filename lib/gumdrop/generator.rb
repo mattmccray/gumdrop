@@ -58,12 +58,12 @@ module Gumdrop
           @site.layouts[ "#{opts[:template]}.template" ]
         end.template
       end
-      content.ignored= site.greylist.any? {|pattern| site.path_match name, pattern }
+      content.ignore site.greylist.any? {|pattern| site.path_match name, pattern }
       unless content.ignored
-        content.ignored= site.blacklist.any? {|pattern| site.path_match name, pattern }
+        content.ignore site.blacklist.any? {|pattern| site.path_match name, pattern }
       end      
       @site.report " generated: #{content.uri}", :info
-      @site.node_tree[content.uri]= content
+      @site.content_hash[content.uri]= content
     end
 
     # FIXME: Does redirect require abs-paths?
@@ -157,9 +157,9 @@ module Gumdrop
         rp = File.expand_path(opts[:root])
         relative_root = rp.gsub(sp, '')[1..-1]
         rrlen= relative_root.length - 1
-        @site.node_tree.keys.each do |path|
+        @site.content_hash.keys.each do |path|
           if path[0..rrlen] == relative_root and name != path
-            @site.node_tree.delete path
+            @site.content_hash.delete path
           end
         end
       end

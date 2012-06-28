@@ -44,7 +44,7 @@ describe Gumdrop::Content do
 
   it "should relativize all absolute paths (when starts with /)" do
     site= get_test_site
-    # puts site.node_tree.keys
+    # puts site.content_hash.keys
 
     page= site.contents('posts/post1.html').first
     content= page.render

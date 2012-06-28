@@ -34,7 +34,7 @@ module Gumdrop
     end
 
     def level
-      @level= (path.split('/').length - 1)
+      @level ||= (path.split('/').length - 1)
     end
 
     def source_filename
@@ -63,6 +63,9 @@ module Gumdrop
       else
         nil
       end
+    end
+    def template=(t)
+      @template = t
     end
     
     def render(context=nil, ignore_layout=false, reset_context=true, locals={})
@@ -177,7 +180,7 @@ module Gumdrop
     end
 
     def relativize(content, ctx)
-      if site.config.relative_paths
+      if site.config.relative_paths and !ctx.force_absolute
         if site.config.relative_paths_for == :all or site.config.relative_paths_for.include?(ext)
           path_to_root= ctx.path_to_root
           content.force_encoding("UTF-8") if content.respond_to? :force_encoding

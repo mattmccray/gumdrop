@@ -18,8 +18,8 @@ module Gumdrop
       else
         "#{ path_to_root }#{ path }"
       end
-      if opts[:fresh] and @site.node_tree.has_key?(path)
-        uri_string += "?v=#{ @site.node_tree[path].mtime.to_i }"
+      if opts[:fresh] and @site.content_hash.has_key?(path)
+        uri_string += "?v=#{ @site.content_hash[path].mtime.to_i }"
       end
       uri_string = "/" if uri_string == ""
       uri_string
@@ -123,8 +123,8 @@ module Gumdrop
   protected
     
     def get_page(path)
-      page= @site.node_tree[path]
-      page= @site.node_tree["#{path}.html"] if page.nil? # Bit of a hack...
+      page= @site.content_hash[path]
+      page= @site.content_hash["#{path}.html"] if page.nil? # Bit of a hack...
       page= @site.partials[path] if page.nil?
       page= @site.layouts[path] if page.nil? # ???
       page

@@ -31,7 +31,7 @@ module Gumdrop
                 :config,
                 :data,
                 :sitefile,
-                :node_tree,
+                :content_hash,
                 :last_run
 
     extend Callbacks
@@ -55,21 +55,23 @@ module Gumdrop
 
     def contents(*args)
       opts= args.extract_options!
-      pattern= args[0] || nil
+      pattern= args.first || nil
+
       if pattern.nil?
         if opts[:as] == :hash
-          @node_tree
+          @content_hash
         else
-          @node_tree.values
+          @content_hash.values
         end
+      
       else
         nodes = opts[:as] == :hash ? {} : []
-        @node_tree.keys.each do |path|
+        @content_hash.keys.each do |path|
           if path_match path, pattern
             if opts[:as] == :hash
-              nodes[path]= @node_tree[path]
+              nodes[path]= @content_hash[path]
             else
-              nodes << @node_tree[path]
+              nodes << @content_hash[path]
             end
           end
         end
@@ -135,7 +137,7 @@ module Gumdrop
       @greylist        = []
       @redirects       = []
 
-      @node_tree       = Hash.new {|h,k| h[k]= nil }
+      @content_hash       = Hash.new {|h,k| h[k]= nil }
       @layouts         = Hash.new {|h,k| h[k]= nil }
       @partials        = Hash.new {|h,k| h[k]= nil }
       @generators      = Hash.new {|h,k| h[k]= nil }
@@ -229,7 +231,7 @@ module Gumdrop
               partials[partial_node_path]= node
             
             else
-              @node_tree[path]= node
+              @content_hash[path]= node
             end
           end
         end
@@ -250,8 +252,8 @@ module Gumdrop
       unless opts[:dry_run]
         report "[Compiling to #{@out_path}]", :info
         on_before_render(self)
-        @node_tree.keys.sort.each do |path|
-          node= @node_tree[path]
+        @content_hash.keys.sort.each do |path|
+          node= @content_hash[path]
           unless node.ignore?
             output_path= File.join(@out_path, node.to_s)
             FileUtils.mkdir_p File.dirname(output_path)

@@ -41,8 +41,8 @@ module Gumdrop
           end
         end
         
-        if site.node_tree.has_key? file_path
-          content= site.node_tree[file_path]
+        if site.content_hash.has_key? file_path
+          content= site.content_hash[file_path]
           if content.useLayout?
             site.report "[#{$$}]  *Dynamic: #{file_path} (#{content.ext})"
             content_type :css if content.ext == '.css' # Meh?
@@ -75,7 +75,7 @@ module Gumdrop
         if file_path == ""
           "index.html"
         else
-          keys.detect {|k| site.node_tree.has_key?(k) } or file_path
+          keys.detect {|k| site.content_hash.has_key?(k) } or file_path
         end
       end
 

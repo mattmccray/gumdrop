@@ -2,6 +2,9 @@
 - Gumdrop dev server will serve up files from output_dir if the file isn't found in the source tree.
 - Added new template: blank
 - Coerces content into UTF-8, if it can, when relativizing paths (to work around encoding bugs).
+- Content class defers a lot of stuff from the initializer (for slightly faster startup).
+- Changed site.node_tree to site.content_hash. More representative of what it is.
+- Paths aren't relativized for pages that set force_absolute
 
 # v0.7.4
 - All rendered content (including layouts) will relativize paths starting with / on href="" and src="" for html files. Can be set to array of file exts to process at `config.relative_paths_for= ['.html']` or sett to process all files `config.relative_paths_for= :all` or turned off entirely by `config.relative_paths= false`
