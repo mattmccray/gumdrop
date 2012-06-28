@@ -6,24 +6,43 @@ require 'active_support/all'
 
 module Gumdrop
 
-  autoload :Callbacks, "gumdrop/callbacks"
-  autoload :Context, "gumdrop/context"
-  autoload :Content, "gumdrop/content"
+  autoload :Context,     "gumdrop/context"
+  autoload :Content,     "gumdrop/content"
   autoload :DataManager, "gumdrop/data_manager"
-  autoload :Generator, "gumdrop/generator"
-  autoload :HashObject, "gumdrop/hash_object"
-  autoload :Pager, "gumdrop/data_manager"
-  autoload :Server, "gumdrop/server"
-  autoload :VERSION, "gumdrop/version"
+  autoload :Generator,   "gumdrop/generator"
+  autoload :HashObject,  "gumdrop/hash_object"
+  autoload :Pager,       "gumdrop/data_manager"
+  autoload :Server,      "gumdrop/server"
+  autoload :VERSION,     "gumdrop/version"
   autoload :ViewHelpers, "gumdrop/view_helpers"
+
+  module CLI
+    autoload :External,  "gumdrop/cli/external"    
+    autoload :Internal,  "gumdrop/cli/internal"    
+  end
+
+  module Support
+    autoload :BasePackager, "gumdrop/support/base_packager"    
+    autoload :Callbacks,    "gumdrop/support/callbacks"
+    autoload :Stitch,       "gumdrop/support/stitch"    
+    autoload :Sprockets,    "gumdrop/support/sprockets"    
+  end
   
   class << self
 
     def run(opts={})
-      site_file= Gumdrop.fetch_site_file
-      unless site_file.nil?
-        site= Site.new site_file, opts
-  
+      site= if defined?(SITE)
+        SITE
+      else
+        site_file= Gumdrop.fetch_site_file
+        unless site_file.nil?
+          Site.new site_file, opts
+        else
+          nil
+        end
+      end
+      
+      unless site.nil?
         old= Dir.pwd
         Dir.chdir site.root_path
   
@@ -31,7 +50,8 @@ module Gumdrop
         
         Dir.chdir old
   
-        puts "Done." unless opts[:quiet] or opts[:quiet_given]
+        puts "Done." unless opts[:quiet]
+
       else
         puts "Not in a valid Gumdrop site directory."
       end
@@ -44,6 +64,7 @@ module Gumdrop
     def fetch_site_file(filename="Gumdrop")
       here= Dir.pwd
       found= File.file? File.join( here, filename )
+      # TODO: Should be smarter -- This is a hack for Windows support "C:\"
       while !found and File.directory?(here) and File.dirname(here).length > 3
         here= File.expand_path File.join(here, '../')
         found= File.file? File.join( here, filename )

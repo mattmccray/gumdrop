@@ -5,7 +5,7 @@ require 'logger'
 
 module Gumdrop
 
-  STATIC_ASSETS= %w(.jpg .jpe .jpeg .gif .ico .png)
+  STATIC_ASSETS= %w(.jpg .jpe .jpeg .gif .ico .png .swf)
 
   class Server < Sinatra::Base
     site_file= Gumdrop.fetch_site_file

@@ -78,7 +78,7 @@ module Gumdrop
       content= render_all(context)
       return content if ignore_layout
       layout= context.get_template()
-      while !layout.nil?
+      while !layout.nil? and !layout.template.nil?
         content = layout.template.render(context, content:content) { content }
         layout= context.get_template()
       end

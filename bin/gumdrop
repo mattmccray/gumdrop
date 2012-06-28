@@ -3,11 +3,30 @@
 
 #  Copyright (c) 2011 M@ McCray. All rights reserved.
 
-$: << File.expand_path(File.dirname(__FILE__) + "/../lib")
+# $: << File.expand_path(File.dirname(__FILE__) + "/../lib")
+
+# require 'rubygems'
+
+# # require 'bundler/setup'
+
+# require "gumdrop"
+# require "gumdrop/cli"
 
 require 'rubygems'
+require 'bundler/setup'
+require 'gumdrop'
+# Bundler.require if File.exists?('Gemfile')
 
-# require 'bundler/setup'
-
-require "gumdrop"
-require "gumdrop/cli"
+begin
+  if Gumdrop.in_site_folder?
+    Gumdrop::CLI::Internal.start
+  else
+    Gumdrop::CLI::External.start
+  end
+  # Catapult::CLI.start
+rescue Interrupt => e
+  puts "\nQuitting..."
+  exit 1
+rescue SystemExit => e
+  exit e.status
+end

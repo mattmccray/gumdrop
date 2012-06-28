@@ -1,6 +1,11 @@
 module Gumdrop
 
   class Generator
+
+    include Support::Stitch
+    include Support::Sprockets
+
+
     attr_reader :filename, :base_path, :params, :pages
     
     def initialize(content, site, opts={})
@@ -41,6 +46,12 @@ module Gumdrop
     def set(var_name, value)
       params[var_name]= value
     end
+
+    def unload
+      @pages.each do |content|
+        @site.content_hash.delete content.uri
+      end
+    end
     
     def page(name, opts={}, &block)
       name= name[1..-1] if name.starts_with?('/')
@@ -50,7 +61,7 @@ module Gumdrop
       else
         File.join @site.src_path, @base_path, @name
       end
-      content= GeneratedContent.new(filepath, block, @site, opts)
+      content= GeneratedContent.new(filepath, block, @site, self, opts)
       if opts.has_key? :template and !opts[:template].nil?
         content.template = if @site.layouts.has_key?( opts[:template] )
           @site.layouts[ opts[:template] ]
@@ -64,6 +75,8 @@ module Gumdrop
       end      
       @site.report " generated: #{content.uri}", :info
       @site.content_hash[content.uri]= content
+      @pages << content
+      content
     end
 
     # FIXME: Does redirect require abs-paths?
@@ -82,98 +95,16 @@ module Gumdrop
       end
     end
     
-    def sprockets(name, opts)
-      require 'gumdrop/sprockets_support'
-      # require 'pp'
-      env = Sprockets::Environment.new @site.root_path
-      env.append_path @site.src_path
-      opts[:paths].each do |path|
-        env.append_path(path)
-      end
-      
-      content= env[ opts[:src] ].to_s
-      page name do
-        compress_output(content, opts)
-      end
-      keep_src(name, content, opts)
-      prune_src(name, opts)
-    end
-    
-    def stitch(name, opts)
-      require 'gumdrop/stitch_support'
-      content= Stitch::Package.new(opts).compile
-      page name do
-        compress_output(content, opts)
-      end
-      keep_src(name, content, opts)
-      prune_src(name, opts)
-    end
-    
-    
-  private
-  
-    def compress_output(content, opts)
-      case opts[:compress]
-
-      when true, :jsmin
-        require 'jsmin'
-        JSMin.minify content
-
-      when :yuic
-        require "yui/compressor"
-        compressor = YUI::JavaScriptCompressor.new(:munge => opts[:obfuscate])
-        compressor.compress(content)
-
-      when :uglify
-        require "uglifier"
-        Uglifier.compile( content, :mangle=>opts[:obfuscate])
-
-      when :packr
-        require 'packr'
-        Packr.pack(content, :shrink_vars => true, :base62 => false, :private=>false)
-
-      when false
-        content
-
-      else
-        # UNKNOWN Compressor type!
-        @site.report "Unknown javascript compressor type! (#{ opts[:compressor] })", :warning
-        content
-      end
-    end
-    
-    def keep_src(name, content, opts)
-      if opts[:keep_src] or opts[:keep_source]
-        ext= File.extname name
-        page name.gsub(ext, "#{opts.fetch(:source_postfix, '-src')}#{ext}") do
-          content
-        end
-      end
-    end
-    
-    def prune_src(name, opts)
-      if opts[:prune] and opts[:root]
-        sp = File.expand_path( @site.config.source_dir )
-        rp = File.expand_path(opts[:root])
-        relative_root = rp.gsub(sp, '')[1..-1]
-        rrlen= relative_root.length - 1
-        @site.content_hash.keys.each do |path|
-          if path[0..rrlen] == relative_root and name != path
-            @site.content_hash.delete path
-          end
-        end
-      end
-    end
-    
   end
   
   class GeneratedContent < Content
     # Nothing special, per se...
 
-    def initialize(path, block, site, params={})
+    def initialize(path, block, site, generator, params={})
       super(path, site, params)
       @content_block= block
       @generated= true
+      @generator= generator
     end
 
     def render(context=nil, ignore_layout=false,  reset_context=true, locals={})

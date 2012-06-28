@@ -17,10 +17,14 @@ module Gumdrop
   }
 
   class Site
+
+    extend Support::Callbacks
     
     attr_reader :opts,
                 :root_path, 
                 :src_path,
+                :out_path,
+                :data_path,
                 :blacklist,
                 :greylist,
                 :redirects,
@@ -33,8 +37,6 @@ module Gumdrop
                 :sitefile,
                 :content_hash,
                 :last_run
-
-    extend Callbacks
 
     callbacks :on_start, 
               :on_before_scan,
@@ -89,13 +91,18 @@ module Gumdrop
       self
     end
 
-    def build
+    def build(force_reset=false)
       on_start(self)
+      reset_all() if force_reset
       scan()
       render()
       @last_run= Time.now
       on_end(self)
       self
+    end
+    
+    def rebuild
+      build true
     end
 
     def report(msg, level=:info)
@@ -137,12 +144,13 @@ module Gumdrop
       @greylist        = []
       @redirects       = []
 
-      @content_hash       = Hash.new {|h,k| h[k]= nil }
+      @content_hash    = Hash.new {|h,k| h[k]= nil }
       @layouts         = Hash.new {|h,k| h[k]= nil }
       @partials        = Hash.new {|h,k| h[k]= nil }
       @generators      = Hash.new {|h,k| h[k]= nil }
       
       @config          = Gumdrop::Config.new DEFAULT_OPTIONS
+      @config.env      = @opts[:env] if @opts.has_key? :env
 
       clear_on_start()
       clear_on_before_scan()
@@ -168,13 +176,13 @@ module Gumdrop
       begin
         @log = Logger.new @config.log, 'daily'
       rescue
-        target= if @opts[:quiet] or @opts[:quiet_given]
+        target= if @opts[:quiet]
           nil
         else
           STDOUT
         end
         @log = Logger.new target
-        report "Using STDOUT for logging because of exception: #{ $! }" unless target.nil?
+        # report "Using STDOUT for logging because of exception: #{ $! }" unless target.nil?
       end
       @log.formatter = proc do |severity, datetime, progname, msg|
         "#{datetime}: #{msg}\n"
@@ -304,6 +312,10 @@ module Gumdrop
       else
         @site.config.instance_eval &block
       end
+    end
+
+    def tasks(&block)
+      Gumdrop::CLI::Internal.class_eval &block
     end
     
     # Callbacks

@@ -1,4 +1,4 @@
-module Gumdrop
+module Gumdrop::Support
   module Callbacks
     
     # For defining callbacks

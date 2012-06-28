@@ -27,7 +27,8 @@ Gem::Specification.new do |s|
    s.add_dependency 'sinatra'
    s.add_dependency 'tilt'
    s.add_dependency 'active_support'
-   s.add_dependency 'trollop'
+   s.add_dependency 'listen'
+   s.add_dependency 'thor'
    s.add_dependency 'i18n'
    s.add_dependency 'bundle'
 

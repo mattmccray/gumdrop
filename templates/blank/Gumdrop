@@ -1,4 +1,3 @@
-puts "Gumdrop v#{Gumdrop::VERSION} building..."
 
 configure do
 
@@ -13,6 +12,10 @@ configure do
   # set :ignore,         %w(.DS_Store .gitignore .git .svn .sass-cache)
   # set :server_timeout, 15
   # set :server_port,    4567
+
+  # set :server, "REMOTE_USERNAME"
+  # set :server_user, 'server.com'
+  # set :server_path, '~/server.com'
 
 end
 
@@ -89,7 +92,9 @@ end
 # end
 
 # All Gumdrop Hooks: on_start, on_before_scan, on_scan, on_before_generate, on_generate, on_before_render, on_render, on_end
-# on_start do |site|  end
+on_start do |site|
+  puts "Gumdrop v#{Gumdrop::VERSION} building..."
+end
 # on_end do |site|  end
 
 
@@ -111,6 +116,24 @@ view_helpers do
   #
 
 end
+
+# Add (thor) tasks to gumdrop command
+# for more: https://github.com/wycats/thor/wiki
+# tasks do
+  
+  # desc 'sync', "Syncs with public server using rsync (if configured)"  
+  # method_option :build, :aliases => '-b', :desc => 'Build content before syncing'
+  # method_option :dry_run, :aliases => '-d', :desc => 'Dry run'
+  # def sync
+  #   SITE.build if options[:build]
+  #   config= SITE.config
+  #   output= SITE.config.output_dir
+  #   cmd= "rsync -avz --delete #{output} #{config.server_user}@#{config.server}:#{config.server_path}"
+  #   puts "Running:\n#{cmd}\n"
+  #   system(cmd) unless options[:dry_run]
+  # end
+
+# end
 
 # Any specialized code for your site goes here...
 

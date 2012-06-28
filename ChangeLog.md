@@ -1,3 +1,10 @@
+# v0.8.0
+- Leveraging Thor for new CLI support.
+- You can now add commands to the gumdrop command for your site. Use `tasks` block in Gumdrop file.
+- Code cleanup and reorganization.
+- Generators keep track of generated content.
+- Bugfix: Files without layouts won't throw an exception.
+
 # v0.7.5
 - Gumdrop dev server will serve up files from output_dir if the file isn't found in the source tree.
 - Added new template: blank
