@@ -1,21 +1,12 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
-
 #  Copyright (c) 2011 M@ McCray. All rights reserved.
 
 # $: << File.expand_path(File.dirname(__FILE__) + "/../lib")
-
-# require 'rubygems'
-
-# # require 'bundler/setup'
-
-# require "gumdrop"
-# require "gumdrop/cli"
-
 require 'rubygems'
 require 'bundler/setup'
 require 'gumdrop'
-# Bundler.require if File.exists?('Gemfile')
+Bundler.require if File.exists?('Gemfile')
 
 begin
   if Gumdrop.in_site_folder?
