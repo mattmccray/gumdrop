@@ -21,11 +21,13 @@ module Gumdrop::CLI
     end
 
     desc 'server', 'Run development server'
+    method_option :env, default:'production', aliases:'-e'
     def server
       Gumdrop::Server
     end
 
     desc 'watch', "Watch filesystem for changes and recompile"
+    method_option :env, default:'production', aliases:'-e'
     method_option :quiet, default:false, aliases:'-q', type: :boolean
     method_option :subdued, default:false, aliases:'-s', type: :boolean, desc:"Subdued output (....)"
     method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"

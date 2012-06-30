@@ -10,7 +10,7 @@ module Gumdrop
   autoload :Content,     "gumdrop/content"
   autoload :DataManager, "gumdrop/data_manager"
   autoload :Generator,   "gumdrop/generator"
-  autoload :HashObject,  "gumdrop/hash_object"
+  autoload :HashObject,  "gumdrop/support/hash_object"
   autoload :Pager,       "gumdrop/data_manager"
   autoload :Server,      "gumdrop/server"
   autoload :VERSION,     "gumdrop/version"

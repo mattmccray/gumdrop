@@ -84,7 +84,7 @@ module Gumdrop
           end
           opts[:as]== :hash ? nodes : nodes.flatten
         else
-          match_nodes(subpattern, opts)
+          match_nodes(pattern, opts)
         end
       end
     end

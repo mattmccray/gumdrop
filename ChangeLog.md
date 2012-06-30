@@ -6,6 +6,7 @@
 - Code cleanup and reorganization.
 - Generators keep track of generated content.
 - Bugfix: Files without layouts won't throw an exception.
+- New subdued output mode, cli '-s' flag
 
 # v0.7.5
 - Gumdrop dev server will serve up files from output_dir if the file isn't found in the source tree.

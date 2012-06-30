@@ -1,9 +1,9 @@
 source "http://rubygems.org"
 
 gem "i18n"
-gem "sinatra"
+gem "sinatra", :require=>false
 gem "active_support"
-gem "thor"
+gem "thor", :require=>false
 gem "rake"
 gem "gumdrop"
 

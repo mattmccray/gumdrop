@@ -16,7 +16,7 @@ module Gumdrop
       set :port, site.config.server_port if site.config.server_port
       
       if site.config.proxy_enabled
-        require 'gumdrop/proxy_handler'
+        require 'gumdrop/support/proxy_handler'
         get     '/-proxy/*' do handle_proxy(params, env) end
         post    '/-proxy/*' do handle_proxy(params, env) end
         put     '/-proxy/*' do handle_proxy(params, env) end
