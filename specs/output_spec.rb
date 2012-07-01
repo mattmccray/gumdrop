@@ -1,16 +1,19 @@
 require_relative 'spec_helper'
 
-if ENV['RUN'] != 'output' and ENV['RUN'] != 'output_only'
+if ENV['RUN'] != 'output'
   puts 
   puts "Output tests are NOT being run!"
   puts
   puts "To run output tests run:"
-  puts "  RUN=output rake test"
-  puts "or:"
-  puts "  RUN=output_only rake test"
+  puts "  rake test RUN=output"
   puts
 
 else
+  puts 
+  puts "Testing the generated output against expectations from fixtures."
+  puts
+
+
   describe "Generated Output" do
 
     it "output should be expected" do

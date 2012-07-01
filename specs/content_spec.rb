@@ -1,7 +1,7 @@
 require_relative 'spec_helper'
 
-unless ENV['RUN'] == 'output_only'
-  
+unless ENV['RUN'] == 'output'
+
 describe Gumdrop::Content do
   
   it "must be instantiated with a file path" do

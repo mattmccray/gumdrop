@@ -1,5 +1,5 @@
 require_relative 'spec_helper'
-unless ENV['RUN'] == 'output_only'
+unless ENV['RUN'] == 'output'
 
 describe Gumdrop::Site do
 
