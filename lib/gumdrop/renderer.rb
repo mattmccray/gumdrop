@@ -14,7 +14,7 @@ module Gumdrop
     end
 
     def draw(content, opts={})
-      event_block :render_item, true do |data|
+      event_block :render_item do |data|
         data[:content]= content
         log.debug " rendering: #{ content.source_filename } (#{ content.uri })"
         if content.binary? or content.missing?
@@ -47,35 +47,43 @@ module Gumdrop
       end
 
       def _render_layouts(text)
-        layout = _layout_for_content
-        unless layout.nil?
-          text= _render_layout text, layout
-          # Nested Layouts!
-          sub_layout= _sub_layout(layout)
-          while !sub_layout.nil?
-            text= _render_layout text, sub_layout
-            sub_layout= _sub_layout(sub_layout)
-          end 
+        _layout_pipeline do |layout_class|
+          text= _render_layout text, layout_class
         end
         text
       end
 
       def _render_layout(text, layout)
         log.debug "    layout: #{layout.source_filename}"
-        layout_body= layout.body
         _render_pipeline(layout.source_filename) do |layout_class|
-          text = _render_text(layout_body, layout_class, text)
+          text = _render_text(layout.body, layout_class, text)
         end
         text
       end
 
+      # NOTE: Currently, the render pipeline ends when Renderer.for
+      # returns nil for an ext. Should it continue on until all the
+      # possible file ext templates are looked up?
       def _render_pipeline(path)
         filename_parts= path.split('.')
         begin
           ext= filename_parts.pop
-          tc= Renderer.for(ext)
-          yield tc unless tc.nil?
-        end while !tc.nil? #and filename_parts.size
+          template_class= Renderer.for(ext)
+          yield template_class unless template_class.nil?
+        end while !template_class.nil? #and filename_parts.size
+      end
+
+      def _layout_pipeline
+        layout = _layout_for_content
+        unless layout.nil?
+          yield layout
+          # Nested Layouts!
+          sub_layout= _sub_layout(layout)
+          while !sub_layout.nil?
+            yield sub_layout
+            sub_layout= _sub_layout(sub_layout)
+          end 
+        end 
       end
 
       def _relativize_uris(text)
@@ -112,11 +120,9 @@ module Gumdrop
       def _sub_layout(layout)
         sub_layout_name= @context.get :layout
         return nil if sub_layout_name.nil?
-
         sub_layout= site.layouts.first sub_layout_name
         return nil if sub_layout.nil?
         return nil if sub_layout.uri == layout.uri
-
         sub_layout
       end
 
@@ -148,7 +154,6 @@ module Gumdrop
         }.to_hash_object)
         @context= RenderContext.new content, self, @context
         safe_opts= opts.reject { |o| SPECIAL_OPTS.include? o.to_s }
-        # puts "MERGING OPTS: #{safe_opts}"
         @context.set safe_opts
         @content= content
         @opts= opts
@@ -157,11 +162,30 @@ module Gumdrop
         end
       end
 
+      # TODO: If a :hoist option is sent, pull any context
+      # data from the partial's sub context and put it in
+      # the parent context:
+      #  hoist:(true || :all) -- pulls all from context except SPECIAL_OPTS
+      #  hoist:[:a, :b] -- pulls :a and :b from context
       def _revert_context
         prev= @stack.pop
+        case @opts[:hoist]
+          when :all, true
+            _hoist_data(prev.context)
+          when Array
+            _hoist_data(prev.context, @opts[:hoist])
+        end
         @context= prev.context
         @content= prev.content
         @opts= prev.opts
+      end
+
+      def _hoist_data(to_context, keys=nil)
+        keys ||= @context.state.keys
+        safe_keys= keys.reject {|k| SPECIAL_OPTS.include? k.to_s }
+        safe_keys.each do |key|
+          to_context.set key, @context.state[key]
+        end
       end
 
       def _previous

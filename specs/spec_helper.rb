@@ -29,6 +29,7 @@ def content_for_source(path, opts={})
   # content_for fixture_src(path), site_for_source, opts
   # site_for_source.scan.contents.get path
   if opts[:generated]
+    site_for_source.scan
     generator= Gumdrop::Generator.new(nil) { }
     content= Gumdrop::Content.new(path, generator) { }
     content

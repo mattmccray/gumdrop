@@ -4,7 +4,7 @@ module Gumdrop::Util
     include Loggable
 
     def site
-      Gumdrop.active_site || Gumdrop.site
+      Gumdrop.site
     end
 
     # for event bubbling

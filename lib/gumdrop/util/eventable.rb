@@ -1,21 +1,14 @@
-# require 'observable'
 require 'onfire'
 
 module Gumdrop::Util
 
   module Eventable
     include ::Onfire
-    # include Observable
 
-    # def fire(action, data={}, sender=self)
-    #   changed
-    #   notify_observers sender, action, data
-    # end
-
-    def event_block(target, send_data=false)
+    def event_block(target)
       fire "before_#{target}".to_sym
       data= HashObject.new
-      result= data.payload= send_data ? yield(data) : yield
+      result= data.payload= yield(data)
       fire target, data
       fire "after_#{target}".to_sym, data
       data.return_value || result
@@ -23,11 +16,9 @@ module Gumdrop::Util
 
     def fire(event, data=nil)
       data= if data.nil?
-        HashObject.from {
-          site:Gumdrop.site
-        }
+        HashObject.from site:Gumdrop.site
       elsif data.is_a? Hash
-        HashObject.from(data).merge(site:Gumdrop.site)
+        HashObject.from(data).merge site:Gumdrop.site 
       else
         data
       end

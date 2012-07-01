@@ -67,7 +67,7 @@ module Gumdrop
 
       def initialize(generator)
         @generator= generator
-        site= generator.site
+        # site= generator.site
         @params= Util::HashObject.new
       end
 
@@ -84,7 +84,11 @@ module Gumdrop
       end
 
       def env
-        site.config.env
+        site.env
+      end
+
+      def mode
+        site.mode
       end
 
       def set(var_name, value)

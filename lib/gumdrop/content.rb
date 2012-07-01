@@ -96,11 +96,6 @@ module Gumdrop
       source_filename[0] == "_"
     end
 
-    # def partial_name
-    #   fname = partial? ? filename[1..-1] : filename
-    #   fname.sub ext, ''
-    # end
-
     def layout?
       ext == '.layout'
     end
@@ -110,7 +105,7 @@ module Gumdrop
     end
 
     def body # Memoize this?
-      if has_block?
+      @body ||= if has_block?
         @block.call
       elsif missing? or binary?
         nil

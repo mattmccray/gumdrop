@@ -34,6 +34,7 @@ module Gumdrop
 
     # You shouldn't call this yourself! Access it via Gumdrop.site
     def initialize(sitefile, opts={})
+      Gumdrop.send :set_current_site, self
       @options=Util::HashObject.from opts
       _options_updated!
       @sitefile= sitefile.expand_path
@@ -48,8 +49,6 @@ module Gumdrop
       @greylist = []
       @data= Data::Manager.new
       @scanned= false
-      # Kind of a hack. But makes it testable
-      Gumdrop.active_site= self if Gumdrop.active_site.nil?
       _load_sitefile
     end
 
@@ -194,25 +193,23 @@ module Gumdrop
     def skip
       site.blacklist
     end
+
     def blacklist
       site.blacklist
     end
-
-    # attr_reader would be better... but less testable :-)
-    attr_accessor :active_site 
 
     def in_site_folder?(filename="Gumdrop")
       !fetch_site_file(filename).nil?
     end
 
-    def site(opts={}, prefer_existing=true)
-      if !@active_site.nil? and prefer_existing
-        @active_site.options= opts unless opts.empty?
-        @active_site
+    def site(opts={}, force_new=false)
+      unless @current_site.nil? or force_new
+        @current_site.options= opts unless opts.empty?
+        @current_site
       else
         site_file= Gumdrop.fetch_site_file
         unless site_file.nil?
-          @active_site= Site.new site_file, opts
+          Site.new site_file, opts
         else
           nil
         end
@@ -236,6 +233,12 @@ module Gumdrop
 
     def site_dirname(filename="Gumdrop")
       File.dirname( fetch_site_file( filename ) )
+    end
+
+  protected
+
+    def set_current_site(site)
+      @current_site= site
     end
 
   end
