@@ -60,8 +60,10 @@ module Gumdrop
       end
       fire :start
     rescue => ex
-      log.error "{Exception}"
-      log.error [ex.to_s, ex.backtrace].flatten.join("\n")
+      short= "{Exception}\n#{[ex.to_s, ex.backtrace[0]].flatten.join("\n")}"
+      message= "{Exception}\n#{[ex.to_s, ex.backtrace].flatten.join("\n")}"
+      log.error message
+      $stderr.puts short
       exit 1 unless site.options[:resume]
     end
 

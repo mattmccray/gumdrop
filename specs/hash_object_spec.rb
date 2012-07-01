@@ -62,5 +62,18 @@ describe Gumdrop::Util::HashObject do
     end
   end
 
+  it "extends Hash with to_symbolized_hash" do
+    h= {"one"=>1, "two"=>2}.to_symbolized_hash
+    h.keys.each do |key|
+      assert key.class == Symbol , "key isn't a symbol"
+    end
+  end
+
+  it "extends Hash with to_hash_object" do
+    ho= { "fifth"=>5 }.to_hash_object
+    ho.must_be_instance_of Gumdrop::Util::HashObject
+    ho.fifth.must_equal 5
+  end
+
 end
 end

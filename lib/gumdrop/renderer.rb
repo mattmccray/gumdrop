@@ -3,14 +3,14 @@ module Gumdrop
   class Renderer
     include Util::SiteAccess
 
+    SPECIAL_OPTS= %w(layout force_partial)
     MUNGABLE_RE= Regexp.new(%Q<(href|data|src)([\s]*)=([\s]*)('|"|&quot;|&#34;|&#39;)?\\/([\\/]?)>, 'i')
 
     attr_reader :context
 
     def initialize
-      @content= nil
-      @context= nil
-      @opts= nil
+      @context, @content, @opts= nil, nil, nil
+      @stack= []
     end
 
     def draw(content, opts={})
@@ -141,21 +141,31 @@ module Gumdrop
       end
 
       def _new_context(content, opts)
-        @old_context= @context
-        @old_content= @content
-        @old_opts= @opts
-        @context= RenderContext.new content, self, @old_context
+        @stack.push({
+          content: @content,
+          context: @context,
+          opts: @opts
+        }.to_hash_object)
+        @context= RenderContext.new content, self, @context
+        safe_opts= opts.reject { |o| SPECIAL_OPTS.include? o.to_s }
+        # puts "MERGING OPTS: #{safe_opts}"
+        @context.set safe_opts
         @content= content
         @opts= opts
-        if @old_context.nil? # won't be nil for partials and layouts
+        if @stack.size == 1
           @context.set :layout, _default_layout
         end
       end
 
       def _revert_context
-        @context= @old_context
-        @content= @old_content
-        @opts= @old_opts
+        prev= @stack.pop
+        @context= prev.context
+        @content= prev.content
+        @opts= prev.opts
+      end
+
+      def _previous
+        @stack.last
       end
 
     class << self
