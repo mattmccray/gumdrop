@@ -2,10 +2,6 @@
 
 require 'tilt'
 require "active_support/core_ext"
-%w(   ).each do |lib|
-  
-end
-
 require 'gumdrop/util/string_ex'
 
 module Gumdrop
@@ -48,3 +44,4 @@ require 'gumdrop/content'
 require 'gumdrop/generator'
 require 'gumdrop/renderer'
 require 'gumdrop/site'
+require 'gumdrop/cli'

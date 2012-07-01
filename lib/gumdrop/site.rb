@@ -14,7 +14,7 @@ module Gumdrop
     output_dir: "./output",
     source_dir: "./source",
     data_dir: './data',
-    log: './logs/build.log',
+    log: STDOUT,
     log_level: :info,
     ignore: JETSAM_FILES,
     server_timeout: 5,

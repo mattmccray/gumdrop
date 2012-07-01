@@ -52,18 +52,16 @@ module Gumdrop
         end
         
         # All files render without exception, write them to disc
-        log.debug "(Writing)"
+        log.info "(Writing to #{ site.output_path })"
         event_block :write do
           @write_files.each {|files| _write files }
           @copy_files.each  {|files| _copy files }
         end
       end
-      fire :start
+      fire :end
     rescue => ex
-      short= "{Exception}\n#{[ex.to_s, ex.backtrace[0]].flatten.join("\n")}"
-      message= "{Exception}\n#{[ex.to_s, ex.backtrace].flatten.join("\n")}"
-      log.error message
-      $stderr.puts short
+      log.error "{Exception}\n#{[ex.to_s, ex.backtrace].flatten.join("\n")}"
+      $stderr.puts "{Exception}\n#{[ex.to_s, ex.backtrace[0]].flatten.join("\n")}"
       exit 1 unless site.options[:resume]
     end
 
@@ -73,11 +71,11 @@ module Gumdrop
       files.each do |from,to|
         event_block :copy_file do
           if _file_changed? from, to
-            log.info " copying: #{ to }"
+            log.info "   copying: #{ _rel_path to }"
             _ensure_path to
             FileUtils.cp_r from, to
           else
-            log.info " unchanged: #{ to }"
+            log.info " unchanged: #{ _rel_path to }"
           end
         end
       end
@@ -87,13 +85,13 @@ module Gumdrop
       files.each do |rendered_content, to|
         event_block :write_file do
           if _file_changed? rendered_content, to, true
-            log.info " writing: #{to}"
+            log.info "   writing: #{ _rel_path to }"
             _ensure_path to
             File.open to, 'w' do |f|
               f.write rendered_content
             end
           else
-            log.info " not changed: #{to}"
+            log.info " unchanged: #{ _rel_path to }"
           end
         end
       end
@@ -120,6 +118,10 @@ module Gumdrop
 
     def _checksum_for_file(path)
       _checksum_for File.read( path )
+    end
+
+    def _rel_path(path)
+      path.gsub( site.output_path, '' )[1..-1]
     end
 
   end

@@ -17,6 +17,10 @@ module Gumdrop
         m.render
       end
       
+      def config
+        site.config
+      end
+
       def gumdrop_version
         ::Gumdrop::VERSION
       end

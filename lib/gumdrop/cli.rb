@@ -16,10 +16,6 @@ module Gumdrop
       Gumdrop::CLI::Internal.class_eval &block
     end
 
-    # Use this... To help make it clear that it's not a proc
-    def cli_extend(&block)
-    end
-
   end
 
 end
