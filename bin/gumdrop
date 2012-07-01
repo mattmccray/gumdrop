@@ -2,7 +2,6 @@
 # encoding: utf-8
 #  Copyright (c) 2011 M@ McCray. All rights reserved.
 
-# $: << File.expand_path(File.dirname(__FILE__) + "/../lib")
 require 'rubygems'
 require 'bundler/setup'
 require 'gumdrop'
@@ -10,6 +9,8 @@ Bundler.require if File.exists?('Gemfile')
 
 begin
   if Gumdrop.in_site_folder?
+    # Pre-Fetch Site and load Gumdrop file
+    Gumdrop.site() #mode:'init' Why?
     Gumdrop::CLI::Internal.start
   else
     Gumdrop::CLI::External.start

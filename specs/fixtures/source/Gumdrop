@@ -1,13 +1,16 @@
-require 'slim'
 
-configure do
-  
-  set :site_title,   "Test"
-  set :site_tagline, "a test site"
-  
-  set :source_dir,   "./"
+Gumdrop.configure do |config|
+  config.source_dir= '.'
+  config.output_dir= '../output'
+  config.custom_setting= 'yep'
+  config.log_level= :debug
+  config.log= config.mode == :test ? 'test.log' : STDOUT
+  config.ignore << 'output/**/*' << "*.log"
+end
 
-  # set :relative_paths_for, ['.html']
-  # set :relative_paths_for, :all #default
 
+Gumdrop.generate 'robots' do |gen|
+  gen.page 'robots.txt' do
+    "ROBOTS!"
+  end
 end

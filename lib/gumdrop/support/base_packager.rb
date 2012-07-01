@@ -1,6 +1,10 @@
+# FIXME: Abstract Compressors!
+
 module Gumdrop
   module Support
     module BasePackager
+      
+      private
 
       def compress_output(content, opts)
         case opts[:compress]
@@ -43,7 +47,7 @@ module Gumdrop
       
       def prune_src(name, opts)
         if opts[:prune] and opts[:root]
-          sp = File.expand_path( @site.config.source_dir )
+          sp = site.source_path
           rp = File.expand_path(opts[:root])
           relative_root = rp.gsub(sp, '')[1..-1]
           rrlen= relative_root.length - 1

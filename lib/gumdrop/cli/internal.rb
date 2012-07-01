@@ -16,27 +16,26 @@ module Gumdrop::CLI
     method_option :quiet, default:false, aliases:'-q', type: :boolean
     method_option :subdued, default:false, aliases:'-s', type: :boolean, desc:"Subdued output (....)"
     method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
-    def build()
-      Gumdrop.run(options)
+    def build
+      Gumdrop.run options.merge(mode:'build')
     end
 
     desc 'server', 'Run development server'
-    method_option :env, default:'production', aliases:'-e'
     def server
+      Gumdrop.site.options = options.merge(mode:'build')
       Gumdrop::Server
     end
 
     desc 'watch', "Watch filesystem for changes and recompile"
-    method_option :env, default:'production', aliases:'-e'
     method_option :quiet, default:false, aliases:'-q', type: :boolean
     method_option :subdued, default:false, aliases:'-s', type: :boolean, desc:"Subdued output (....)"
     method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
     def watch
-      Gumdrop.run options
-      paths= [SITE.src_path]
-      paths << SITE.data_path if File.directory? SITE.data_path
+      Gumdrop.run options.merge(mode:'merge')
+      paths= [Gumdrop.site.source_dir, Gumdrop.site.sitefile] #? Sitefile too?
+      paths << Gumdrop.site.data_dir if File.directory? Gumdrop.site.data_dir
       Listen.to(*paths, :latency => 0.5) do |m, a, r|
-        SITE.rebuild
+        Gumdrop.rebuild options.merge(mode:'merge')
       end
     end
 
@@ -52,24 +51,22 @@ module Gumdrop::CLI
         say "  ~/.gumdrop/templates/#{name}"
         site_root= Gumdrop.site_dirname
         FileUtils.mkdir_p File.dirname(template_path)
-        FileUtils.cp_r File.join(site_root, "."), template_path
+        FileUtils.cp_r (site_root / "."), template_path
       end
     end
 
     private
       
       def home_path(name="")
-        File.expand_path File.join("~", ".gumdrop", name)
+        File.expand_path "~" /".gumdrop" / name
       end
 
       def home_template_path(template)
-        home_path 'tempaltes', template
+        home_path 'templates' / template
       end
 
       def local_path(name="")
-        File.join( ".", name ) # ?
+        "." / name
       end
   end
 end
-
-SITE= Gumdrop::Site.new Gumdrop.fetch_site_file unless defined?( SITE )

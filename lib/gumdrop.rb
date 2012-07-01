@@ -1,96 +1,50 @@
 # coding: utf-8
 
 require 'tilt'
-require 'fileutils'
-require 'active_support/all'
-
-module Gumdrop
-
-  autoload :Context,     "gumdrop/context"
-  autoload :Content,     "gumdrop/content"
-  autoload :DataManager, "gumdrop/data_manager"
-  autoload :Generator,   "gumdrop/generator"
-  autoload :HashObject,  "gumdrop/support/hash_object"
-  autoload :Pager,       "gumdrop/data_manager"
-  autoload :Server,      "gumdrop/server"
-  autoload :VERSION,     "gumdrop/version"
-  autoload :ViewHelpers, "gumdrop/view_helpers"
-
-  module CLI
-    autoload :External,  "gumdrop/cli/external"    
-    autoload :Internal,  "gumdrop/cli/internal"    
-  end
-
-  module Support
-    autoload :BasePackager, "gumdrop/support/base_packager"    
-    autoload :Callbacks,    "gumdrop/support/callbacks"
-    autoload :Stitch,       "gumdrop/support/stitch"    
-    autoload :Sprockets,    "gumdrop/support/sprockets"    
-  end
-  
-  class << self
-
-    def run(opts={})
-      site= fetch_site opts
-      unless site.nil?
-        old= Dir.pwd
-        Dir.chdir site.root_path
-  
-        site.build
-        
-        Dir.chdir old
-  
-        puts "\n" if opts[:subdued]
-
-      else
-        puts "Not in a valid Gumdrop site directory."
-      end
-    end
-
-    def in_site_folder?(filename="Gumdrop")
-      !fetch_site_file(filename).nil?
-    end
-
-    def fetch_site(opts={}, prefer_existing=true)
-      if defined?(SITE) and prefer_existing
-        SITE.opts= opts unless opts.empty?
-        SITE
-      else
-        site_file= Gumdrop.fetch_site_file
-        unless site_file.nil?
-          Site.new site_file, opts
-        else
-          nil
-        end
-      end
-    end
-
-    def fetch_site_file(filename="Gumdrop")
-      here= Dir.pwd
-      found= File.file? File.join( here, filename )
-      # TODO: Should be smarter -- This is a hack for Windows support "C:\"
-      while !found and File.directory?(here) and File.dirname(here).length > 3
-        here= File.expand_path File.join(here, '../')
-        found= File.file? File.join( here, filename )
-      end
-      if found
-        File.expand_path File.join(here, filename)
-      else
-        nil
-      end
-    end
-
-    def site_dirname(filename="Gumdrop")
-      File.dirname( fetch_site_file( filename ) )
-    end
-
-    def change_log
-      here= File.dirname(__FILE__)
-      File.read File.join(here, "../ChangeLog.md")
-    end
-
-  end
+require "active_support/core_ext"
+%w(   ).each do |lib|
   
 end
 
+require 'gumdrop/util/string_ex'
+
+module Gumdrop
+
+  autoload :Server, 'gumdrop/server/server'
+
+  module CLI
+    autoload :Internal, 'gumdrop/cli/internal'
+    autoload :External, 'gumdrop/cli/external'
+  end
+
+  module Data
+    autoload :Manager, 'gumdrop/data/manager'
+  end
+
+  module Support
+    autoload :BasePackager, 'gumdrop/support/base_packager'    
+    autoload :Stitch, 'gumdrop/support/stitch'
+    autoload :Sprockets, 'gumdrop/support/sprockets'
+  end
+
+  module Util
+    autoload :Eventable, 'gumdrop/util/eventable'
+    autoload :HashObject, 'gumdrop/util/hash_object'
+    autoload :Loggable, 'gumdrop/util/logging'
+    autoload :SiteAccess, 'gumdrop/util/site_access'
+    autoload :ViewHelpers, 'gumdrop/util/view_helpers'
+  end
+
+  def self.change_log
+    here= File.dirname(__FILE__)
+    File.read here / ".." / "ChangeLog.md"
+  end
+
+end
+
+require 'gumdrop/version'
+require 'gumdrop/builder'
+require 'gumdrop/content'
+require 'gumdrop/generator'
+require 'gumdrop/renderer'
 require 'gumdrop/site'

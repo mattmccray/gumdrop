@@ -1,414 +1,247 @@
-require 'pathname'
+require 'active_support/configurable'
 
 module Gumdrop
 
-  DEFAULT_OPTIONS= {
+  WEB_PAGE_EXTS= %w(.html .htm .php)
+  JETSAM_FILES= %w(**/.DS_Store .gitignore .git/**/* .svn/**/* **/.sass-cache/**/* Gumdrop)
+
+  DEFAULT_CONFIG= {
     relative_paths: true,
-    relative_paths_for: ['.html', '.htm', '.php'],
+    relative_paths_exts: WEB_PAGE_EXTS,
+    default_layout: 'site',
+    layout_exts: WEB_PAGE_EXTS,
     proxy_enabled: false,
     output_dir: "./output",
     source_dir: "./source",
     data_dir: './data',
     log: './logs/build.log',
-    ignore: %w(.DS_Store .gitignore .git .svn .sass-cache),
-    server_timeout: 15,
-    # server_port: 4567,
-    env: 'production'
+    log_level: :info,
+    ignore: JETSAM_FILES,
+    server_timeout: 5,
+    server_port: 4567,
+    env: :production,
+    file_change_test: :default
   }
 
   class Site
+    include ActiveSupport::Configurable
+    include Util::Eventable
+    include Util::Loggable
 
-    extend Support::Callbacks
-    
-    attr_reader :opts,
-                :root_path, 
-                :src_path,
-                :out_path,
-                :data_path,
-                :blacklist,
-                :greylist,
-                :redirects,
-                :content_filters,
-                :layouts,
-                :partials,
-                :generators,
-                :config,
-                :data,
-                :sitefile,
-                :content_hash,
-                :last_run
+    config_accessor :source_dir, :output_dir, :data_dir, :mode, :env
 
-    callbacks :on_start, 
-              :on_before_scan,
-              :on_scan, 
-              :on_before_generate,
-              :on_generate, 
-              :on_before_render,
-              :on_render,
-              :on_before_render_item,
-              :on_render_item,
-              :on_end
+    attr_reader :sitefile, :options, :root, :contents, :data, :blacklist, :greylist, :filters, :layouts, :generators, :partials, :last_run
 
+    # You shouldn't call this yourself! Access it via Gumdrop.site
     def initialize(sitefile, opts={})
-      @sitefile  = File.expand_path sitefile
-      @root_path = File.dirname @sitefile
-      @opts      = opts
-      @last_run  = nil
-      reset_all()
+      @options=Util::HashObject.from opts
+      _options_updated!
+      @sitefile= sitefile.expand_path
+      @root= File.dirname @sitefile
+      @last_run = 0
+      @contents = ContentList.new
+      @layouts = SpecialContentList.new ".layout"
+      @partials = SpecialContentList.new
+      @generators = []
+      @filters = []
+      @blacklist = []
+      @greylist = []
+      @data= Data::Manager.new
+      @scanned= false
+      # Kind of a hack. But makes it testable
+      Gumdrop.active_site= self if Gumdrop.active_site.nil?
+      _load_sitefile
     end
 
-    def opts=(opts={})
-      @opts= opts
+    def options=(opts={})
+      @options.merge!(opts)
+      _options_updated!
     end
 
-    def contents(*args)
-      opts= args.extract_options!
-      pattern= args.first || nil
 
-      if pattern.nil? or pattern.empty?
-        if opts[:as] == :hash
-          @content_hash
-        else
-          @content_hash.values
-        end
-      
-      else
-        if pattern.is_a? Array
-          nodes= opts[:as] == :hash ? {} : []
-          pattern.each do |subpattern|
-            if opts[:as]== :hash
-              nodes.merge! match_nodes(subpattern, opts)
-            else
-              nodes << match_nodes(subpattern, opts)
-            end
-          end
-          opts[:as]== :hash ? nodes : nodes.flatten
-        else
-          match_nodes(pattern, opts)
-        end
-      end
-    end
-
-    def rescan
-      on_start(self)
-      reset_all()
-      scan()
-      @last_run= Time.now
-      # TODO: should on_before_render and on_render be called for rescan()?
-      on_end(self)
+    def clear(reload_sitefile=false)
+      @contents.clear
+      @layouts.clear
+      @partials.clear
+      @generators.clear
+      @filters.clear
+      @blacklist.clear
+      @greylist.clear
+      @data.reset
+      @output_path= nil
+      @source_path= nil
+      @data_path= nil
+      @scanned= false
+      _load_sitefile if reload_sitefile
       self
     end
 
-    def build(force_reset=false)
-      on_start(self)
-      report "[#{ Time.new }]"
-      reset_all() if force_reset
-      scan()
-      render()
-      @last_run= Time.now
-      on_end(self)
-      report "[Done]"
+    def scan(force=false)
+      if !@scanned or force
+        clear(true) if @scanned # ????
+        _content_scanner
+        @scanned= true
+        generate
+      end
       self
     end
-    
-    def rebuild
-      build true
+
+    def generate
+      _execute_generators
+      self
     end
 
-    def report(msg, level=:info)
-      case level
-        when :info
-          unless @opts[:quiet]
-            if @opts[:subdued]
-              print "."
-            else
-              @log.info msg 
-            end
-          end
-        when :warning, :warn
-          @log.warn msg
-      else
-        print "!" if @opts[:subdued]
-        @log.error msg
+    def in_greylist?(path)
+      @greylist.any? do |pattern|
+        Content.path_match? path, pattern
       end
     end
 
-    # FIXME: Should a new Context be created for every page? For now
-    #        it's a single context for whole site
-    def render_context
-      @context ||= Context.new self
-      @context
+    def in_blacklist?(path)
+      @blacklist.any? do |pattern|
+        Content.path_match? path, pattern
+      end
     end
 
-    # Match a path using a glob-like file pattern
-    def path_match(path, pattern)
-      File.fnmatch pattern, path, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_CASEFOLD
+    def source_path
+      @source_path ||= source_dir.expand_path(root)
+    end
+
+    def output_path
+      @output_path ||= output_dir.expand_path(root)
+    end
+
+    def data_path
+      @data_path ||= source_dir.expand_path(root)
+    end
+
+    # Events stop bubbling here.
+    def parent
+      nil
     end
 
   private
 
-    def scan
-      build_tree()
-      run_generators()
-      self
-    end
-
-
-    def reset_all
-      @content_filters = []
-      @blacklist       = []
-      @greylist        = []
-      @redirects       = []
-
-      @content_hash    = Hash.new {|h,k| h[k]= nil }
-      @layouts         = Hash.new {|h,k| h[k]= nil }
-      @partials        = Hash.new {|h,k| h[k]= nil }
-      @generators      = Hash.new {|h,k| h[k]= nil }
-      
-      @config          = Gumdrop::Config.new DEFAULT_OPTIONS
-      @config.env      = @opts[:env] if @opts.has_key? :env
-
-      clear_on_start()
-      clear_on_before_scan()
-      clear_on_scan()
-      clear_on_before_generate()
-      clear_on_generate()
-      clear_on_before_render()
-      clear_on_render()
-      clear_on_before_render_item()
-      clear_on_render_item()
-      clear_on_end()
-
-      load_sitefile()
-      
-      @data_path       = get_expanded_path(@config.data_dir)
-      @src_path        = get_expanded_path(@config.source_dir)
-      @out_path        = get_expanded_path(@config.output_dir)
-
-      @data            = Gumdrop::DataManager.new self, @data_path
-
-      init_logging()
-    end
-
-    def match_nodes(pattern, opts={})
-      nodes = opts[:as] == :hash ? {} : []
-      @content_hash.keys.each do |path|
-        if path_match path, pattern
-          if opts[:as] == :hash
-            nodes[path]= @content_hash[path]
-          else
-            nodes << @content_hash[path]
-          end
-        end
-      end
-      nodes
-    end
-
-    def init_logging
-      begin
-        @log = Logger.new @config.log, 'daily'
-      rescue
-        target= if @opts[:quiet]
-          nil
-        else
-          STDOUT
-        end
-        @log = Logger.new target
-        # report "Using STDOUT for logging because of exception: #{ $! }" unless target.nil?
-      end
-      @log.formatter = proc do |severity, datetime, progname, msg|
-        # "#{datetime}: #{msg}\n"
-        "  #{msg}\n"
+    def _options_updated!
+      Site.configure do |c|
+        c.env= @options.env.to_sym if @options.env
+        c.mode= @options.mode.nil? ? :unknown : @options.mode.to_sym
       end
     end
 
-    def get_expanded_path(path)
-      if (Pathname.new path).absolute?
-        path
-      else
-        File.expand_path File.join(@root_path, path)
-      end
+    def _load_sitefile
+      clear_events
+      load sitefile
+      data.add_path data_dir.expand_path(root)
+      Gumdrop.init_logging
     end
 
-    def load_sitefile
-      source= File.read( @sitefile )
-      dsl = Sitefile.new self
-      dsl.instance_eval source
-      dsl
-    end
-
-    def build_tree
-      report "[Scanning from #{src_path}]", :info
-      on_before_scan(self)
+    def _content_scanner
+      log.debug "[Scanning from #{ source_path }]"
       # Report blacklists and greylists
-      blacklist.each do |path|
-        report " blacklist: #{path}", :info
-      end
-      greylist.each do |path|
-        report "  greylist: #{path}", :info
-      end
+      blacklist.each {|p| log.debug "   will skip: #{path}" }
+      greylist.each  {|p| log.debug " will ignore: #{path}" }
       # Scan Filesystem
-      Dir.glob("#{src_path}/**/*", File::FNM_DOTMATCH).each do |path|
-        unless File.directory? path or @config.ignore.include?( File.basename(path) )
-          node= Content.new(path, self)
-          path= node.to_s
-          if blacklist.any? {|pattern| path_match path, pattern }
-            report " excluding: #{path}", :info
-          else
-            node.ignore greylist.any? {|pattern| path_match path, pattern }
-            # Sort out Layouts, Generators, and Partials
-            if File.extname(path) == ".template"
-              layouts[path]= node
-              layouts[File.basename(path)]= node
-
-            elsif File.extname(path) == ".generator"
-              generators[File.basename(path)]= Generator.new( node, self )
-
-            elsif File.basename(path).starts_with?("_")
-              partial_name= File.basename(path)[1..-1].gsub(File.extname(File.basename(path)), '')
-              partial_node_path= File.join File.dirname(path), partial_name
-              # puts "Creating partial #{partial_name} from #{path}"
-              partials[partial_name]= node
-              partials[partial_node_path]= node
-            
-            else
-              @content_hash[path]= node
-            end
-          end
+      event_block :scan do
+        Scanner.new(source_path).each do |path, rel|
+          content= Content.new(path)
+          layouts.add content and next if content.layout?
+          partials.add content and next if content.partial?
+          generators << Generator.new(content) and next if content.generator?
+          contents.add content
+          log.debug " including: #{ rel }"
         end
-      end
-      on_scan(self)
-    end
-
-    def run_generators
-      report "[Executing Generators]", :info
-      on_before_generate(self)
-      generators.each_pair do |path, generator|
-        generator.execute()
-      end
-      on_generate(self)
-    end
-
-    def render
-      unless opts[:dry_run]
-        report "[Compiling to #{@out_path}]", :info
-        on_before_render(self)
-        nodes= if opts[:assets]
-          contents(opts[:assets])
-        else
-          contents()
-        end
-        nodes.each do |node|
-          render_content(node, render_context, content_filters)
-        end
-        on_render(self)
+        contents.keys.size
       end
     end
 
-    def render_content(node, ctx, filters)
-      unless node.ignore?
-        output_path= File.join(@out_path, node.to_s)
-        FileUtils.mkdir_p File.dirname(output_path)
-        begin
-          on_before_render_item(self, node)
-          node.renderTo ctx, output_path, filters
-          on_render_item(self, node)
-        rescue => ex
-          report "[!>EXCEPTION<!]: #{ node.to_s }", :error
-          report [ex.to_s, ex.backtrace].flatten.join("\n"), :error
-          exit 1 unless @opts[:resume]
+    def _execute_generators
+      log.debug "[Executing Generators]"
+      event_block :generate do
+        generators.each do |generator|
+          generator.execute()
         end
-      else
-        report "  ignoring: #{ node.to_s }", :info
       end
     end
+
   end
 
-  class Sitefile
+  class << self
 
-    def initialize(site)
-      @site= site
-    end
-  
-    def generate(&block)
-      # Auto-generated, numerical, key for a site-level generator
-      @site.generators[@site.generators.keys.length] = Generator.new(block, @site)
-    end
-  
-    def content_filter(&block)
-      @site.content_filters << block
-    end
-  
-    def skip(path)
-      @site.blacklist << path
-    end
-    alias_method :blacklist, :skip
-
-    def ignore(path)
-      @site.greylist << path
-    end
-    alias_method :greylist, :ignore
-    alias_method :graylist, :ignore
-
-    def view_helpers(&block)
-      Gumdrop::ViewHelpers.class_eval &block
+    def on(event_type, options={}, &block)
+      site.on event_type, options, &block
     end
 
     def configure(&block)
-      if block.arity > 0
-        block.call @site.config
+      Site.configure &block
+    end
+
+    def config
+      site.config
+    end
+
+    def mode
+      site.mode
+    end
+
+    def ignore
+      site.greylist
+    end
+    def greylist
+      site.greylist
+    end
+
+    def skip
+      site.blacklist
+    end
+    def blacklist
+      site.blacklist
+    end
+
+    # attr_reader would be better... but less testable :-)
+    attr_accessor :active_site 
+
+    def in_site_folder?(filename="Gumdrop")
+      !fetch_site_file(filename).nil?
+    end
+
+    def site(opts={}, prefer_existing=true)
+      if !@active_site.nil? and prefer_existing
+        @active_site.options= opts unless opts.empty?
+        @active_site
       else
-        @site.config.instance_eval &block
+        site_file= Gumdrop.fetch_site_file
+        unless site_file.nil?
+          @active_site= Site.new site_file, opts
+        else
+          nil
+        end
       end
     end
 
-    def tasks(&block)
-      Gumdrop::CLI::Internal.class_eval &block
+    def fetch_site_file(filename="Gumdrop")
+      here= Dir.pwd
+      found= File.file?  here / filename
+      # TODO: Should be smarter -- This is a hack for Windows support "C:\"
+      while !found and File.directory?(here) and File.dirname(here).length > 3
+        here= File.expand_path here /'..'
+        found= File.file?  here / filename
+      end
+      if found
+        File.expand_path here / filename
+      else
+        nil
+      end
     end
-    
-    # Callbacks
-    def on_start(&block)
-      @site.on_start &block
-    end
-    def on_before_scan(&block)
-      @site.on_before_scan &block
-    end
-    def on_scan(&block)
-      @site.on_scan &block
-    end
-    def on_before_generate(&block)
-      @site.on_before_generate &block
-    end
-    def on_generate(&block)
-      @site.on_generate &block
-    end
-    def on_before_render(&block)
-      @site.on_before_render &block
-    end
-    def on_render(&block)
-      @site.on_render &block
-    end
-    def on_before_render_item(&block)
-      @site.on_before_render &block
-    end
-    def on_render_item(&block)
-      @site.on_render &block
-    end
-    def on_end(&block)
-      @site.on_end &block
-    end
-  
-  end
 
-  class Config < HashObject
-    
-    def set(key, value)
-      self[key]= value
-    end
-    def get(key)
-      self[key]
+    def site_dirname(filename="Gumdrop")
+      File.dirname( fetch_site_file( filename ) )
     end
 
   end
 
+end
+
+Gumdrop::Site.configure do |c|
+  c.merge! Gumdrop::DEFAULT_CONFIG
 end

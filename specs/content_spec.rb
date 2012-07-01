@@ -1,92 +1,106 @@
-require 'minitest/spec'
-require 'minitest/autorun'
-require 'gumdrop'
-#require File.join File.dirname(__FILE__), 'diff.rb'
+require_relative 'spec_helper'
 
-fixture_src_path= File.join ".", "specs", "fixtures", "source"
-fixture_exp_path= File.join ".", "specs", "fixtures", "expected"
-
-def get_test_site
-  site= Gumdrop::Site.new File.join(".", "specs", "fixtures", "source", 'Gumdrop'), :quiet=>true
-  site.rescan
-end
-
-def get_expected(filename)
-  path= File.join ".", "specs", "fixtures", "expected", filename
-  File.read path
-end
-
+unless ENV['RUN'] == 'output_only'
+  
 describe Gumdrop::Content do
-  # before do
-  #   @ho= Gumdrop::HashObject.new one:"ONE", two:"TWO", three:'THREE'
-  # end
-
-  it "should process the content through all the engines specified in the file ext" do
-    
-    # path= File.join fixture_src_path, 'Gumdrop'
-    # site= Gumdrop::Site.new path, :quiet=>true
-    # site.rescan
-    site= get_test_site
-
-    path= File.join fixture_src_path, 'test.js.erb.coffee'
-    content= Gumdrop::Content.new( path, site )
-
-    path= File.join fixture_exp_path, 'test.js'
-    expected= File.read path
-
-    content= content.render()
-
-    # puts content
-    # puts expected
-
-    content.must_equal expected
+  
+  it "must be instantiated with a file path" do
+    content = content_for_source('test.html')
+    content.wont_be_nil
   end
 
-  it "should relativize all absolute paths (when starts with /)" do
-    site= get_test_site
-    # puts site.content_hash.keys
-
-    page= site.contents('posts/post1.html').first
-    content= page.render
-    expected= get_expected('posts/post1.html')
-    # puts content
-    content.must_equal expected
-
-    page= site.contents('posts/post1.js').first
-    content= page.render
-    # puts content
-    content.must_equal get_expected('posts/post1.js')
-
-    page= site.contents('sub/sub/sub/test.html').first
-    content= page.render
-    # puts content
-    content.must_equal get_expected('sub/sub/sub/test.html')
-
-    page= site.contents('sub/sub/sub/test2.html').first
-    content= page.render
-    # puts content
-    content.must_equal get_expected('sub/sub/sub/test2.html')
+  it "it does not care if it is a real path or not" do
+    content = content_for_source('test.html')
+    content.wont_be_nil
   end
 
-  # it "can be created with no arguments" do
-  #   Gumdrop::HashObject.new.must_be_instance_of Gumdrop::HashObject
-  # end
+  describe 'generated?' do
 
-  # it "can be used as a standard hash" do
-  #   @ho[:one].must_equal "ONE"
-  # end
+    it "true if it was created with a generator" do
+      content = content_for_source('test.html', generated:true)
+      content.generated?.must_equal true
+    end
 
-  # it "can be used as a standard with either a sym or string key" do
-  #   @ho[:two].must_equal "TWO"
-  #   @ho['two'].must_equal "TWO"
-  # end
+  end
 
-  # it "can be accessed like an object" do
-  #   @ho.three.must_equal "THREE"
-  # end
+  describe 'ignore?' do
 
-  # it "should return nil for an unknown key" do
-  #   @ho.timmy.must_be_nil
-  # end
+    it "false by default" do
+      content = content_for_source('test.html')
+      content.ignore?.must_equal false
+    end
+
+    it "true if ignored(true) called" do
+      content = content_for_source('test.html')
+      content.ignore?.must_equal false
+      content.ignore true
+      content.ignore?.must_equal true
+      content.ignore false
+      content.ignore?.must_equal false
+    end
+
+  end
+
+  describe 'binary?' do
+
+    it "true if bin file" do
+      content = content_for_source('image.png')
+      content.binary?.must_equal true
+    end
+
+    it "false if text file" do
+      content = content_for_source('test.html')
+      content.binary?.must_equal false
+    end
+
+  end
+
+  describe 'exists?' do
+
+    it "return true for existing files" do
+      content = content_for_source('test.html')
+      exist= content.exists?
+      exist.must_equal true
+    end
+    it "return false for missing files" do
+      content = content_for_source('missing.html')
+      content.must_be_nil
+
+      # Should a file magically disappear
+      content= Gumdrop::Content.new('crap.head.html')
+      exist= content.exists?
+      exist.must_equal false
+    end
+    it "return true for generated files" do
+      content = content_for_source('crap.html', generated:true)
+      exist= content.exists?
+      exist.must_equal true
+    end
+
+  end
+
+  describe 'body()' do
+
+    it "returns file contents for non binary files" do
+      content= content_for_source 'test.html'
+      expected= File.read(fixture_src('test.html.erb'))
+      content.body.must_be_sorta_like expected
+    end
+
+    it "returns nil for binary files" do
+      content= content_for_source 'image.png'
+      content.body.must_be_nil
+    end
+
+    it "returns block content when provided" do
+      content= Gumdrop::Content.new '', nil do
+        "Hello"
+      end
+      content.body.must_equal 'Hello'
+    end
+
+  end
+
+end
 
 end

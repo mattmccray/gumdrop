@@ -15,21 +15,24 @@ Gem::Specification.new do |s|
 
    s.authors = ["Matt McCray"]
    s.email = %q{matt@elucidata.net}
-   s.summary = %q{The sweet 'n simple cms/prototyping tool.}
+   s.summary = %q{The sweet 'n simple cms and prototyping tool.}
    s.homepage = %q{https://github.com/darthapo/gumdrop}
-   s.description = %q{The sweet 'n simple cms/prototyping tool for creating static html websites and webapps.}
+   s.description = %q{The sweet 'n simple cms and prototyping tool for creating static html websites and webapps.}
 
    s.files         = `git ls-files`.split("\n")
    s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
    s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
    s.require_paths = ["lib"]
    
-   s.add_dependency 'sinatra'
+   s.add_dependency 'thor'
    s.add_dependency 'tilt'
    s.add_dependency 'active_support'
+   s.add_dependency 'onfire'
+   s.add_dependency 'sinatra'
    s.add_dependency 'listen'
-   s.add_dependency 'thor'
    s.add_dependency 'i18n'
    s.add_dependency 'bundle'
+
+   s.add_development_dependency 'minitest'
 
 end

@@ -2,3 +2,5 @@
 *.gem
 output
 .sass-cache
+*.log
+old_*

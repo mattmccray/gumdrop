@@ -1,31 +1,66 @@
-require 'minitest/spec'
-require 'minitest/autorun'
-require 'gumdrop'
+require_relative 'spec_helper'
 
-describe Gumdrop::HashObject do
+unless ENV['RUN'] == 'output_only'
+
+describe Gumdrop::Util::HashObject do
   before do
-    @ho= Gumdrop::HashObject.new one:"ONE", two:"TWO", three:'THREE'
+    @ho= Gumdrop::Util::HashObject.from one:"ONE", two:"TWO", three:'THREE'
   end
 
   it "can be created with no arguments" do
-    Gumdrop::HashObject.new.must_be_instance_of Gumdrop::HashObject
+    Gumdrop::Util::HashObject.new.must_be_instance_of Gumdrop::Util::HashObject
   end
 
   it "can be used as a standard hash" do
     @ho[:one].must_equal "ONE"
   end
 
-  it "can be used as a standard with either a sym or string key" do
+  it "can be used as a standard hash with either a sym or string key" do
     @ho[:two].must_equal "TWO"
     @ho['two'].must_equal "TWO"
+
+    @ho[:two]= "two"
+    @ho[:two].must_equal "two"
+    @ho['two'].must_equal "two"
+
+    @ho['two']= "too"
+    @ho[:two].must_equal "too"
+    @ho['two'].must_equal "too"
   end
 
   it "can be accessed like an object" do
     @ho.three.must_equal "THREE"
   end
 
-  it "should return nil for an unknown key" do
-    @ho.timmy.must_be_nil
+  it "can be assigned like an object" do
+    @ho.stuff= 'junk'
+    @ho.stuff.must_equal "junk"
+    @ho[:stuff].must_equal "junk"
+    @ho['stuff'].must_equal "junk"
   end
 
+  it "should return nil for an unknown key" do
+    @ho.timmy.must_be_nil
+    @ho[:timmy].must_be_nil
+    @ho['timmy'].must_be_nil
+  end
+
+  it "should store keys as symbols" do
+    @ho.first= 1
+    @ho[:second]= 2
+    @ho['third']= 4
+    @ho.store 'fourth', 4
+    @ho.keys.each do |key|
+      assert key.class == Symbol, "key isn't a symbol"
+    end
+  end
+
+  it "should store keys as symbols when merge too" do
+    @ho.merge!({ "fifth"=>5 })
+    @ho.keys.each do |key|
+      assert key.class == Symbol , "key isn't a symbol"
+    end
+  end
+
+end
 end

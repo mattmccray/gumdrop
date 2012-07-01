@@ -1,36 +1,34 @@
+require 'pathname'
 
 module Gumdrop
-  
-  class Content
 
-    MUNGABLE_RE= Regexp.new(%Q<(href|data|src)([\s]*)=([\s]*)('|"|&quot;|&#34;|&#39;)?\\/([\\/]?)>, 'i')
-    LAYOUTLESS_EXTS= %w(.css .js .xml)
+  # TODO: Use a Pathname for all path operations instead of File.*
+  #       Add support for relative_to and relative_from to 
+  #       ContentList (find?)
+
+  class Content
+    include Util::SiteAccess
+
+    attr_reader :source_path, :params
     
-    attr_reader :full_path, :path, :params, :site
-    
-    def initialize(path, site, params={})
-      @site= site
-      @params= HashObject.new params
-      @full_path= path
+    def initialize(source_path, generator=nil, &block)
+      @source_path= source_path
+      @generator= generator
+      @ignore= false
+      @block= block
+      @params= Util::HashObject.new
+    end
+
+    def params=(value={})
+      @params.merge! value
     end
 
     def slug
       @slug ||= uri.gsub('/', '-').gsub(ext, '')
     end
 
-    def ignored
-      @ignored ||= false
-    end
-    def ignore(state=true)
-      @ignored= state
-    end
-
-    def generated
-      @generated ||= false
-    end
-
     def path
-      @path ||= get_source_path
+      @path ||= _source_path
     end
 
     def level
@@ -38,11 +36,11 @@ module Gumdrop
     end
 
     def source_filename
-      @source_filename ||= File.basename @full_path
+      @source_filename ||= File.basename source_path
     end
 
     def filename
-      @filename ||= get_target_filename
+      @filename ||= _target_filename
     end
 
     def type
@@ -54,92 +52,102 @@ module Gumdrop
     end
 
     def uri
-      @uri ||= get_uri
+      @uri ||= _uri
     end
 
-    def template
-      @template ||= unless Tilt[@full_path].nil?
-        Tilt.new @full_path
-      else
-        nil
-      end
-    end
-    def template=(t)
-      @template = t
-    end
-    
-    def render(context=nil, ignore_layout=false, reset_context=true, locals={})
-      context= site.render_context if context.nil?
-      if reset_context
-        default_layout= LAYOUTLESS_EXTS.include?(ext) ? nil : 'site'
-        context.reset_data 'current_depth'=>level, 'current_slug'=>slug, 'page'=>self, 'layout'=>default_layout, 'params'=>params
-      end
-      context.set_content self, locals
-      content= render_all(context)
-      return relativize content, context if ignore_layout
-      begin
-        layout= context.get_template()
-        while !layout.nil? and !layout.template.nil?
-          content = layout.template.render(context, content:content) { content }
-          layout= context.get_template()
+    def binary?
+      @is_binary ||= begin
+        if generated? or has_block? or missing?
+          false
+        else
+          # from ptools
+          s = (File.read(source_path, File.stat(source_path).blksize) || "").split(//)
+          ((s.size - s.grep(" ".."~").size) / s.size.to_f) > 0.30
         end
-      rescue => ex
-        raise StandardError, "Layout: #{ex.to_s}", ex.backtrace
       end
-      relativize content, context
-    rescue => ex
-      raise StandardError, "Rendering exception: #{ex.to_s}", ex.backtrace
+    end
+
+    # Can I call #body() ?
+    def exists?
+      has_block? or File.exists? @source_path
+    end
+
+    def missing?
+      !exists?
+    end
+
+    def generated?
+      !@generator.nil?
+    end
+
+    def has_block?
+      !@block.nil?
+    end
+
+    def ignore?
+      @ignore or site.in_greylist?(uri)
     end
     
-    def renderTo(context, output_path, filters=[], opts={})
-      return copyTo(output_path, opts) unless useLayout?
-      site.report " rendering: #{uri}"
-      output= render(context)
-      filters.each {|f| output= f.call(output, self) }
-      File.open output_path, 'w' do |f|
-        f.write output
+    def ignore(value)
+      @ignore= value
+    end
+
+    def partial?
+      source_filename[0] == "_"
+    end
+
+    # def partial_name
+    #   fname = partial? ? filename[1..-1] : filename
+    #   fname.sub ext, ''
+    # end
+
+    def layout?
+      ext == '.layout'
+    end
+
+    def generator?
+      ext == '.generator'
+    end
+
+    def body # Memoize this?
+      if has_block?
+        @block.call
+      elsif missing? or binary?
+        nil
+      else
+        File.read @source_path
       end
     end
-          
-    # This probably belongs to the BUILD, not here
-    def copyTo(output, layout=nil, opts={})
-      do_copy= if File.exists? output
-        !FileUtils.identical? @full_path, output
-      else
-        true
-      end
-      if do_copy
-        site.report "   copying: #{uri}"
-        FileUtils.cp_r @full_path, output, opts
-      else
-        site.report "    (same): #{uri}"
-      end
-    end
-    
+
     def mtime
-      if File.exists? @full_path
-        File.new(@full_path).mtime
+      @mtime ||= if exists? and !generated?
+        File.new(@source_path).mtime
       else
         Time.now
       end
     end
-    
-    def useLayout?
-      !template.nil?
-    end
 
-    def ignore?
-      ignored
-    end
-    
     def to_s
       uri
     end
-  
+
   private
 
-    def get_source_path
-      path= @full_path.sub site.src_path, ''
+    def _uri
+      # Do I need to do anything for windoes here to make sure
+      # the slashes are / and not \ ?
+      uri=  File.dirname(path) / filename
+      if uri.starts_with? './'
+        uri[2..-1]
+      elsif uri.starts_with? '/'
+        uri[1..-1]
+      else
+        uri
+      end
+    end
+
+    def _source_path
+      path= @source_path.gsub site.source_path, ''
       if path[0] == '/'
         path[1..-1] 
       else
@@ -147,61 +155,165 @@ module Gumdrop
       end
     end
 
-    def get_target_filename
+    def _target_filename
       filename_parts= source_filename.split('.')
       ext= filename_parts.pop
-      while !Tilt[ext].nil?
+      while !Renderer.for(ext).nil?
         ext= filename_parts.pop
       end
       filename_parts << ext # push the last file ext back on there!
-      filename_parts.join('.')
-    end
-
-    def render_all(ctx)
-      if generated or !File.exists?(@full_path)
-        content= template.render(ctx)
+      fname= filename_parts.join('.')
+      if partial?
+        fname[1..-1]
       else
-        content= File.read @full_path
-        exts= source_filename.gsub filename, ''
-        exts.split('.').reverse.each do |ext|
-          unless ext.blank?
-            templateClass= Tilt[".#{ext}"]
-            template= templateClass.new(@full_path) do
-              content
-            end
-            content= template.render(ctx)
-          end
-        end
-      end
-      content
-    end
-
-    def get_uri
-      uri= File.join File.dirname(path), filename
-      if uri.starts_with? './'
-        uri[2..-1]
-      else
-        uri
+        fname
       end
     end
 
-    def relativize(content, ctx)
-      if site.config.relative_paths and !ctx.force_absolute
-        if site.config.relative_paths_for == :all or site.config.relative_paths_for.include?(ext)
-          path_to_root= ctx.path_to_root
-          content.force_encoding("UTF-8") if content.respond_to? :force_encoding
-          content = content.gsub MUNGABLE_RE do |match|
-            if $5 == '/'
-              "#{ $1 }#{ $2 }=#{ $3 }#{ $4 }/"
-            else
-              "#{ $1 }#{ $2 }=#{ $3 }#{ $4 }#{ path_to_root }"
-            end
-          end
-        end
-      end
-      content
+    def self.path_match?(path, pattern)
+       File.fnmatch pattern, path, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_CASEFOLD
     end
-    
   end
-  
+
+  class ContentList < Hash 
+  #ActiveSupport::OrderedOptions
+
+    def create(path, generator=nil, &block)
+      content= Content.new path, generator, &block
+      add content, path
+    end
+
+    def add(content, uri=nil)
+      uri= content.uri if uri.nil?
+      self[uri]= content
+      content
+    end
+
+    def remove(content)
+      uri = content.is_a? String ? content : content.uri
+      self.delete uri
+    end
+
+    # Returns Array of content objects
+    def all(pattern=nil)
+      pattern.nil? ? values : find(pattern)
+    end
+
+    def find(pattern)
+      patterns= [pattern].flatten
+      contents=[]
+      self.each_pair do |path, content|
+        patterns.each do |pattern|
+          contents << content if Content.path_match? path, pattern
+        end
+      end
+      contents
+    end
+
+    def get(key)
+      self[key]
+    end
+
+    # def [](pattern)
+    #   find(pattern)
+    # end
+
+    def first(pattern)
+      find(pattern).first
+    end
+
+  end
+
+  # Keeps a ref to content at full path and just the basename
+  class SpecialContentList < ContentList
+    
+    def initialize(default_ext=false)#, *args)
+      @ext= default_ext || ".html"  # ???
+      super()
+    end
+
+    def add(content, uri=nil)
+      uri= content.uri if uri.nil?
+      buri = File.basename uri
+      self[uri]= content
+      self[buri]= content
+      content
+    end
+
+    def remove(content)
+      uri = content.is_a? String ? content : content.uri
+      self.delete uri
+      self.delete File.basename uri
+    end
+
+    # Find isn't fuzzy for Special Content. It looks for full
+    # uri or the uri's basename, optionally tacking on @ext
+    def find(uri)
+      _try_variations_of(uri) do |path|
+        content= get path
+        return [content] unless content.nil?
+      end unless uri.nil?
+      []
+    end
+
+  private
+
+    def _try_variations_of(uri)
+      # try the uri
+      yield uri
+      # plus default ext
+      yield uri + @ext
+      urip= Pathname.new uri
+      # just the filename
+      yield urip.basename
+      # filename plus default extension
+      yield urip.basename + @ext
+      # filename minus the ext
+      yield urip.basename.to_s.gsub urip.extname, ''
+      # uri minus ext
+      yield uri.gsub urip.extname, ''
+    end
+
+  end
+
+  class Scanner
+    include Util::Loggable
+    include Util::SiteAccess
+
+    attr_reader :options
+
+    def initialize(base_path, opts={})
+      @base_path= base_path / "**" / "*"
+      @options= opts
+      @src_path= site.source_path
+    end
+
+    def each
+      Dir.glob(@base_path, File::FNM_DOTMATCH).each do |path|
+        rel_path= _relative(path)
+        unless should_skip? rel_path or File.directory?(path)
+          yield path, rel_path
+        else
+          log.debug " excluding: #{ rel_path }"
+        end
+      end
+    end
+
+    def should_skip?(path)
+      site.config.ignore.each do |pattern|
+        return true if Content.path_match? path, pattern
+      end unless options[:no_checks]
+      return site.in_blacklist? path unless options[:no_checks]
+      false
+    end
+
+    def _relative(path)
+      relpath= path.gsub @src_path, ''
+      if relpath[0]== '/'
+        relpath[1..-1]
+      else
+        relpath
+      end
+    end
+  end
 end

@@ -10,7 +10,7 @@ module Gumdrop::CLI
     end
 
     desc 'new [NAME]', 'Create new gumdrop project'
-    method_option :template, aliases:'-t', desc:'Template to start from', required:true
+    method_option :template, aliases:'-t', desc:'Template to start from', required:true, default:'default'
     def new(name)
       template= options[:template] || 'default'
 
@@ -44,11 +44,11 @@ module Gumdrop::CLI
     private
 
       def gem_template_path(template='*')
-        File.join(self.class.source_root, 'templates', template)
+        self.class.source_root / 'templates' / template
       end
 
       def home_template_path(template='*')
-        File.expand_path File.join( "~", ".gumdrop", 'templates', template)
+        File.expand_path "~" / '.gumdrop' / 'templates' / template
       end
 
   end

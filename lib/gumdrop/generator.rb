@@ -1,124 +1,115 @@
 module Gumdrop
 
   class Generator
+    include Util::SiteAccess
 
-    include Support::Stitch
-    include Support::Sprockets
-
-
-    attr_reader :filename, :base_path, :params, :pages
-    
-    def initialize(content, site, opts={})
-      @site= site
-      @content= content
-      if @content.is_a? Proc
-        @filename= ""
-        @base_path= ""
-      else
-        @filename= content.filename || ""
-        @base_path= content.slug || ""
-      end
-      @params= HashObject.new
+    def initialize(content=nil, opts={}, &block) # block?
+      @content= content || block
+      @dsl= DSL.new self
       @pages= []
-    end
-    
-    # This should probably not be accessible to the generators
-    def execute
-      if @content.is_a? Proc
-        instance_eval &@content
-      else
-        instance_eval File.read(@content.path)
-      end
-    end
-
-    def site
-      @site
-    end
-    
-    def data
-      @site.data
-    end
-
-    def config
-      @site.config
-    end
-    
-    def set(var_name, value)
-      params[var_name]= value
+      @filename= content.nil? ? (opts[:filename] || '') : content.filename
+      @base_path= content.nil? ? (opts[:base_path] || '') : content.slug 
     end
 
     def unload
-      @pages.each do |content|
-        @site.content_hash.delete content.uri
+      pages.each do |content|
+        site.contents.remove content
       end
+      @dsl= DSL.new self
     end
-    
-    def page(name, opts={}, &block)
-      name= name[1..-1] if name.starts_with?('/')
-      opts= params.reverse_merge(opts)
-      filepath= if @base_path.empty?
-        File.join @site.src_path, name
-      else
-        File.join @site.src_path, @base_path, @name
-      end
-      content= GeneratedContent.new(filepath, block, @site, self, opts)
-      if opts.has_key? :template and !opts[:template].nil?
-        content.template = if @site.layouts.has_key?( opts[:template] )
-          @site.layouts[ opts[:template] ]
+
+    def reload
+      unload
+      execute
+    end
+
+    def pages
+      @pages
+    end
+
+    def gen_page(name, opts={}, params={}, &block)
+      event_block :generate_page do
+        name.relative!
+        opts= params.reverse_merge(opts)
+        filepath= if @base_path.blank?
+          site.source_path / name
         else
-          @site.layouts[ "#{opts[:template]}.template" ]
-        end.template
-      end
-      content.ignore site.greylist.any? {|pattern| site.path_match name, pattern }
-      unless content.ignored
-        content.ignore site.blacklist.any? {|pattern| site.path_match name, pattern }
-      end      
-      @site.report " generated: #{content.uri}", :info
-      @site.content_hash[content.uri]= content
-      @pages << content
-      content
-    end
-
-    # FIXME: Does redirect require abs-paths?
-    def redirect(from, opts={})
-      if opts[:to]
-        page from do
-          <<-EOF
-          <meta http-equiv="refresh" content="0;url=#{ opts[:to] }">
-          <script> window.location.href='#{ opts[:to] }'; </script>
-          EOF
+          site.source_path / @base_path / name
         end
-        opts[:from]= from
-        @site.redirects << opts
-      else
-        @site.report "You must specify :to in a redirect", :warning
+        content= site.contents.create filepath, self, &block
+        content.params.merge! opts
+        log.debug " generated: #{content.uri}"
+        @pages << content
       end
     end
+
+    def execute
+      log.debug "(Generator '#{ @filename }')"
+      if @content.is_a? Proc
+        if @content.arity == 1
+          @content.call @dsl
+        else
+          @dsl.instance_eval &@content
+        end
+      else
+        @dsl.instance_eval File.read(@content.path)
+      end
+      log.debug "   created: #{ @pages.size } pages"
+    end
+
+    class DSL
+      # FIXME: Would like a better way to register/load Generator DSL methods
+      include Gumdrop::Support::Stitch
+      include Gumdrop::Support::Sprockets
+      include Gumdrop::Util::SiteAccess
+
+      attr_reader :params
+
+      def initialize(generator)
+        @generator= generator
+        site= generator.site
+        @params= Util::HashObject.new
+      end
+
+      def data
+        site.data
+      end
+
+      def config
+        site.config
+      end
+
+      def options
+        site.options
+      end
+
+      def env
+        site.config.env
+      end
+
+      def set(var_name, value)
+        @params[var_name]= value
+      end
+      def get(var_name)
+        @params[var_name]
+      end
+
+      def page(name, opts={}, &block)
+        @generator.gen_page name, opts, @params, &block
+      end
+
+    end
+  end
+
+  class << self
     
-  end
-  
-  class GeneratedContent < Content
-    # Nothing special, per se...
-
-    def initialize(path, block, site, generator, params={})
-      super(path, site, params)
-      @content_block= block
-      @generated= true
-      @generator= generator
-    end
-
-    def render(context=nil, ignore_layout=false,  reset_context=true, locals={})
-      if @content_block.nil?
-        super(context, ignore_layout, reset_context, locals)
-      else
-        @content_block.call
-      end
-    end
-
-    def useLayout?
-      !@content_block.nil? or !template.nil?
+    def generate(name=nil, opts={}, &block)
+      opts[:filename]= name unless opts[:filename]
+      Gumdrop.site.generators << Generator.new(nil, opts, &block)
     end
 
   end
-  
+
 end
+
+    

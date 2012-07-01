@@ -1,3 +1,7 @@
-source "http://rubygems.org"
+source 'https://rubygems.org'
 
 gemspec
+
+group :test do
+  gem 'redcarpet'
+end
