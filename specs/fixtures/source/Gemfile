@@ -27,7 +27,7 @@ gem "coffee-script"
 
 # For markdown support, a couple of options:
 # gem "kramdown", :git => "git://github.com/darthapo/kramdown.git"
-# gem 'redcarpet'
+gem 'redcarpet'
 # gem "rdiscount"
 # gem 'maruku'
 

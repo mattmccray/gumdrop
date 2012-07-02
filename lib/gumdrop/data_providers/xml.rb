@@ -4,15 +4,11 @@ module Gumdrop::Data
     extension :xml
 
     def available?
-      require 'rexml'
-      require 'active_support/xml_mini/rexml'
       true
-    rescue LoadError
-      false
     end
 
     def data_for(filepath)
-      supply_data ActiveSupport::XmlMini_REXML.parse(File.read(filepath))
+      supply_data Hash.from_xml File.read(filepath)
     end
 
   end

@@ -14,7 +14,7 @@ returning a smart object that could query tables as they are requested?
 module Gumdrop::Data
   class SqliteDataProvider < Provider
 
-    extensions :sqlite, :sqlite3, :db #db?
+    extensions :sqlite, :sqlite3, :db
 
     def available?
       require 'sqlite3'
