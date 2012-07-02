@@ -1,3 +1,5 @@
+require 'yaml'
+
 module Gumdrop::Util
   
   PARSER= /^(\s*---(.+)---\s*)/m
@@ -6,10 +8,10 @@ module Gumdrop::Util
 
     attr_reader :data, :body
 
-    def initialize(source, extended=false)
+    def initialize(source, extended_support=false)
       @data= {}
       @body= source
-      @extended= extended
+      @extended_support= extended_support
       _compile
     end
 
@@ -28,19 +30,20 @@ module Gumdrop::Util
         @data= YAML.load(yaml)
         @is_yamldoc= true
       else
+        @data={ 'content' => @body } if @extended_support
         @is_yamldoc= false
       end
 
-      return unless @extended or !@is_yamldoc
+      return unless @extended_support or !@is_yamldoc
 
       content_set= false
       @data.each_pair do |key, value|
         if value == '_YAMLDOC_'
-          @data[key]= @content
+          @data[key]= @body
           content_set= true
         end
       end
-      @data['content']= @content unless content_set
+      @data['content']= @body unless content_set
     end
 
   end

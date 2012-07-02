@@ -2,10 +2,11 @@
 Gumdrop.configure do |config|
   config.source_dir= '.'
   config.output_dir= '../output'
+  config.data_dir= './data'
   config.custom_setting= 'yep'
   config.log_level= :debug
   config.log= config.mode == :test ? 'test.log' : STDOUT
-  config.ignore << 'output/**/*' << "*.log"
+  config.ignore << 'output/**/*' << "*.log" << 'data/**/*'
 end
 
 

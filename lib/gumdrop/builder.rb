@@ -42,7 +42,8 @@ module Gumdrop
 
         log.debug "(Rendering)"
         event_block :render do
-          site.contents.each do |uri, content|
+          site.contents.keys.sort.each do |uri|
+            content= site.contents[uri]
             output_path= site.output_path / content.uri
             if content.binary?
               @copy_files << { content.source_path => output_path }

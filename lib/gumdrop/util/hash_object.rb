@@ -27,7 +27,7 @@ module Gumdrop::Util
     end
 
     def merge(other_hash=nil, &block)
-      if other_hash
+      unless other_hash.nil?
         super(other_hash.to_symbolized_hash, &block)
       else
         super(other_hash, &block)
@@ -35,7 +35,7 @@ module Gumdrop::Util
     end
 
     def merge!(other_hash=nil, &block)
-      if other_hash
+      unless other_hash.nil?
         super(other_hash.to_symbolized_hash, &block)
       else
         super(other_hash, &block)

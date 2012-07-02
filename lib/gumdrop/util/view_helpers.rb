@@ -21,6 +21,10 @@ module Gumdrop
         site.config
       end
 
+      def data
+        site.data
+      end
+
       def gumdrop_version
         ::Gumdrop::VERSION
       end

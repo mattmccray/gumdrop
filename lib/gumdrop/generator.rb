@@ -31,7 +31,7 @@ module Gumdrop
       event_block :generate_item do
         name.relative!
         opts= params.reverse_merge(opts)
-        filepath= if @base_path.blank?
+        filepath= if @base_path.empty?
           site.source_path / name
         else
           site.source_path / @base_path / name

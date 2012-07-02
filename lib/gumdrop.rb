@@ -1,7 +1,7 @@
 # coding: utf-8
 
 require 'tilt'
-require "active_support/core_ext"
+require "active_support/core_ext" # One day I'll get away from you!
 require 'gumdrop/util/core_ex'
 
 # The simple and sweet static CMS! (and prototyping tool)

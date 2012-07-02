@@ -12,6 +12,14 @@ class Hash
     Gumdrop::Util::HashObject.from self
   end
 
+  def ends_with?(string)
+    self[0..(string.length)] == string
+  end
+
+  def starts_with?(string)
+    self[0..(string.length)] == string
+  end
+
 end
 
 class String
@@ -42,6 +50,9 @@ class String
   def path_match?(pattern)
     File.fnmatch pattern, self, File::FNM_PATHNAME | File::FNM_DOTMATCH | File::FNM_CASEFOLD
   end
+
+  # alias_method :starts_with?, :start_with?
+  # alias_method :ends_with?, :end_with?
 
 end
 

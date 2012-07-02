@@ -31,8 +31,12 @@ module Gumdrop
 
     def init_logging
       level= (site.config.log_level || :warn).to_sym
-      @log = Logger.new site.config.log
+      @log = Logger.new site.config.log || STDOUT
       @log.level=  LOG_LEVELS[level]
+      # @log.formatter = proc { |severity, datetime, progname, msg|
+      #   # original_formatter.call(severity, datetime, progname, msg.dump)
+      #   "#{msg}\n"
+      # }
     end
 
   end
