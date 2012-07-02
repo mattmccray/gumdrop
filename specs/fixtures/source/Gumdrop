@@ -6,7 +6,7 @@ Gumdrop.configure do |config|
   config.custom_setting= 'yep'
   config.log_level= :debug
   config.log= config.mode == :test ? 'test.log' : STDOUT
-  config.ignore << 'output/**/*' << "*.log" << 'data/**/*'
+  config.ignore << 'output/**/*' << "*.log" << 'data/**/*' << 'Gemfile' << 'Gemfile.lock'
 end
 
 

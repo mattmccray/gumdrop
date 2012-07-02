@@ -6,7 +6,7 @@ module Gumdrop::Data
     def available?
       require 'csv'
       true
-    rescue
+    rescue LoadError
       false
     end
 

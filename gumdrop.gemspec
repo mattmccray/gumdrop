@@ -34,5 +34,6 @@ Gem::Specification.new do |s|
    s.add_dependency 'bundle'
 
    s.add_development_dependency 'minitest'
+   s.add_development_dependency 'sqlite3'
 
 end

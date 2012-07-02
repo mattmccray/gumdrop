@@ -7,7 +7,7 @@ module Gumdrop::Data
       require 'rexml'
       require 'active_support/xml_mini/rexml'
       true
-    rescue
+    rescue LoadError
       false
     end
 

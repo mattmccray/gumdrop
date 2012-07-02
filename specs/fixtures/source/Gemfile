@@ -1,0 +1,37 @@
+source 'https://rubygems.org'
+
+gem 'sqlite3'
+gem "i18n"
+gem "sinatra", :require=>false
+gem "active_support"
+gem "thor", :require=>false
+gem "rake"
+gem "gumdrop", :path=>"../../../"
+
+# Add your dependencies here:
+
+# For template support:
+# gem "less"
+# gem "haml"
+gem "slim"
+gem "sass"
+gem "coffee-script"
+
+# For JavaScript stitching and compressing:
+#gem 'uglifier'
+#gem 'yui-compressor'
+#gem 'packr'
+# gem 'jsmin'
+# gem 'stitch-rb'
+#gem 'sprockets'
+
+# For markdown support, a couple of options:
+# gem "kramdown", :git => "git://github.com/darthapo/kramdown.git"
+# gem 'redcarpet'
+# gem "rdiscount"
+# gem 'maruku'
+
+# For xml generation support:
+# gem 'builder'
+
+

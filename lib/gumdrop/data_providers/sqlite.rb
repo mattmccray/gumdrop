@@ -19,7 +19,7 @@ module Gumdrop::Data
     def available?
       require 'sqlite3'
       true
-    rescue
+    rescue LoadError
       false
     end
 
@@ -42,8 +42,8 @@ module Gumdrop::Data
     def load_data_for(hash, table_name)
       data=[]
       db.results_as_hash = true
-      db.execute( "select * from #{ table_name.to_s }" ) do |row|
-        data << row
+      db.execute( "select * from #{ table_name.to_s };" ) do |row|
+        data << row.reject {|key,col| key.is_a? Fixnum }
       end
       hash[table_name]= provider.supply_data data
     # rescue

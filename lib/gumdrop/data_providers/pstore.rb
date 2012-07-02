@@ -6,7 +6,7 @@ module Gumdrop::Data
     def available?
       require 'pstore'
       true
-    rescue
+    rescue LoadError
       false
     end
 
