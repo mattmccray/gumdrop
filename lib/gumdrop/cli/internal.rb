@@ -50,7 +50,7 @@ module Gumdrop::CLI
       else
         say "Creating template:  #{name}"
         say "  ~/.gumdrop/templates/#{name}"
-        site_root= Gumdrop.site_dirname
+        site_root= Gumdrop.site.root
         FileUtils.mkdir_p File.dirname(template_path)
         FileUtils.cp_r (site_root / "."), template_path
       end

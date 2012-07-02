@@ -29,8 +29,7 @@ end
 
 desc "Syncs with public server using rsync (if configured)"
 task :sync do
-  site= Gumdrop::Site.new Gumdrop.fetch_site_file
-  output= File.expand_path site.config.output_dir
+  output= Gumdrop.site.output_path 
   cmd= "rsync -avz --delete #{output} #{USER}@#{SERVER}:#{FOLDER}"
   puts "Running:\n#{cmd}\n"
   system(cmd)

@@ -21,8 +21,8 @@ module Gumdrop
     server_port: 4567,
     env: :production,
     file_change_test: :default,
-    renderer: Renderer,
-    builder: Builder
+    # renderer: Renderer,
+    # builder: Builder
   }
 
   class Site
@@ -30,16 +30,16 @@ module Gumdrop
     include Util::Eventable
     include Util::Loggable
 
-    config_accessor :source_dir, :output_dir, :data_dir, :mode, :env
+    config_accessor :source_dir, :output_dir, :data_dir, :mode, :env,
+                    :blacklist, :greylist
 
-    attr_reader :sitefile, :options, :root, :contents, :data, 
-                :blacklist, :greylist, :filters, :layouts, 
+    attr_reader :sitefile, :options, :root, :contents, :data, :layouts,
                 :generators, :partials, :last_run
 
     # You shouldn't call this yourself! Access it via Gumdrop.site
     def initialize(sitefile, opts={})
       Gumdrop.send :set_current_site, self
-      _reset_config
+      _reset_config!
       @options= Util::HashObject.from opts
       _options_updated!
       @sitefile= sitefile.expand_path
@@ -49,11 +49,8 @@ module Gumdrop
       @layouts= SpecialContentList.new ".layout"
       @partials= SpecialContentList.new
       @generators= []
-      @filters= []
-      @blacklist= []
-      @greylist= []
       @data= DataManager.new
-      @scanned= false
+      @is_scanned= false
       _load_sitefile
     end
 
@@ -68,23 +65,20 @@ module Gumdrop
       @layouts.clear
       @partials.clear
       @generators.clear
-      @filters.clear
-      @blacklist.clear
-      @greylist.clear
       @data.reset
       @output_path= nil
       @source_path= nil
       @data_path= nil
-      @scanned= false
+      @is_scanned= false
       _load_sitefile if reload_sitefile
       self
     end
 
     def scan(force=false)
-      if !@scanned or force
-        clear(true) if @scanned # ????
+      if !@is_scanned or force
+        clear(true) if @is_scanned # ????
         _content_scanner
-        @scanned= true
+        @is_scanned= true
         generate
       end
       self
@@ -96,13 +90,13 @@ module Gumdrop
     end
 
     def in_greylist?(path)
-      @greylist.any? do |pattern|
+      greylist.any? do |pattern|
         path.path_match? pattern
       end
     end
 
     def in_blacklist?(path)
-      @blacklist.any? do |pattern|
+      blacklist.any? do |pattern|
         path.path_match? pattern
       end
     end
@@ -132,7 +126,7 @@ module Gumdrop
 
   private
 
-    def _reset_config
+    def _reset_config!
       config.clear.merge! DEFAULT_CONFIG
     end
 
@@ -149,7 +143,11 @@ module Gumdrop
     end
 
     def _content_scanner
-      log.debug "[Scanning from #{ source_path }]"
+      log.info "Gumdrop v#{ Gumdrop::VERSION } - #{ Time.new }"
+      log.debug "(config)"
+      log.debug config
+      log.debug "(options)"
+      log.debug @options
       # Report blacklists and greylists
       blacklist.each {|p| log.debug "   will skip: #{path}" }
       greylist.each  {|p| log.debug " will ignore: #{path}" }
@@ -186,26 +184,9 @@ module Gumdrop
 
   class << self
 
-    def on(event_type, options={}, &block)
-      site.on event_type, options, &block
-    end
-
-    def configure(&block)
-      site.configure &block
-    end
-
-    def config
-      site.config
-    end
-
-    def mode
-      site.mode
-    end
-
-    def in_site_folder?(filename="Gumdrop")
-      !fetch_site_file(filename).nil?
-    end
-
+    # This will look for a nearby Gumdrop file and load the Site
+    # the first time it is called. Each time after it will just
+    # return the already created Site.
     def site(opts={}, force_new=false)
       opts= opts.to_symbolized_hash
       unless @current_site.nil? or force_new
@@ -221,7 +202,89 @@ module Gumdrop
       end
     end
 
-    # Protected too?
+    # Listen for life-cycle events in your Gumdrop file like this:
+    #
+    #   Gumdrop.on :start do |event|
+    #     puts "Here we go!"
+    #   end
+    #
+    # Complete list of events fired by Gumdrop:
+    #
+    #   :start
+    #   :before_scan
+    #   :scan
+    #   :after_scan
+    #   :before_generate
+    #   :generate
+    #   :after_generate
+    #   :before_generate_item
+    #   :generate_item
+    #   :after_generate_item
+    #   :before_build
+    #   :build
+    #   :after_build
+    #   :before_checksum
+    #   :checksum
+    #   :after_checksum
+    #   :before_render
+    #   :render
+    #   :after_render
+    #   :before_render_item
+    #   :render_item
+    #   :after_render_item
+    #   :before_write
+    #   :write
+    #   :after_write
+    #   :before_copy_file
+    #   :copy_file
+    #   :after_copy_file
+    #   :before_write_file
+    #   :write_file
+    #   :after_write_file
+    #   :end
+    #
+    # In the block parem `event` you will have access to :site, the 
+    # current executing site instance, and :payload, where applicable.
+    #
+    # :render_item is a special event because you can add/override the
+    # compiled output by modifying `event.data.return_value`
+    #
+    def on(event_type, options={}, &block)
+      site.on event_type, options, &block
+    end
+
+    # Yield a configuration object. You can update Gumdrop behavior
+    # as well as add your own config information.
+    def configure(&block)
+      site.configure &block
+    end
+
+    # Short cut to the current Site config object.
+    def config
+      site.config
+    end
+
+    # The env Gumdrop is run in -- You can set this in the congig
+    # or, better, via command line: `gumdrop build -e test`
+    def env
+      site.env
+    end
+    
+    # Mostly for internal use, but you can update/change it in the
+    # configure block.
+    def mode
+      site.mode
+    end
+
+    # Returns true if this, or a parent, folder has a Gumdrop file.
+    def in_site_folder?(filename="Gumdrop")
+      !fetch_site_file(filename).nil?
+    end
+
+  protected
+
+    # Walks up the filesystem, starting from Dir.pwd, looking for
+    # a Gumdrop file. Returns nil if not found.
     def fetch_site_file(filename="Gumdrop")
       here= Dir.pwd
       found= File.file?  here / filename
@@ -236,12 +299,6 @@ module Gumdrop
         nil
       end
     end
-
-    def site_dirname(filename="Gumdrop")
-      File.dirname( fetch_site_file( filename ) )
-    end
-
-  protected
 
     def set_current_site(site)
       @current_site= site

@@ -29,170 +29,170 @@ module Gumdrop
       end
     end
 
-    private
+  private
 
-      def _render_content!
-        output= @content.body
-        _render_pipeline(@content.source_filename) do |template_class|
-          output= _render_text(output, template_class)
-        end
-        output= _render_layouts output #unless @use_layout
-        _relativize_uris output
+    def _render_content!
+      output= @content.body
+      _render_pipeline(@content.source_filename) do |template_class|
+        output= _render_text(output, template_class)
       end
+      output= _render_layouts output
+      _relativize_uris output
+    end
 
-      def _render_text(text, template_class, sub_content="")
-        log.debug "            #{ template_class.to_s }"
-        template= template_class.new(@content.source_path) { text }
-        template.render(@context, content:sub_content) { sub_content }
+    def _render_text(text, template_class, sub_content="")
+      log.debug "            #{ template_class.to_s }"
+      template= template_class.new(@content.source_path) { text }
+      template.render(@context, content:sub_content) { sub_content }
+    end
+
+    def _render_layouts(text)
+      _layout_pipeline do |layout_class|
+        text= _render_layout text, layout_class
       end
+      text
+    end
 
-      def _render_layouts(text)
-        _layout_pipeline do |layout_class|
-          text= _render_layout text, layout_class
-        end
-        text
+    def _render_layout(text, layout)
+      log.debug "    layout: #{layout.source_filename}"
+      _render_pipeline(layout.source_filename) do |layout_class|
+        text = _render_text(layout.body, layout_class, text)
       end
+      text
+    end
 
-      def _render_layout(text, layout)
-        log.debug "    layout: #{layout.source_filename}"
-        _render_pipeline(layout.source_filename) do |layout_class|
-          text = _render_text(layout.body, layout_class, text)
-        end
-        text
-      end
+    # NOTE: Currently, the render pipeline ends when Renderer.for
+    # returns nil for an ext. Should it continue on until all the
+    # possible file ext templates are looked up?
+    def _render_pipeline(path)
+      filename_parts= path.split('.')
+      begin
+        ext= filename_parts.pop
+        template_class= Renderer.for(ext)
+        yield template_class unless template_class.nil?
+      end while !template_class.nil? #and filename_parts.size
+    end
 
-      # NOTE: Currently, the render pipeline ends when Renderer.for
-      # returns nil for an ext. Should it continue on until all the
-      # possible file ext templates are looked up?
-      def _render_pipeline(path)
-        filename_parts= path.split('.')
-        begin
-          ext= filename_parts.pop
-          template_class= Renderer.for(ext)
-          yield template_class unless template_class.nil?
-        end while !template_class.nil? #and filename_parts.size
-      end
-
-      def _layout_pipeline
-        layout = _layout_for_content
-        unless layout.nil?
-          yield layout
-          # Nested Layouts!
-          sub_layout= _sub_layout(layout)
-          while !sub_layout.nil?
-            yield sub_layout
-            sub_layout= _sub_layout(sub_layout)
-          end 
+    def _layout_pipeline
+      layout = _layout_for_content
+      unless layout.nil?
+        yield layout
+        # Nested Layouts!
+        sub_layout= _sub_layout_for(layout)
+        while !sub_layout.nil?
+          yield sub_layout
+          sub_layout= _sub_layout_for(sub_layout)
         end 
-      end
+      end 
+    end
 
-      def _relativize_uris(text)
-        if _relativize?
-          path_to_root= _path_to_root
-          text.force_encoding("UTF-8") if text.respond_to? :force_encoding
-          text = text.gsub MUNGABLE_RE do |match|
-            if $5 == '/'
-              "#{ $1 }#{ $2 }=#{ $3 }#{ $4 }/"
-            else
-              "#{ $1 }#{ $2 }=#{ $3 }#{ $4 }#{ path_to_root }"
-            end
-          end
-        end
-        text
-      end
-
-      def _relativize?
-        return false if !site.config.relative_paths
-        return false if @context.force_absolute
-        return true if site.config.relative_paths_exts == :all
-        site.config.relative_paths_exts.include?(@content.ext)
-      end
-
-      def _layout_for_content
-        if @opts[:force_partial] or (@content.partial? and !@opts[:layout])
-          nil
+    def _relativize_uris(text)
+      return text unless _relativize?
+      path_to_root= _path_to_root
+      text.force_encoding("UTF-8") if text.respond_to? :force_encoding
+      text.gsub MUNGABLE_RE do |match|
+        if $5 == '/'
+          "#{ $1 }#{ $2 }=#{ $3 }#{ $4 }/"
         else
-          layout= @opts[:layout] || @context.get(:layout)
-          site.layouts.first layout
+          "#{ $1 }#{ $2 }=#{ $3 }#{ $4 }#{ path_to_root }"
         end
       end
+    end
 
-      def _sub_layout(layout)
-        sub_layout_name= @context.get :layout
-        return nil if sub_layout_name.nil?
-        sub_layout= site.layouts.first sub_layout_name
-        return nil if sub_layout.nil?
-        return nil if sub_layout.uri == layout.uri
-        sub_layout
+    def _relativize?
+      return false if !site.config.relative_paths
+      return false if @context.force_absolute
+      return true if site.config.relative_paths_exts == :all
+      site.config.relative_paths_exts.include?(@content.ext)
+    end
+
+    def _layout_for_content
+      if @opts[:force_partial] or (@content.partial? and !@opts[:layout])
+        nil
+      else
+        layout= @opts[:layout] || @context.get(:layout)
+        site.layouts.first layout
       end
+    end
 
+    def _sub_layout_for(layout)
+      sub_layout_name= @context.get :layout
+      return nil if sub_layout_name.nil?
+      sub_layout= site.layouts.first sub_layout_name
+      return nil if sub_layout.nil?
+      return nil if sub_layout.uri == layout.uri
+      sub_layout
+    end
 
-      def _default_layout
-        if site.config.layout_exts.include? @content.ext
-          site.config.default_layout
-        else
-          nil
-        end
+    def _default_layout
+      if site.config.layout_exts.include? @content.ext
+        site.config.default_layout
+      else
+        nil
       end
+    end
 
-      def _path_to_root
-        '../' * @content.level
-      end
+    def _path_to_root
+      '../' * @content.level
+    end
 
-      def _in_context(content, opts)
-        _new_context(content, opts)
-        output= yield
-        _revert_context
-        output
-      end
+    def _in_context(content, opts)
+      _new_context(content, opts)
+      output= yield
+      _revert_context
+      output
+    end
 
-      def _new_context(content, opts)
-        @stack.push({
-          content: @content,
-          context: @context,
-          opts: @opts
-        }.to_hash_object)
-        @context= RenderContext.new content, self, @context
-        safe_opts= opts.reject { |o| SPECIAL_OPTS.include? o.to_s }
-        @context.set safe_opts
-        @content= content
-        @opts= opts
-        if @stack.size == 1
-          @context.set :layout, _default_layout
-        end
+    def _new_context(content, opts)
+      @stack.push({
+        content: @content,
+        context: @context,
+        opts: @opts
+      }.to_hash_object)
+      @context= RenderContext.new content, self, @context
+      safe_opts= opts.reject { |o| SPECIAL_OPTS.include? o.to_s }
+      @context.set safe_opts
+      @content= content
+      @opts= opts
+      if @stack.size == 1
+        @context.set :layout, _default_layout
       end
+    end
 
-      def _revert_context
-        prev= @stack.pop
-        case @opts[:hoist]
-          when :all, true
-            _hoist_data(prev.context)
-          when Array
-            _hoist_data(prev.context, @opts[:hoist])
-        end
-        @context= prev.context
-        @content= prev.content
-        @opts= prev.opts
+    def _revert_context
+      prev= @stack.pop
+      case @opts[:hoist]
+        when :all, true
+          _hoist_data(prev.context)
+        when Array
+          _hoist_data(prev.context, @opts[:hoist])
       end
+      @context= prev.context
+      @content= prev.content
+      @opts= prev.opts
+    end
 
-      def _hoist_data(to_context, keys=nil)
-        keys ||= @context.state.keys
-        safe_keys= keys.reject {|k| SPECIAL_OPTS.include? k.to_s }
-        safe_keys.each do |key|
-          to_context.set key, @context.state[key]
-        end
+    def _hoist_data(to_context, keys=nil)
+      keys ||= @context.state.keys
+      safe_keys= keys.reject {|k| SPECIAL_OPTS.include? k.to_s }
+      safe_keys.each do |key|
+        to_context.set key, @context.state[key]
       end
+    end
 
-      def _previous
-        @stack.last
-      end
+    def _previous
+      @stack.last
+    end
 
     class << self
+
+      # Returns the `Tilt::Template` for the given `ext` or nil
       def for(ext)
         Tilt[ext] 
       rescue LoadError # stupid tilt and redcarpet, they don't play well together!
         nil
       end
+
     end
   end
 
@@ -209,9 +209,18 @@ module Gumdrop
       @state= {}
     end
 
-    def render(path, opts={})
-      content= site.contents.first(path) || site.partials.first(path)
-      raise StandardError, "Content or Partial cannot be found at: #{path}" if content.nil?
+    def render(path=nil, opts={})
+      content= case 
+        when !path.nil?
+          site.partials.first(path) || site.contents.first(path)
+        when opts[:page]
+          site.contents.first opts[:page]
+        when opts[:partial]
+          site.partials.first opts[:partial]
+        else
+          nil
+      end
+      raise StandardError, "Content or Partial cannot be found at: #{path} (#{opts})" if content.nil?
       opts[:force_partial]= opts.has_key?(:layout) ? false : true
       @renderer.draw content, opts
     end

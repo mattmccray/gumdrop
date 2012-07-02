@@ -28,7 +28,7 @@ module Gumdrop
     end
 
     def gen_page(name, opts={}, params={}, &block)
-      event_block :generate_page do
+      event_block :generate_item do
         name.relative!
         opts= params.reverse_merge(opts)
         filepath= if @base_path.blank?
@@ -97,9 +97,12 @@ module Gumdrop
         @params[var_name]
       end
 
-      def page(name, opts={}, &block)
+      def file(name, opts={}, &block)
         @generator.gen_page name, opts, @params, &block
       end
+      alias_method :page, :file
+      alias_method :item, :file
+      alias_method :content, :file
 
     end
   end
@@ -107,6 +110,16 @@ module Gumdrop
 
   class << self
 
+    # Generate a page (based on data or whatever) from your
+    # Gumdrop file like this:
+    #
+    #   Gumdrop.generate 'label' do |gen|
+    #     gen.file 'my-page.html' do
+    #       # whatever you return is set as the page contents.
+    #       "hello!"
+    #     end
+    #   end
+    #
     def generate(name=nil, opts={}, &block)
       opts[:filename]= name unless opts[:filename]
       site.generators << Generator.new(nil, opts, &block)

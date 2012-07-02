@@ -24,7 +24,7 @@ module Gumdrop
     autoload :Configurable, 'gumdrop/util/configurable'
     autoload :Eventable, 'gumdrop/util/eventable'
     autoload :HashObject, 'gumdrop/util/hash_object'
-    autoload :Loggable, 'gumdrop/util/logging'
+    autoload :Loggable, 'gumdrop/util/loggable'
     autoload :Scanner, 'gumdrop/util/scanner'
     autoload :SiteAccess, 'gumdrop/util/site_access'
     autoload :ViewHelpers, 'gumdrop/util/view_helpers'

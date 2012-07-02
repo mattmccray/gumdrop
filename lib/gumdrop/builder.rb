@@ -149,6 +149,7 @@ module Gumdrop
       Builder.new.execute
     end
 
+    # Kicks off the build process!
     def run(opts={})
       opts= opts.to_symbolized_hash
       site.options= opts

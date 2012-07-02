@@ -1,9 +1,6 @@
-#require 'active_support/hash_with_indifferent_access'
-
 module Gumdrop::Util
 
   class HashObject < Hash
-    # ActiveSupport::HashWithIndifferentAccess
 
     # All keys are symbols, internally
     def [](key)

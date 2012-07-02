@@ -129,7 +129,7 @@ module Gumdrop
   private
 
     def _uri
-      # Do I need to do anything for windoes here to make sure
+      # Do I need to do anything for windoze here to make sure
       # the slashes are / and not \ ?
       uri=  File.dirname(path) / filename
       if uri.starts_with? './'
