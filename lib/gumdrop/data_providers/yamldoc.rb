@@ -1,5 +1,5 @@
 module Gumdrop::Data
-  class YAMLDBDataProvider < Provider
+  class YAMLDocDataProvider < Provider
 
     extension :yamldoc
 
