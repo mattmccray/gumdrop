@@ -162,11 +162,6 @@ module Gumdrop
         end
       end
 
-      # TODO: If a :hoist option is sent, pull any context
-      # data from the partial's sub context and put it in
-      # the parent context:
-      #  hoist:(true || :all) -- pulls all from context except SPECIAL_OPTS
-      #  hoist:[:a, :b] -- pulls :a and :b from context
       def _revert_context
         prev= @stack.pop
         case @opts[:hoist]
@@ -195,7 +190,7 @@ module Gumdrop
     class << self
       def for(ext)
         Tilt[ext] 
-      rescue LoadError # stupid tilt and redcarpet, they don't play well together
+      rescue LoadError # stupid tilt and redcarpet, they don't play well together!
         nil
       end
     end

@@ -13,7 +13,7 @@ module Gumdrop
     #  end
     #
     def cli(&block)
-      Gumdrop::CLI::Internal.class_eval &block
+      CLI::Internal.class_eval &block
     end
 
   end

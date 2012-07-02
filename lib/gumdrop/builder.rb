@@ -9,13 +9,14 @@ module Gumdrop
     attr_reader :renderer, :checksums, :options
 
     def initialize(opts={})
+      opts= opts.to_symbolized_hash
       @renderer= opts[:renderer] || Renderer.new
       @copy_files=[]
       @write_files=[]
       @checksums={}
       @options= opts
-      @use_checksum= if opts.has_key?(:checksums) 
-          opts[:checksums] 
+      @use_checksum= if opts.has_key?(:checksums)
+          opts[:checksums]
         else
           site.config.file_change_test == :checksum
         end
@@ -24,10 +25,11 @@ module Gumdrop
     def build_checksums
       event_block :checksum do
         log.debug "(Creating Checksums)"
-        Scanner.new(site.output_path, no_checks:true).each do |path, rel|
+        scanner= Util::Scanner.new(site.output_path) { false }
+        scanner.each do |path, rel|
           digest= _checksum_for_file path
           @checksums[rel]= digest
-          log.debug " checksum: #{ rel } -> #{ digest }"
+          log.debug "  checksum: #{ rel } -> #{ digest }"
         end
       end
     end
@@ -51,7 +53,7 @@ module Gumdrop
           end
         end
         
-        # All files render without exception, write them to disc
+        # All files rendered without exception, write them to disc
         log.info "(Writing to #{ site.output_path })"
         event_block :write do
           @write_files.each {|files| _write files }
@@ -60,8 +62,8 @@ module Gumdrop
       end
       fire :end
     rescue => ex
-      log.error "{Exception}\n#{[ex.to_s, ex.backtrace].flatten.join("\n")}"
-      $stderr.puts "{Exception}\n#{[ex.to_s, ex.backtrace[0]].flatten.join("\n")}"
+      log.error _exception_message ex
+      $stderr.puts _exception_message ex, true
       exit 1 unless site.options[:resume]
     end
 
@@ -124,11 +126,18 @@ module Gumdrop
       path.gsub( site.output_path, '' )[1..-1]
     end
 
+    def _exception_message(ex, short=false)
+      class_name= ex.class.to_s
+      backtrace= short ? ex.backtrace[0] : ex.backtrace
+      "{Exception: #{class_name}}\n#{[ex.to_s, backtrace].flatten.join("\n")}"
+    end
+
   end
 
   class << self
     
     def build(opts={})
+      opts= opts.to_symbolized_hash
       site.scan
       Builder.new(opts).execute
     end
@@ -139,6 +148,7 @@ module Gumdrop
     end
 
     def run(opts={})
+      opts= opts.to_symbolized_hash
       site.options= opts
       Gumdrop.build opts
     end

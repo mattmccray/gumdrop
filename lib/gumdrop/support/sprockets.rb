@@ -9,7 +9,7 @@ end
 module Gumdrop::Support
 
   module Sprockets # mixes in to generator
-    include BasePackager
+    
     
     def sprockets(name, opts)
       if has_sprockets

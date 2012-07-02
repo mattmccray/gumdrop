@@ -1,18 +1,26 @@
 require 'yaml'
 require 'ostruct'
 
+# TODO: Abstract/Extract data types and loaders,
+#       Allow multiple data source foloders.
+
 module Gumdrop
 
   # Supported Data File Types:
   DATA_DOC_EXTS= %w(json yml yaml ymldb yamldb yamldoc ymldoc)
 
   class DataManager
+    include Util::SiteAccess
+
     attr_reader :cache
   
-    def initialize(site, data_dir="./data")
-      @site= site
+    def initialize(data_dir="./data")
       @dir= File.expand_path data_dir
       @cache= {}
+    end
+
+    def dir=(path)
+      @dir= File.expand_path path
     end
   
     def method_missing(key, value=nil)
@@ -28,8 +36,12 @@ module Gumdrop
       @cache={}
     end
 
-    def site(pattern=nil, opts={})
-      @site.contents(pattern, opts)
+    def contents(pattern=nil, opts={})
+      if pattern.nil?
+        site.contents.all
+      else
+        site.contents(pattern, opts)
+      end
     end
     
     def pager_for(key, opts={})
@@ -55,7 +67,7 @@ module Gumdrop
         hashes2ostruct( YAML.load_file(filename)  )
       else
         # raise "Unknown data type (#{ext}) for #{filename}"
-        Gumdrop.report "Unknown data type (#{ext}) for #{filename}", :warning
+        log.warn "Unknown data type (#{ext}) for #{filename}"
         nil
       end
     end
@@ -118,7 +130,7 @@ module Gumdrop
     def load_from_directory( filepath )
       all=[]
       Dir[ File.join "#{filepath}", "{*.#{ DATA_DOC_EXTS.join ',*.'}}" ].each do |filename|
-        # Gumdrop.report ">> Loading data file: #{filename}"
+        log.debug ">> Loading data file: #{filename}"
         id= File.basename filename
         obj_hash= load_from_file filename
         obj_hash._id = id
@@ -136,7 +148,7 @@ module Gumdrop
           lpath= local_path_to("#{path}.#{ext}")
           return lpath if File.exists? lpath
         end
-        Gumdrop.report "No data found for #{path}", :warning
+        log.warn "No data found for #{path}"
         nil
       end
     end

@@ -1,11 +1,7 @@
-require 'pathname'
-
 module Gumdrop
 
-  # TODO: Use a Pathname for all path operations instead of File.*
-  #       Add support for relative_to and relative_from to 
-  #       ContentList (find?)
-
+  # All content (layouts, partials, images, html, js css, etc) found in
+  # the source directory are represented as a Content object in memory
   class Content
     include Util::SiteAccess
 
@@ -18,6 +14,10 @@ module Gumdrop
       @block= block
       @params= Util::HashObject.new
     end
+
+    # TODO: Use a Pathname for all path operations instead of File.*
+    #       Add support for relative_to and relative_from to 
+    #       ContentList (find?)
 
     def params=(value={})
       @params.merge! value
@@ -171,7 +171,6 @@ module Gumdrop
   end
 
   class ContentList < Hash 
-  #ActiveSupport::OrderedOptions
 
     def create(path, generator=nil, &block)
       content= Content.new path, generator, &block
@@ -194,6 +193,7 @@ module Gumdrop
       pattern.nil? ? values : find(pattern)
     end
 
+    # Scans the filenames (keys) and uses fnmatch to find maches
     def find(pattern)
       patterns= [pattern].flatten
       contents=[]
@@ -208,10 +208,6 @@ module Gumdrop
     def get(key)
       self[key]
     end
-
-    # def [](pattern)
-    #   find(pattern)
-    # end
 
     def first(pattern)
       find(pattern).first
@@ -269,46 +265,5 @@ module Gumdrop
       yield uri.gsub urip.extname, ''
     end
 
-  end
-
-  class Scanner
-    include Util::Loggable
-    include Util::SiteAccess
-
-    attr_reader :options
-
-    def initialize(base_path, opts={})
-      @base_path= base_path / "**" / "*"
-      @options= opts
-      @src_path= site.source_path
-    end
-
-    def each
-      Dir.glob(@base_path, File::FNM_DOTMATCH).each do |path|
-        rel_path= _relative(path)
-        unless should_skip? rel_path or File.directory?(path)
-          yield path, rel_path
-        else
-          log.debug " excluding: #{ rel_path }"
-        end
-      end
-    end
-
-    def should_skip?(path)
-      site.config.ignore.each do |pattern|
-        return true if Content.path_match? path, pattern
-      end unless options[:no_checks]
-      return site.in_blacklist? path unless options[:no_checks]
-      false
-    end
-
-    def _relative(path)
-      relpath= path.gsub @src_path, ''
-      if relpath[0]== '/'
-        relpath[1..-1]
-      else
-        relpath
-      end
-    end
   end
 end

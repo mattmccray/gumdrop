@@ -41,15 +41,15 @@ module Gumdrop::CLI
       end
     end
 
-    private
+  private
 
-      def gem_template_path(template='*')
-        self.class.source_root / 'templates' / template
-      end
+    def gem_template_path(template='*')
+      self.class.source_root / 'templates' / template
+    end
 
-      def home_template_path(template='*')
-        File.expand_path "~" / '.gumdrop' / 'templates' / template
-      end
+    def home_template_path(template='*')
+      File.expand_path "~" / '.gumdrop' / 'templates' / template
+    end
 
   end
 end

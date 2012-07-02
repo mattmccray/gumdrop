@@ -1,4 +1,4 @@
-require 'active_support/hash_with_indifferent_access'
+#require 'active_support/hash_with_indifferent_access'
 
 module Gumdrop::Util
 
@@ -51,20 +51,6 @@ module Gumdrop::Util
       h
     end
   
-  end
-
-  class ::Hash
-
-    def to_symbolized_hash
-      new_hash= {}
-      self.each {|k,v| new_hash[k.to_sym]= v }
-      new_hash
-    end
-
-    def to_hash_object
-      HashObject.from self
-    end
-
   end
 
 end

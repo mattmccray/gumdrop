@@ -16,6 +16,7 @@ module Gumdrop::CLI
     method_option :quiet, default:false, aliases:'-q', type: :boolean
     method_option :subdued, default:false, aliases:'-s', type: :boolean, desc:"Subdued output (....)"
     method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
+    method_option :checksums, default:false, aliases:'-c', type: :boolean, desc:"File changes validated against checksums"
     def build
       Gumdrop.run options.merge(mode:'build')
     end
@@ -55,18 +56,18 @@ module Gumdrop::CLI
       end
     end
 
-    private
-      
-      def home_path(name="")
-        File.expand_path "~" /".gumdrop" / name
-      end
+  private
+    
+    def home_path(name="")
+      File.expand_path "~" /".gumdrop" / name
+    end
 
-      def home_template_path(template)
-        home_path 'templates' / template
-      end
+    def home_template_path(template)
+      home_path 'templates' / template
+    end
 
-      def local_path(name="")
-        "." / name
-      end
+    def local_path(name="")
+      "." / name
+    end
   end
 end

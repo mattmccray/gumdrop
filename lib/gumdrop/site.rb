@@ -1,9 +1,7 @@
-require 'active_support/configurable'
-
 module Gumdrop
 
   WEB_PAGE_EXTS= %w(.html .htm .php)
-  JETSAM_FILES= %w(**/.DS_Store .gitignore .git/**/* .svn/**/* **/.sass-cache/**/* Gumdrop)
+  JETSAM_FILES= %w(**/.DS_Store .git* .git/**/* .svn/**/* **/.sass-cache/**/* Gumdrop)
 
   DEFAULT_CONFIG= {
     relative_paths: true,
@@ -17,37 +15,44 @@ module Gumdrop
     log: STDOUT,
     log_level: :info,
     ignore: JETSAM_FILES,
+    blacklist: [],
+    greylist: [],
     server_timeout: 5,
     server_port: 4567,
     env: :production,
-    file_change_test: :default
+    file_change_test: :default,
+    renderer: Renderer,
+    builder: Builder
   }
 
   class Site
-    include ActiveSupport::Configurable
+    include Util::Configurable
     include Util::Eventable
     include Util::Loggable
 
     config_accessor :source_dir, :output_dir, :data_dir, :mode, :env
 
-    attr_reader :sitefile, :options, :root, :contents, :data, :blacklist, :greylist, :filters, :layouts, :generators, :partials, :last_run
+    attr_reader :sitefile, :options, :root, :contents, :data, 
+                :blacklist, :greylist, :filters, :layouts, 
+                :generators, :partials, :last_run
 
     # You shouldn't call this yourself! Access it via Gumdrop.site
     def initialize(sitefile, opts={})
       Gumdrop.send :set_current_site, self
-      @options=Util::HashObject.from opts
+      _reset_config
+      @options= Util::HashObject.from opts
       _options_updated!
       @sitefile= sitefile.expand_path
       @root= File.dirname @sitefile
-      @last_run = 0
-      @contents = ContentList.new
-      @layouts = SpecialContentList.new ".layout"
-      @partials = SpecialContentList.new
-      @generators = []
-      @filters = []
-      @blacklist = []
-      @greylist = []
-      @data= Data::Manager.new
+      @last_run= 0
+      @contents= ContentList.new
+      @layouts= SpecialContentList.new ".layout"
+      @partials= SpecialContentList.new
+      @generators= []
+      @filters= []
+      @blacklist= []
+      @greylist= []
+      @data= DataManager.new
       @scanned= false
       _load_sitefile
     end
@@ -92,13 +97,19 @@ module Gumdrop
 
     def in_greylist?(path)
       @greylist.any? do |pattern|
-        Content.path_match? path, pattern
+        path.path_match? pattern
       end
     end
 
     def in_blacklist?(path)
       @blacklist.any? do |pattern|
-        Content.path_match? path, pattern
+        path.path_match? pattern
+      end
+    end
+
+    def ignore_path?(path)
+      config.ignore.any? do |pattern|
+        path.path_match? pattern
       end
     end
 
@@ -111,7 +122,7 @@ module Gumdrop
     end
 
     def data_path
-      @data_path ||= source_dir.expand_path(root)
+      @data_path ||= data_dir.expand_path(root)
     end
 
     # Events stop bubbling here.
@@ -121,17 +132,19 @@ module Gumdrop
 
   private
 
+    def _reset_config
+      config.clear.merge! DEFAULT_CONFIG
+    end
+
     def _options_updated!
-      Site.configure do |c|
-        c.env= @options.env.to_sym if @options.env
-        c.mode= @options.mode.nil? ? :unknown : @options.mode.to_sym
-      end
+      config.env= @options.env.to_sym if @options.env
+      config.mode= @options.mode.nil? ? :unknown : @options.mode.to_sym
     end
 
     def _load_sitefile
       clear_events
       load sitefile
-      data.add_path data_dir.expand_path(root)
+      data.dir= data_dir.expand_path(root)
       Gumdrop.init_logging
     end
 
@@ -142,7 +155,8 @@ module Gumdrop
       greylist.each  {|p| log.debug " will ignore: #{path}" }
       # Scan Filesystem
       event_block :scan do
-        Scanner.new(source_path).each do |path, rel|
+        scanner= Util::Scanner.new(source_path, {}, &method(:_scanner_validator)) 
+        scanner.each do |path, rel|
           content= Content.new(path)
           layouts.add content and next if content.layout?
           partials.add content and next if content.partial?
@@ -152,6 +166,11 @@ module Gumdrop
         end
         contents.keys.size
       end
+    end
+
+    def _scanner_validator(source_path, full_path)
+      return true if ignore_path? source_path
+      in_blacklist? source_path
     end
 
     def _execute_generators
@@ -172,7 +191,7 @@ module Gumdrop
     end
 
     def configure(&block)
-      Site.configure &block
+      site.configure &block
     end
 
     def config
@@ -183,31 +202,17 @@ module Gumdrop
       site.mode
     end
 
-    def ignore
-      site.greylist
-    end
-    def greylist
-      site.greylist
-    end
-
-    def skip
-      site.blacklist
-    end
-
-    def blacklist
-      site.blacklist
-    end
-
     def in_site_folder?(filename="Gumdrop")
       !fetch_site_file(filename).nil?
     end
 
     def site(opts={}, force_new=false)
+      opts= opts.to_symbolized_hash
       unless @current_site.nil? or force_new
         @current_site.options= opts unless opts.empty?
         @current_site
       else
-        site_file= Gumdrop.fetch_site_file
+        site_file= fetch_site_file
         unless site_file.nil?
           Site.new site_file, opts
         else
@@ -216,6 +221,7 @@ module Gumdrop
       end
     end
 
+    # Protected too?
     def fetch_site_file(filename="Gumdrop")
       here= Dir.pwd
       found= File.file?  here / filename
@@ -245,6 +251,3 @@ module Gumdrop
 
 end
 
-Gumdrop::Site.configure do |c|
-  c.merge! Gumdrop::DEFAULT_CONFIG
-end

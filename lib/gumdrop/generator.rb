@@ -59,15 +59,14 @@ module Gumdrop
 
     class DSL
       # FIXME: Would like a better way to register/load Generator DSL methods
-      include Gumdrop::Support::Stitch
-      include Gumdrop::Support::Sprockets
-      include Gumdrop::Util::SiteAccess
+      include Support::Stitch
+      include Support::Sprockets
+      include Util::SiteAccess
 
       attr_reader :params
 
       def initialize(generator)
         @generator= generator
-        # site= generator.site
         @params= Util::HashObject.new
       end
 
@@ -105,11 +104,12 @@ module Gumdrop
     end
   end
 
+
   class << self
-    
+
     def generate(name=nil, opts={}, &block)
       opts[:filename]= name unless opts[:filename]
-      Gumdrop.site.generators << Generator.new(nil, opts, &block)
+      site.generators << Generator.new(nil, opts, &block)
     end
 
   end
