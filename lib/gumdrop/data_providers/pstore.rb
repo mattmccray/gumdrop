@@ -18,7 +18,7 @@ module Gumdrop::Data
           data[root]= store[root]
         end
       end
-      to_open_structs data
+      supply_data data
     end
 
   end

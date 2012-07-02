@@ -11,7 +11,7 @@ module Gumdrop::Data
     end
 
     def data_for(filepath)
-      to_open_structs YAML.load_file(filepath)
+      supply_data YAML.load_file(filepath)
     end
 
   end

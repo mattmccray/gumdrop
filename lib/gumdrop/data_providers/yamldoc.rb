@@ -12,7 +12,7 @@ module Gumdrop::Data
 
     def data_for(filepath)
       yamldoc= Gumdrop::Util::YamlDoc.new File.read(filepath), true
-      to_open_structs yamldoc.data
+      supply_data yamldoc.data
     end
 
   end

@@ -132,17 +132,17 @@ module Gumdrop
         raise "data_for must be implemented! (#{self.class})"
       end
 
-      def to_open_structs(object)
+      def supply_data(object)
         case object
           when Hash
             object = object.clone
             object.each do |key, value|
-              object[key] = to_open_structs(value)
+              object[key] = supply_data(value)
             end
             OpenStruct.new(object)
           when Array
             object = object.clone
-            object.map! { |item| to_open_structs(item) }
+            object.map! { |item| supply_data(item) }
           else
             object
         end

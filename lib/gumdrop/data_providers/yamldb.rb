@@ -14,7 +14,7 @@ module Gumdrop::Data
       docs=[]
       File.open(filepath, 'r') do |f|
         YAML.load_documents(f) do |doc|
-          docs << to_open_structs( doc ) #unless doc.has_key?("__proto__")
+          docs << supply_data( doc ) #unless doc.has_key?("__proto__")
         end
       end
       docs

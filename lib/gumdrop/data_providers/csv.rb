@@ -11,7 +11,7 @@ module Gumdrop::Data
     end
 
     def data_for(filepath)
-      to_open_structs CSV.read(filepath)
+      supply_data CSV.read(filepath)
     end
 
   end

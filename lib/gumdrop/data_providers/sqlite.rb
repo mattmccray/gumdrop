@@ -45,7 +45,7 @@ module Gumdrop::Data
       db.execute( "select * from #{ table_name.to_s }" ) do |row|
         data << row
       end
-      hash[table_name]= provider.to_open_structs data
+      hash[table_name]= provider.supply_data data
     # rescue
     #   nil
     end

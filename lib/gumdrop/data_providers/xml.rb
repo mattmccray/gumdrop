@@ -12,7 +12,7 @@ module Gumdrop::Data
     end
 
     def data_for(filepath)
-      to_open_structs ActiveSupport::XmlMini_REXML.parse(File.read(filepath))
+      supply_data ActiveSupport::XmlMini_REXML.parse(File.read(filepath))
     end
 
   end
