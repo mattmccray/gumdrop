@@ -28,6 +28,7 @@ module Gumdrop
     autoload :Scanner, 'gumdrop/util/scanner'
     autoload :SiteAccess, 'gumdrop/util/site_access'
     autoload :ViewHelpers, 'gumdrop/util/view_helpers'
+    autoload :YamlDoc, 'gumdrop/util/yaml_doc'
   end
 
   # Returns 'ChangeLog.md' from gem package.
@@ -38,7 +39,6 @@ module Gumdrop
 
 end
 
-
 require 'gumdrop/cli'
 require 'gumdrop/builder'
 require 'gumdrop/content'
@@ -47,3 +47,7 @@ require 'gumdrop/generator'
 require 'gumdrop/renderer'
 require 'gumdrop/site'
 require 'gumdrop/version'
+
+Dir[File.dirname(__FILE__) / 'gumdrop' / 'support' / '*.rb'].each do |lib|
+  require lib
+end

@@ -102,7 +102,9 @@ module Gumdrop
     def _file_changed?(from, to, from_is_string=false)
       if @use_checksum
         digest= from_is_string ? _checksum_for(from) : _checksum_for_file(from)
-        @checksums[to] == digest
+        digest_to = @checksums[_rel_path to]
+        # puts "CHECKSUM #{digest_to} == #{digest} #{digest_to == digest}"
+        digest_to != digest
       else
         return true if from_is_string
         return true if !File.exists? to
