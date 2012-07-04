@@ -21,6 +21,8 @@ else
     it "output should be expected" do
       site_for_source()
       Gumdrop.build
+
+      `cd #{ Gumdrop.site.root } && ruby bin/gumdrop build`
       Dir[ Gumdrop.site.output_path / "**" / "*"].each do |output_path|
         next if File.directory?(output_path)
         rel= (output_path.gsub Gumdrop.site.output_path, '')[1..-1]

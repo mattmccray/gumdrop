@@ -38,15 +38,15 @@ describe Gumdrop::Site do
     site.on :scan do |event|
       scanned += 1
     end
-    site.clear true
-    site.scan true
+    site.clear
+    site.scan_only #true
     scanned.must_equal 1
   end
 
   it 'should allow listening for events from Gumdrop too' do
     site= site_for_source
     scanned= 0
-    Gumdrop.site.clear true
+    Gumdrop.site.clear 
     Gumdrop.site.on :scan do |event|
       scanned += 1
     end
@@ -60,7 +60,7 @@ describe Gumdrop::Site do
       scanned += 1
       #puts "#{event.data[:payload]} Items Scanned"
     end
-    Gumdrop.site.scan
+    Gumdrop.site.scan_only
     scanned.must_equal 4
   end
 

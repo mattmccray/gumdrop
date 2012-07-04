@@ -34,7 +34,12 @@ module Gumdrop::Support
 
 end
 
-if defined?(Stitch)
+
+#
+# These cause weird side effects, need to pull them out into a js-app
+# specific template!
+#
+if false # defined?(Stitch)
 
   class Stitch::Source
     # Patch for gumdrop style filenames

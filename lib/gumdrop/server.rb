@@ -11,7 +11,6 @@ module Gumdrop
     include Util::Loggable
 
     site= Gumdrop.site
-    renderer= Renderer.new
 
     unless site.nil?
       site.scan true
@@ -45,13 +44,22 @@ module Gumdrop
         end
         
         if site.contents.has_key? file_path
+          renderer= Renderer.new
           content= site.contents[file_path]
           content_type :css if content.ext == '.css' # Meh?
           content_type :js if content.ext == '.js' # Meh?
           content_type :xml if content.ext == '.xml' # Meh?
           unless content.binary?
             log.info "[#{$$}]  *Dynamic: #{file_path} (#{content.ext})"
-            renderer.draw content  
+            begin
+              content= renderer.draw content  
+            rescue => ex
+              log.error "ERROR!"
+              log.error ex
+              $stderr.puts "\n\n --------- \n Error! (#{content.uri}) #{ex}\n --------- \n\n"
+              raise ex
+            end
+            content
           else
             log.info "[#{$$}]  *Static: #{file_path} (binary)"
             send_file site.source_path / file_path

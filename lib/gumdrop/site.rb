@@ -39,19 +39,12 @@ module Gumdrop
     # You shouldn't call this yourself! Access it via Gumdrop.site
     def initialize(sitefile, opts={})
       Gumdrop.send :set_current_site, self
-      _reset_config!
+      @sitefile= sitefile.expand_path
       @options= Util::HashObject.from opts
       _options_updated!
-      @sitefile= sitefile.expand_path
       @root= File.dirname @sitefile
       @last_run= 0
-      @contents= ContentList.new
-      @layouts= SpecialContentList.new ".layout"
-      @partials= SpecialContentList.new
-      @generators= []
-      @data= DataManager.new
-      @is_scanned= false
-      _load_sitefile
+      clear
     end
 
     def options=(opts={})
@@ -60,26 +53,32 @@ module Gumdrop
     end
 
 
-    def clear(reload_sitefile=false)
-      @contents.clear
-      @layouts.clear
-      @partials.clear
-      @generators.clear
-      @data.reset
-      @output_path= nil
-      @source_path= nil
-      @data_path= nil
+    def clear()
+      @contents= ContentList.new
+      @layouts= SpecialContentList.new ".layout"
+      @partials= SpecialContentList.new
+      @generators= []
+      @data= DataManager.new
       @is_scanned= false
-      _load_sitefile if reload_sitefile
+      _reset_config!
+      _load_sitefile
       self
     end
 
     def scan(force=false)
       if !@is_scanned or force
-        clear(true) if @is_scanned # ????
+        clear if @is_scanned # ????
         _content_scanner
         @is_scanned= true
         generate
+      end
+      self
+    end
+
+    def scan_only # For testing... 
+      if !@is_scanned or force
+        clear if @is_scanned # ????
+        _content_scanner
       end
       self
     end
@@ -143,6 +142,8 @@ module Gumdrop
 
     def _reset_config!
       config.clear.merge! DEFAULT_CONFIG
+      config.env= @options.env.to_sym if @options.env
+      config.mode= @options.mode.nil? ? :unknown : @options.mode.to_sym
     end
 
     def _options_updated!
@@ -179,6 +180,7 @@ module Gumdrop
         end
         contents.keys.size
       end
+      @is_scanned= true
     end
 
     def _scanner_validator(source_path, full_path)

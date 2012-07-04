@@ -100,16 +100,16 @@ module Gumdrop
       end
     end
 
-    def _file_changed?(from, to, from_is_string=false)
+    def _file_changed?(from, to, from_is_text=false)
+      return true if @options[:force]
+      return true if !File.exists? to
       if @use_checksum
-        digest= from_is_string ? _checksum_for(from) : _checksum_for_file(from)
+        digest= from_is_text ? _checksum_for(from) : _checksum_for_file(from)
         digest_to = _checksum_for_file to #@checksums[_rel_path to]
         # puts "CHECKSUM #{digest_to} == #{digest} #{digest_to == digest}"
         digest_to != digest
       else
-        return true if from_is_string
-        return true if !File.exists? to
-        return true if @options[:force]
+        return true if from_is_text
         !FileUtils.identical? from, to
       end
     end
