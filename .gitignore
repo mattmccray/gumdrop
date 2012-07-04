@@ -4,3 +4,4 @@ output
 .sass-cache
 *.log
 old_*
+**/Gemfile.lock

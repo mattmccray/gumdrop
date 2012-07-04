@@ -36,9 +36,14 @@ module Gumdrop::CLI
         say " - #{File.basename name}" if File.directory?(name)
       end
       say  "Local templates:"
-      Dir[ home_template_path t].each do |name|
+      Dir[ home_template_path ].each do |name|
         say " - #{File.basename name}" if File.directory?(name)
       end
+    end
+
+    desc "version", "Displays Gumdrop version"
+    def version
+      say "Gumdrop v#{ Gumdrop::VERSION }"
     end
 
   private

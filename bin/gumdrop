@@ -10,7 +10,7 @@ Bundler.require if File.exists?('Gemfile')
 begin
   if Gumdrop.in_site_folder?
     # Pre-Fetch Site and load Gumdrop file
-    Gumdrop.site() #mode:'init' Why?
+    Gumdrop.site()
     Gumdrop::CLI::Internal.start
   else
     Gumdrop::CLI::External.start

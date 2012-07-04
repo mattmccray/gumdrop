@@ -84,6 +84,12 @@ module Gumdrop::CLI
       say "  ! = Binary file"
     end
 
+    desc "version", "Displays Gumdrop version"
+    def version
+      say "Gumdrop v#{ Gumdrop::VERSION }"
+    end
+
+
   private
     
     def home_path(name="")
