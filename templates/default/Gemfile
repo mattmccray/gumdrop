@@ -1,6 +1,9 @@
 source "http://rubygems.org"
 
-gem "gumdrop", :path=>'../../'
+gem "gumdrop"
+
+# for the watch command
+# gem "listen"
 
 # Add your dependencies here:
 

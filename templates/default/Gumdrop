@@ -197,6 +197,26 @@ Gumdrop.cli do
     end
   end
 
+  desc 'watch', "Watches the filesystem and recompiles whenever a source file changes."
+  method_option :quiet, default:false, aliases:'-q', type: :boolean
+  def watch
+    require 'listen'
+    if options[:quiet]
+      Gumdrop.configure {|c| c.log_level= :warn }
+    end
+    Gumdrop.run
+    paths= [Gumdrop.site.source_dir] #? Sitefile too?
+    paths << Gumdrop.site.data_dir if File.directory? Gumdrop.site.data_dir
+    Listen.to(*paths, :latency => 0.5) do |m, a, r|
+      Gumdrop.log.info "Reloading site!"
+      Gumdrop.rebuild
+    end
+  rescue LoadError
+    say "Error: Watch requires the listen gem, be sure and add it to your Gemfile!"
+  rescue => ex
+    say "Error: #{ ex }"
+  end
+
 end
 
 

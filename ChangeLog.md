@@ -1,3 +1,7 @@
+# v1.0.1
+- Moved `watch` feature from gem CLI to example in Gumdrop site file. (Because the listen gem does not, in fact, work on every platform out of the box -- At least, not in a way that's usable in a library like this -- Gumdrop needs to support Windows, so listen is gone from core.)
+- Fixed local reference to gumdrop gem in the default tempalte Gemfile.
+
 # v1.0.0
 - Complete internel rearchitecture. Good stuff.
 - Gumdrop files are now straight ruby that's loaded by gumdrop. You can do any typical ruby kind of things are the root level without having any scope surprises (Gumdrop will have been loaded).

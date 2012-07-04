@@ -77,7 +77,7 @@ open source projects (in alphabetical order):
 
 * ActiveSupport
 * Bundle
-* Listen
+* Launchy
 * Onfire
 * Sinatra
 * Tilt
@@ -89,5 +89,8 @@ And will, optionally, leverage these in building your site:
 * sprockets
 * stitch
 * jsmin
+* slim
+* haml/sass
+* coffee-script
 * and many, many more! (todo: gotta document 'em all!)
 

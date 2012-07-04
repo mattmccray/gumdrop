@@ -1,5 +1,4 @@
 require 'fileutils'
-require 'listen'
 require 'thor'
 
 module Gumdrop::CLI
@@ -27,21 +26,8 @@ module Gumdrop::CLI
 
     desc 'server', 'Run development server'
     def server
-      Gumdrop.site.options = options.merge(mode:'build')
+      Gumdrop.site.options = options.merge(mode:'server')
       Gumdrop::Server
-    end
-
-    desc 'watch', "Watch filesystem for changes and recompile"
-    method_option :quiet, default:false, aliases:'-q', type: :boolean
-    method_option :subdued, default:false, aliases:'-s', type: :boolean, desc:"Subdued output (....)"
-    method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
-    def watch
-      Gumdrop.run options.merge(mode:'merge')
-      paths= [Gumdrop.site.source_dir, Gumdrop.site.sitefile] #? Sitefile too?
-      paths << Gumdrop.site.data_dir if File.directory? Gumdrop.site.data_dir
-      Listen.to(*paths, :latency => 0.5) do |m, a, r|
-        Gumdrop.rebuild options.merge(mode:'merge')
-      end
     end
 
     desc 'template [NAME]', "Create local template from this project"
@@ -88,7 +74,6 @@ module Gumdrop::CLI
     def version
       say "Gumdrop v#{ Gumdrop::VERSION }"
     end
-
 
   private
     
