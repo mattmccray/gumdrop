@@ -11,9 +11,10 @@ module Gumdrop
     include Util::Loggable
 
     site= Gumdrop.site
+    renderer= Renderer.new
 
     unless site.nil?
-      site.rescan()
+      site.scan true
 
       set :port, site.config.server_port if site.config.server_port
       
@@ -39,31 +40,29 @@ module Gumdrop
           # site.report "!>!>>>>> since_last_build: #{since_last_build}"
           if since_last_build > site.config.server_timeout
             log.info "[#{$$}] Rebuilding from Source (#{since_last_build} > #{site.config.server_timeout})"
-            site.rescan()
+            site.scan true
           end
         end
         
-        if site.content_hash.has_key? file_path
-          content= site.content_hash[file_path]
-          if content.useLayout?
+        if site.contents.has_key? file_path
+          content= site.contents[file_path]
+          content_type :css if content.ext == '.css' # Meh?
+          content_type :js if content.ext == '.js' # Meh?
+          content_type :xml if content.ext == '.xml' # Meh?
+          unless content.binary?
             log.info "[#{$$}]  *Dynamic: #{file_path} (#{content.ext})"
-            content_type :css if content.ext == '.css' # Meh?
-            content_type :js if content.ext == '.js' # Meh?
-            content_type :xml if content.ext == '.xml' # Meh?
-            output= content.render 
-            site.content_filters.each {|f| output= f.call(output, content) }
-            output
+            renderer.draw content  
           else
-            log.info "[#{$$}]  *Static: #{file_path}"
-            send_file site.src_path / file_path
+            log.info "[#{$$}]  *Static: #{file_path} (binary)"
+            send_file site.source_path / file_path
           end
         
-        elsif File.exists? site.config.output_dir / file_path
+        elsif File.exists? site.output_path / file_path
             log.info "[#{$$}]  *Static (from OUTPUT): #{file_path}"
-            send_file site.config.output_dir / file_path
+            send_file site.output_path / file_path
         
         else
-          log.warning "[#{$$}]  *Missing: #{file_path}", :error
+          log.warn "[#{$$}]  *Missing: #{file_path}"
           "#{file_path} Not Found"
         end
       end      
@@ -77,7 +76,7 @@ module Gumdrop
         if file_path == ""
           "index.html"
         else
-          keys.detect {|k| site.content_hash.has_key?(k) } or file_path
+          keys.detect {|k| site.contents.has_key?(k) } or file_path
         end
       end
 

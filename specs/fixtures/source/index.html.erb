@@ -1,0 +1,6 @@
+<h1>Tests!</h1>
+<ul>
+<% site.contents.keys.sort.each do |uri| next if site.in_blacklist?(uri) %>
+  <li><a href="<%= uri %>"><%= uri %></a></li>
+<% end %>
+</ul>

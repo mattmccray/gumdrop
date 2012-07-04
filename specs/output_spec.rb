@@ -16,6 +16,8 @@ else
 
   describe "Generated Output" do
 
+    # FIX ME: This should really be smarter, looking for missing content too.
+
     it "output should be expected" do
       site_for_source()
       Gumdrop.build
