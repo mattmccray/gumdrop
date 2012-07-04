@@ -42,5 +42,5 @@ end
 
 desc "test generated output > OpenDiff"
 task :test_output_ui do
-  sh "cd specs/fixtures/source && bundle exec gumdrop build -f && opendiff ../output ../expected"
+  sh "cd specs/fixtures/source && bundle exec gumdrop build -f -q && opendiff ../output ../expected"
 end

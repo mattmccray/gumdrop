@@ -8,7 +8,7 @@ Gumdrop.configure do |config|
   config.output_dir= '../output'
   config.data_dir= './data'
   config.custom_setting= 'yep'
-  config.log_level= :debug
+  config.log_level= :debug if config.mode == :test
   config.log= config.mode == :test ? 'test.log' : STDOUT
 end
 

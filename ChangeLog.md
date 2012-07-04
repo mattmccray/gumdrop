@@ -1,3 +1,7 @@
+# v1.0.2
+- Using kramdown in default template.
+- Bugfix: Windows regression, in data providers.
+
 # v1.0.1
 - Moved `watch` feature from gem CLI to example in Gumdrop site file. (Because the listen gem does not, in fact, work on every platform out of the box -- At least, not in a way that's usable in a library like this -- Gumdrop needs to support Windows, so listen is gone from core.)
 - Fixed local reference to gumdrop gem in the default tempalte Gemfile.
