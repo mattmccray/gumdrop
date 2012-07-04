@@ -43,9 +43,9 @@ At the top of the file you'll find a `Gumdrop.configure` block. Add this to the
 top of that block:
 
 ```ruby
-Gumdrop.configure do
+Gumdrop.configure do |config|
 
-  output_dir= "./public"
+  config.output_dir= "./public"
 
   # ... Other stuff
 
