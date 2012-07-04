@@ -23,7 +23,7 @@ gem "coffee-script"
 #gem 'packr'
 # gem 'jsmin'
 # gem 'stitch-rb'
-#gem 'sprockets'
+gem 'sprockets'
 
 # For markdown support, a couple of options:
 # gem "kramdown", :git => "git://github.com/darthapo/kramdown.git"

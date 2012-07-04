@@ -16,7 +16,6 @@ module Gumdrop
     log_level: :info,
     ignore: JETSAM_FILES,
     blacklist: [],
-    greylist: [],
     server_timeout: 5,
     server_port: 4567,
     env: :production,
@@ -30,11 +29,14 @@ module Gumdrop
     include Util::Eventable
     include Util::Loggable
 
-    config_accessor :source_dir, :output_dir, :data_dir, :mode, :env,
-                    :blacklist, :greylist
+    config_accessor :source_dir, :output_dir, :data_dir,
+                    :mode, :env, :ignore, :blacklist
 
-    attr_reader :sitefile, :options, :root, :contents, :data, :layouts,
-                :generators, :partials, :last_run
+    attr_reader :sitefile, :options, :root, :contents, :data, 
+                :layouts, :generators, :partials, :last_run
+
+    # hmmm... 
+    attr_accessor :active_renderer, :active_builder
 
     # You shouldn't call this yourself! Access it via Gumdrop.site
     def initialize(sitefile, opts={})
@@ -89,12 +91,6 @@ module Gumdrop
       self
     end
 
-    def in_greylist?(path)
-      greylist.any? do |pattern|
-        path.path_match? pattern
-      end
-    end
-
     def in_blacklist?(path)
       blacklist.any? do |pattern|
         path.path_match? pattern
@@ -117,6 +113,23 @@ module Gumdrop
 
     def data_path
       @data_path ||= data_dir.expand_path(root)
+    end
+
+    def resolve(path=nil, opts={})
+      case 
+        when !path.nil?
+          contents.first(path) || partials.first(path)
+        when opts[:page]
+          contents.first opts[:page]
+        when opts[:partial]
+          partials.first opts[:partial]
+        when opts[:layout]
+          layouts.first opts[:layout]
+        when opts[:generator]
+          generators.first opts[:generator]
+        else
+          nil
+      end
     end
 
     # Events stop bubbling here.
@@ -148,9 +161,9 @@ module Gumdrop
       log.debug config
       log.debug "(options)"
       log.debug @options
-      # Report blacklists and greylists
-      blacklist.each {|p| log.debug "   will skip: #{path}" }
-      greylist.each  {|p| log.debug " will ignore: #{path}" }
+      log.debug "[Scanning: #{source_path}]"
+      # Report ignore list      
+      ignore.each {|p| log.debug "  ignoring: #{p}" }
       # Scan Filesystem
       event_block :scan do
         scanner= Util::Scanner.new(source_path, {}, &method(:_scanner_validator)) 
@@ -168,7 +181,8 @@ module Gumdrop
 
     def _scanner_validator(source_path, full_path)
       return true if ignore_path? source_path
-      in_blacklist? source_path
+      # in_blacklist? source_path
+      false
     end
 
     def _execute_generators
@@ -279,6 +293,30 @@ module Gumdrop
     # Returns true if this, or a parent, folder has a Gumdrop file.
     def in_site_folder?(filename="Gumdrop")
       !fetch_site_file(filename).nil?
+    end
+
+    # Specified paths will be added to the ignore list, preventing
+    # matching files from appearing in the source tree
+    def ignore(*paths)
+      paths.each do |path|
+        if path.is_a? Array
+          config.ignore.concat path
+        else
+          config.ignore << path
+        end
+      end      
+    end
+
+    # Specified paths will not be renderd to output (matching against
+    # the source tree).
+    def blacklist(*paths)
+      paths.each do |path|
+        if path.is_a? Array
+          config.blacklist.concat path
+        else
+          config.blacklist << path
+        end
+      end      
     end
 
   protected

@@ -84,14 +84,6 @@ module Gumdrop
       !@block.nil?
     end
 
-    def ignore?
-      @ignore or site.in_greylist?(uri)
-    end
-    
-    def ignore(value)
-      @ignore= value
-    end
-
     def partial?
       source_filename[0] == "_"
     end
@@ -105,21 +97,22 @@ module Gumdrop
     end
 
     def body # Memoize this?
-      @body ||= if has_block?
-        @block.call
-      elsif missing? or binary?
-        nil
-      else
-        File.read @source_path
-      end
+      @body ||= case
+        when has_block?
+          @block.call
+        when missing?, binary?
+          nil
+        else
+          File.read @source_path
+        end
     end
 
     def mtime
       @mtime ||= if exists? and !generated?
-        File.new(@source_path).mtime
-      else
-        Time.now
-      end
+          File.new(@source_path).mtime
+        else
+          Time.now
+        end
     end
 
     def to_s

@@ -1,34 +1,25 @@
-# sprockets.rb
-begin
-  require 'sprockets'
-  has_sprockets= true
-rescue LoadError
-  has_sprockets= false
-end
 
 module Gumdrop::Support
 
   module Sprockets # mixes in to generator
     
-    
-    def sprockets(name, opts)
-      if has_sprockets
-        env = Sprockets::Environment.new @site.root_path
-        env.append_path @site.src_path
-        opts[:paths].each do |path|
-          env.append_path(path)
-        end
-        content= env[ opts[:src] ].to_s
-        page name do
-          compress_output(content, opts)
-        end
-        keep_src(name, content, opts)
-        prune_src(name, opts)
-      else
-        throw "Sprockets can't be loaded. Please add it to your Gemfile."
+    def sprockets(source_file, opts={})
+      require 'sprockets'
+      source_path = source_file || opt[:main] || opt[:from]
+      env = ::Sprockets::Environment.new site.root
+      env.append_path site.source_path
+      env.append_path File.dirname(source_path)
+      [opts[:paths]].flatten.each do |path|
+        env.append_path(path) unless path.nil?
       end
+      content= env[ source_path ].to_s
+    rescue LoadError
+      raise StandardError, "Sprockets can't be loaded. Please add it to your Gemfile."
     end
 
   end
 
+  Gumdrop::Generator::DSL.send :include, Sprockets
+
 end
+

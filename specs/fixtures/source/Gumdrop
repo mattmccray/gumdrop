@@ -1,4 +1,8 @@
 
+
+# Ignoring files prevents them from being in the source tree
+# Blacklisting prevents them from being rendered to output
+
 Gumdrop.configure do |config|
   config.source_dir= '.'
   config.output_dir= '../output'
@@ -6,12 +10,37 @@ Gumdrop.configure do |config|
   config.custom_setting= 'yep'
   config.log_level= :debug
   config.log= config.mode == :test ? 'test.log' : STDOUT
-  config.ignore << 'output/**/*' << "*.log" << 'data/**/*' << 'Gemfile' << 'Gemfile.lock'
 end
 
+Gumdrop.ignore %w(output/**/* *.log data/**/* Gemfile Gemfile.lock)
 
 Gumdrop.generate 'robots' do |gen|
   gen.page 'robots.txt' do
     "ROBOTS!"
+  end
+end
+
+Gumdrop.generate 'sprockets test' do |gen|
+  gen.file 'js/sprockets-app.js' do
+    gen.sprockets 'js/sprockets/app.js'
+  end
+  Gumdrop.blacklist 'js/sprockets/**/*'
+end
+
+Gumdrop.generate 'pages with blocks and layouts' do |gen|
+  gen.page 'gen-with-block/as-plain.html' do
+    "Test Plain"
+  end
+  gen.page 'gen-with-block/layout-wrap.html', layout:'wrap' do
+    "Test Wrap"
+  end
+  gen.page 'gen-with-block/layout-nested.html', layout:'sub' do
+    "Test Nested"
+  end
+  gen.page 'gen-with-block/layout-nil.html', layout:nil do
+    "Test Nil"
+  end
+  gen.file 'gen-with-block/as-file.html' do
+    "Test File"
   end
 end

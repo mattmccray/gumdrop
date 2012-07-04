@@ -13,43 +13,17 @@ module Gumdrop::Support
 
   module Stitch # mixes in to generator
     
-
     def stitch(name, opts)
       if has_stitch
         content= Stitch::Package.new(opts).compile
+        compressor= Compressor.new
         page name do
-          compress_output(content, opts)
+          compressor.compress(content, opts)
         end
-        keep_src(name, content, opts)
-        prune_src(name, opts)
       else
         throw "Stitch can't be loaded. Please add it to your Gemfile."
       end
     end
-
-      def keep_src(name, content, opts)
-        if opts[:keep_src] or opts[:keep_source]
-          ext= File.extname name
-          page name.gsub(ext, "#{opts.fetch(:source_postfix, '-src')}#{ext}") do
-            content
-          end
-        end
-      end
-      
-      def prune_src(name, opts)
-        if opts[:prune] and opts[:root]
-          sp = site.source_path
-          rp = File.expand_path(opts[:root])
-          relative_root = rp.gsub(sp, '')[1..-1]
-          rrlen= relative_root.length - 1
-          @site.content_hash.keys.each do |path|
-            if path[0..rrlen] == relative_root and name != path
-              @site.content_hash.delete path
-            end
-          end
-        end
-      end
-
 
   end
 

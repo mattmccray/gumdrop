@@ -23,23 +23,23 @@ describe Gumdrop::Content do
 
   end
 
-  describe 'ignore?' do
+  # describe 'ignore?' do
 
-    it "false by default" do
-      content = content_for_source('test.html')
-      content.ignore?.must_equal false
-    end
+  #   it "false by default" do
+  #     content = content_for_source('test.html')
+  #     content.ignore?.must_equal false
+  #   end
 
-    it "true if ignored(true) called" do
-      content = content_for_source('test.html')
-      content.ignore?.must_equal false
-      content.ignore true
-      content.ignore?.must_equal true
-      content.ignore false
-      content.ignore?.must_equal false
-    end
+  #   it "true if ignored(true) called" do
+  #     content = content_for_source('test.html')
+  #     content.ignore?.must_equal false
+  #     content.ignore true
+  #     content.ignore?.must_equal true
+  #     content.ignore false
+  #     content.ignore?.must_equal false
+  #   end
 
-  end
+  # end
 
   describe 'binary?' do
 

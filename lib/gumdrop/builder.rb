@@ -9,6 +9,7 @@ module Gumdrop
     attr_reader :renderer, :checksums, :options
 
     def initialize(opts={})
+      site.active_builder= self
       opts= opts.to_symbolized_hash
       @renderer= opts[:renderer] || Renderer.new
       @copy_files=[]
@@ -38,12 +39,10 @@ module Gumdrop
       fire :start
       event_block :build do
         log.debug "[Building Site]"
-        build_checksums if @use_checksum
-
         log.debug "(Rendering)"
         event_block :render do
-          site.contents.keys.sort.each do |uri|
-            content= site.contents[uri]
+          site.contents.each do |uri, content|
+            log.debug "  blackout: #{ uri }" and next if site.in_blacklist? uri
             output_path= site.output_path / content.uri
             if content.binary?
               @copy_files << { content.source_path => output_path }
@@ -53,7 +52,7 @@ module Gumdrop
             end
           end
         end
-        
+        build_checksums if @use_checksum
         # All files rendered without exception, write them to disc
         log.info "(Writing to #{ site.output_path })"
         event_block :write do

@@ -1,0 +1,7 @@
+data.sql_data.posts.each_with_index do |post,i|  
+  page "#{i}-as-plain.html", post:post, render:"post_entry"
+  page "#{i}-layout-wrap.html", post:post, render:"post_entry", layout:'wrap'
+  page "#{i}-layout-sub.html", post:post, render:"post_entry", layout:'sub'
+  page "#{i}-layout-nil.html", post:post, render:"post_entry", layout:nil
+  file "#{i}-as-file.html", post:post, render:"post_entry"
+end

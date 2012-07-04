@@ -32,11 +32,16 @@ module Gumdrop
         name.relative!
         opts= params.reverse_merge(opts)
         filepath= if @base_path.empty?
-          site.source_path / name
+            site.source_path / name
+          else
+            site.source_path / @base_path / name
+          end
+        if block.nil?
+          handler= _render_inline_content opts
+          content= site.contents.create filepath, self, &handler          
         else
-          site.source_path / @base_path / name
+          content= site.contents.create filepath, self, &block
         end
-        content= site.contents.create filepath, self, &block
         content.params.merge! opts
         log.debug " generated: #{content.uri}"
         @pages << content
@@ -52,15 +57,21 @@ module Gumdrop
           @dsl.instance_eval &@content
         end
       else
-        @dsl.instance_eval File.read(@content.path)
+        @dsl.instance_eval @content.body
       end
       log.debug "   created: #{ @pages.size } pages"
     end
 
+    def _render_inline_content(opts)
+      Proc.new {
+        renderer= site.active_renderer #|| Renderer.new
+        content= site.resolve(opts[:render], opts)
+        opts[:inline_render]= true
+        renderer.draw content, opts
+      }
+    end
+
     class DSL
-      # FIXME: Would like a better way to register/load Generator DSL methods
-      include Support::Stitch
-      include Support::Sprockets
       include Util::SiteAccess
 
       attr_reader :params
@@ -97,12 +108,15 @@ module Gumdrop
         @params[var_name]
       end
 
-      def file(name, opts={}, &block)
+      def page(name, opts={}, &block)
         @generator.gen_page name, opts, @params, &block
       end
-      alias_method :page, :file
-      alias_method :item, :file
-      alias_method :content, :file
+      alias_method :content, :page
+
+      def file(name, opts={}, &block)
+        opts[:layout]= opts[:layout] || false
+        page name, opts, &block
+      end
 
     end
   end

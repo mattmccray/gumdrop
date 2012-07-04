@@ -9,6 +9,7 @@ module Gumdrop
     attr_reader :context
 
     def initialize
+      site.active_renderer= self
       @context, @content, @opts= nil, nil, nil
       @stack= []
     end
@@ -107,11 +108,14 @@ module Gumdrop
     end
 
     def _layout_for_content
-      if @opts[:force_partial] or (@content.partial? and !@opts[:layout])
-        nil
-      else
-        layout= @opts[:layout] || @context.get(:layout)
-        site.layouts.first layout
+      case
+        when @opts[:inline_render] then nil
+        when (@content.params.has_key?(:layout) and !@content.params.layout) then nil
+        when @opts[:force_partial] then nil
+        when (@content.partial? and !@opts[:layout] and !@content.params.layout) then nil
+        else
+          layout= @opts[:layout] || @content.params.layout || @context.get(:layout)
+          site.layouts.first layout
       end
     end
 
@@ -210,18 +214,9 @@ module Gumdrop
     end
 
     def render(path=nil, opts={})
-      content= case 
-        when !path.nil?
-          site.partials.first(path) || site.contents.first(path)
-        when opts[:page]
-          site.contents.first opts[:page]
-        when opts[:partial]
-          site.partials.first opts[:partial]
-        else
-          nil
-      end
+      content= site.resolve path, opts
       raise StandardError, "Content or Partial cannot be found at: #{path} (#{opts})" if content.nil?
-      opts[:force_partial]= opts.has_key?(:layout) ? false : true
+      opts[:force_partial]= true
       @renderer.draw content, opts
     end
 

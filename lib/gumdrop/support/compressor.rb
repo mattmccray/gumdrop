@@ -1,4 +1,3 @@
-# FIXME: Abstract Compressors!
 
 module Gumdrop
   module Support

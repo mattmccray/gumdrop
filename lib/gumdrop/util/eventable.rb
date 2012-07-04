@@ -15,13 +15,14 @@ module Gumdrop::Util
     end
 
     def fire(event, data=nil)
-      data= if data.nil?
-        HashObject.from site:Gumdrop.site
-      elsif data.is_a? Hash
-        HashObject.from(data).merge site:Gumdrop.site 
-      else
-        data
-      end
+      data= case
+        when data.nil?
+          HashObject.from site:Gumdrop.site
+        when data.is_a?(Hash)
+          HashObject.from(data).merge site:Gumdrop.site 
+        else
+          data
+        end
       event_for(event, self, data).bubble!
     end
 

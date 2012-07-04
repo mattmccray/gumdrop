@@ -45,7 +45,7 @@ module Gumdrop
           key
         else
           raise "pager_for requires a lookup symbol or array data."
-      end
+        end
       base_path= opts.fetch(:base_path, 'page')
       page_size= opts.fetch(:page_size, 5)
       Util::Pager.new( data, base_path, page_size )
