@@ -27,6 +27,13 @@ Gumdrop.generate 'sprockets test' do |gen|
   Gumdrop.blacklist 'js/sprockets/**/*'
 end
 
+Gumdrop.generate 'stitch test' do |gen|
+  gen.file 'js/stitch-app.js' do
+    gen.stitch 'js/stitch/app.js'
+  end
+  Gumdrop.blacklist 'js/stitch/**/*'
+end
+
 Gumdrop.generate 'pages with blocks and layouts' do |gen|
   gen.page 'gen-with-block/as-plain.html' do
     "Test Plain"

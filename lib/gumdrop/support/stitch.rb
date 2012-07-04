@@ -6,26 +6,31 @@ rescue LoadError
   has_stitch= false
 end
 
-# TODO: Use Compressor object
-# TODO: Better extend
-
 module Gumdrop::Support
 
   module Stitch # mixes in to generator
     
-    def stitch(name, opts)
-      if has_stitch
-        content= Stitch::Package.new(opts).compile
-        compressor= Compressor.new
-        page name do
-          compressor.compress(content, opts)
-        end
-      else
-        throw "Stitch can't be loaded. Please add it to your Gemfile."
-      end
+    # Stitch::Package.new options:
+    #   :identifier=>'app',   # variable name for the library
+    #   :paths=>['./app'],
+    #   :root=>'./app', 
+    #   :dependencies=>[],    # List of scripts to prepend to top of file (non moduled)
+    def stitch(source_file, opts={})
+      require 'stitch-rb'
+      content= site.resolve source_file
+      path = content.nil? ? source_file : content.source_path
+      stitch_opts= {} #{ root: content.source_path }
+      stitch_opts.merge! opts
+      stitch_opts[:paths] ||= []
+      stitch_opts[:paths] << File.dirname(path)
+      ::Stitch::Package.new(stitch_opts).compile
+    rescue LoadError
+      raise StandardError, "Stitch can't be loaded. Please add it to your Gemfile."
     end
 
   end
+
+  Gumdrop::Generator::DSL.send :include, Stitch
 
 end
 

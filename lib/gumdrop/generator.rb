@@ -64,7 +64,7 @@ module Gumdrop
 
     def _render_inline_content(opts)
       Proc.new {
-        renderer= site.active_renderer #|| Renderer.new
+        renderer= site.active_renderer || Renderer.new
         content= site.resolve(opts[:render], opts)
         opts[:inline_render]= true
         renderer.draw content, opts
