@@ -1,7 +1,7 @@
 PATH
   remote: ../../../
   specs:
-    gumdrop (9.9.9)
+    gumdrop (1.0.0)
       active_support
       bundle
       i18n

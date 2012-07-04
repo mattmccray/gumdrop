@@ -37,6 +37,12 @@ module Gumdrop
     File.read here / ".." / "ChangeLog.md"
   end
 
+  # Returns 'ReadMe.md' from gem package.
+  def self.change_log
+    here= File.dirname(__FILE__)
+    File.read here / ".." / "ReadMe.md"
+  end
+
 end
 
 require 'gumdrop/cli'

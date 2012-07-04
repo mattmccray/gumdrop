@@ -1,6 +1,6 @@
 # v1.0.0
 - Complete internel rearchitecture. Good stuff.
-- Gumdrop files are now straight ruby that's loaded by Site. You can do any typical ruby kind of things are the root level without having any scope surprises (Gumdrop will have been loaded).
+- Gumdrop files are now straight ruby that's loaded by gumdrop. You can do any typical ruby kind of things are the root level without having any scope surprises (Gumdrop will have been loaded).
 - New event system. `Gumdrop.on :event_name {|e| }` Events:
   - `:build`
   - `:scan`
@@ -9,6 +9,7 @@
   - `:render_item`
 - All the events have :before_* and :after_* versions too.
 - Removed content filters. You can now listen for the :render_item event and set event.data.return_value to change content post-render (layout will have been applied)
+- New DataProviders: csv, xml and sqlite3
 
 # v0.8.0
 - Leveraging Thor for new CLI support.

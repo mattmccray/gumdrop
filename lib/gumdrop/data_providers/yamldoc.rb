@@ -1,14 +1,7 @@
 module Gumdrop::Data
-  class YAMLDocDataProvider < Provider
+  class YAMLDocDataProvider < YAMLandJSONDataProvider
 
     extension :yamldoc
-
-    def available?
-      require 'yaml'
-      true
-    rescue LoadError
-      false
-    end
 
     def data_for(filepath)
       yamldoc= Gumdrop::Util::YamlDoc.new File.read(filepath), true

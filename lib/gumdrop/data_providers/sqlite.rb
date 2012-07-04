@@ -1,16 +1,3 @@
-# TODO: This will take a bit more work.
-=begin
-
-1 - Grab all the table names from master?
-2 - Return a giant hash of hashes?
-     - Outer hash key would be table_name, contains
-     - Array of hashes for each row
-     - Row hash is column_name/value pair.  
-
-Load all the data, or should the Provider API be extended to support
-returning a smart object that could query tables as they are requested?
-
-=end
 module Gumdrop::Data
   class SqliteDataProvider < Provider
 
@@ -46,8 +33,6 @@ module Gumdrop::Data
         data << row.reject {|key,col| key.is_a? Fixnum }
       end
       hash[table_name]= provider.supply_data data
-    # rescue
-    #   nil
     end
 
     def method_missing(key, *args)
