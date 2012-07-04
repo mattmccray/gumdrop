@@ -14,10 +14,14 @@ module Gumdrop::CLI
     method_option :env, default:'production', aliases:'-e'
     method_option :assets, aliases:'-a', type: :array, desc:"List of assets to render."
     method_option :quiet, default:false, aliases:'-q', type: :boolean
-    method_option :subdued, default:false, aliases:'-s', type: :boolean, desc:"Subdued output (....)"
     method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
-    method_option :checksums, default:false, aliases:'-c', type: :boolean, desc:"File changes validated against checksums"
+    method_option :force, default:false, aliases:'-f', type: :boolean, desc:"Ignore file checksums and create all files"
     def build
+      if options[:quiet]
+        Gumdrop.configure do |c|
+          c.log_level= :warn
+        end
+      end
       Gumdrop.run options.merge(mode:'build')
     end
 

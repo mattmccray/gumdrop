@@ -19,9 +19,7 @@ module Gumdrop
     server_timeout: 5,
     server_port: 4567,
     env: :production,
-    file_change_test: :default,
-    # renderer: Renderer,
-    # builder: Builder
+    file_change_test: :checksum
   }
 
   class Site

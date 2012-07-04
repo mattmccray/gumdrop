@@ -16,8 +16,8 @@ module Gumdrop
       @write_files=[]
       @checksums={}
       @options= opts
-      @use_checksum= if opts.has_key?(:checksums)
-          opts[:checksums]
+      @use_checksum= if opts[:force]
+          false
         else
           site.config.file_change_test == :checksum
         end
@@ -29,19 +29,12 @@ module Gumdrop
         log.debug "[Building Site]"
         log.debug "(Rendering)"
         event_block :render do
-          site.contents.keys.sort.each do |uri|
-            content= site.contents[uri]
-            log.debug "  blackout: #{ uri }" and next if site.in_blacklist? uri
-            output_path= site.output_path / content.uri
-            if content.binary?
-              @copy_files << { content.source_path => output_path }
-            else
-              rendered_content= renderer.draw content
-              @write_files << { rendered_content => output_path }
-            end
+          if @options[:assets]
+            _build_assets @options[:assets], true
+          else
+            _build_assets site.contents.keys.sort
           end
         end
-        build_checksums if @use_checksum
         # All files rendered without exception, write them to disc
         log.info "(Writing to #{ site.output_path })"
         event_block :write do
@@ -56,21 +49,26 @@ module Gumdrop
       exit 1 unless site.options[:resume]
     end
 
-    # Might make this private... Not sure
-    def build_checksums
-      event_block :checksum do
-        log.debug "(Creating Checksums)"
-        scanner= Util::Scanner.new(site.output_path) { false }
-        scanner.each do |path, rel|
-          digest= _checksum_for_file path
-          @checksums[rel]= digest
-          log.debug "  checksum: #{ rel } -> #{ digest }"
+  private
+
+    def _build_assets(uris, fuzzy_match=false)
+      uris.each do |uri|
+        if fuzzy_match
+          content= site.resolve uri
+        else
+          content= site.contents[uri]
+        end
+        log.error "Content not found! #{ uri }" and next if content.nil?
+        log.debug "  blackout: #{ uri }" and next if site.in_blacklist? uri
+        output_path= site.output_path / content.uri
+        if content.binary?
+          @copy_files << { content.source_path => output_path }
+        else
+          rendered_content= renderer.draw content
+          @write_files << { rendered_content => output_path }
         end
       end
     end
-
-
-  private
 
     def _copy(files)
       files.each do |from,to|
@@ -105,12 +103,13 @@ module Gumdrop
     def _file_changed?(from, to, from_is_string=false)
       if @use_checksum
         digest= from_is_string ? _checksum_for(from) : _checksum_for_file(from)
-        digest_to = @checksums[_rel_path to]
+        digest_to = _checksum_for_file to #@checksums[_rel_path to]
         # puts "CHECKSUM #{digest_to} == #{digest} #{digest_to == digest}"
         digest_to != digest
       else
         return true if from_is_string
         return true if !File.exists? to
+        return true if @options[:force]
         !FileUtils.identical? from, to
       end
     end
