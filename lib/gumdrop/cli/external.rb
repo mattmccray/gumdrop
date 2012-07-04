@@ -26,7 +26,10 @@ module Gumdrop::CLI
         say "Unknown template!!\n"
         say "Please select from one of the following:\n\n"
         self.templates
+        return
       end
+      path= File.expand_path(name)
+      puts `cd #{path} && bundle install`
     end
 
     desc 'templates', 'List templates'

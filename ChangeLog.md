@@ -1,4 +1,5 @@
 # v1.0.2
+- `gumdrop new` will automatically run `bundle install` so the project site is ready to go.
 - Using kramdown in default template.
 - Bugfix: Windows regression, in data providers.
 
