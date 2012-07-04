@@ -9,14 +9,42 @@ Rake::TestTask.new do |t|
   t.verbose = false
 end
 
-desc 'clears fixture output'
-task :test_clear do
+task :default do
+  puts `rake -T`
+end
+
+desc 'clears fixture generated output'
+task :test_output_clear do
   require 'fileutils'
   here= File.dirname __FILE__
   FileUtils.rm_rf File.join( here, 'specs', 'fixtures', 'output' )
 end
 
-desc "test generated output"
-task :test_output do
-  sh "cd specs/fixtures/source && bundle exec gumdrop build && opendiff ../output ../expected"
+desc "generates fixture site then tests output against expected fixture data"
+task :test_output => :test_output_clear do
+  sh "cd specs/fixtures/source && bundle exec gumdrop build -f"
+  # diff_results= sh "diff -w -r -y -N -q --suppress-common-lines specs/fixtures/output specs/fixtures/expected"
+  diff_results= `diff -w -r -y -N -q --suppress-common-lines specs/fixtures/output specs/fixtures/expected`
+  if diff_results.empty?
+    puts "\n\nPASS: All files matched!"
+    puts "#{ diff_results }"
+    diff_results.split("\n")
+  else
+    puts "\n\nFAIL: Not all files matched:\n\n"
+    puts "#{ diff_results }"
+    matcher= Regexp.new('Files (.*) and', 'i')
+    diff_results.scan(matcher).flatten.each do |fname|
+      puts "\n\n"
+      puts `diff -w -C 3 #{fname} #{fname.gsub('fixtures/output', 'fixtures/expected')}`
+      #diff_results= `diff -w -r -y -N -q --suppress-common-lines specs/fixtures/output#{fname} specs/fixtures/expected#{fname}`
+    end
+  end
+  puts ""
 end
+
+desc "test generated output > OpenDiff"
+task :test_output_ui do
+  sh "cd specs/fixtures/source && bundle exec gumdrop build -f && opendiff ../output ../expected"
+end
+
+# diff -w specs/fixtures/output/test.html specs/fixtures/expected/test.html

@@ -1,38 +1,45 @@
 
-configure do
+Gumdrop.configure do
 
-  #  All the supported build configuration settings and their defaults:
+  #  All the gumdrop specific configuration settings and their defaults:
 
-  # set :relative_paths, true
-  # set :proxy_enabled,  false
-  # set :output_dir,     "./output"
-  # set :source_dir,     "./source"
-  # set :data_dir,       './data'
-  # set :log,            './logs/build.log'
-  # set :ignore,         %w(.DS_Store .gitignore .git .svn .sass-cache)
-  # set :server_timeout, 15
-  # set :server_port,    4567
+  # relative_paths= true
+  # relative_paths_exts= %w(.html .htm .php)
+  # default_layout= 'site'
+  # layout_exts= %w(.html .htm .php)
+  # proxy_enabled= false
+  # output_dir= "./output"
+  # source_dir= "./source"
+  # data_dir= './data'
+  # log= STDOUT
+  # log_level= :info
+  # ignore= %w(**/.DS_Store .git* .git/**/* .svn/**/* **/.sass-cache/**/* Gumdrop)
+  # blacklist= []
+  # server_timeout= 5
+  # server_port= 4567
+  # env= :production
+  # file_change_test= :checksum
 
-  # set :server, "REMOTE_USERNAME"
-  # set :server_user, 'server.com'
-  # set :server_path, '~/server.com'
+
+  # server= "REMOTE_USERNAME"
+  # server_user= 'server.com'
+  # server_path= '~/server.com'
 
 end
 
 
-#  Skipping files entirely from build process... Like they don't exist.
-# skip 'file-to-ignore.html'
-# skip 'dont-show/**/*'
+# Ignore these files when loading from the source_dir
+# Gumdrop.ignore 'file-to-ignore.html'
+# Gumdrop.ignore 'dont-show/**/*'
 
-#  Ignores source file(s) from compilation, but does load the content into memory
-# ignore 'pages/**/*.*'
+# Exclude content from the source tree from being generated.
+# Gumdrop.blacklist 'pages/**/*.*'
 
 #  NOTE: Skipping and ignoring matches like a file glob (it use File.fnmatch in fact)
-#       (this doesn't work for files detected by stitch)
+#       (this doesn't work for files detected by stitch/sprockets)
 
-
-# Example site-level generator
-generate do
+# Example generator
+Gumdrop.generate "Examples" do
   
   #  Requires a about.template.XX file
   # page "about.html", 
@@ -79,27 +86,15 @@ generate do
   #   :keep_src=>true
 end
 
-# Example of using a content filter to compress CSS output
-# require 'yui/compressor'
-# content_filter do |content, info|
-#   if info.ext == '.css'
-#     puts "  Compress: #{info.filename}"
-#     compressor= YUI::CssCompressor.new
-#     compressor.compress( content )
-#   else
-#     content
-#   end
-# end
-
 # All Gumdrop Hooks: on_start, on_before_scan, on_scan, on_before_generate, on_generate, on_before_render, on_render, on_end
-on_start do |site|
+Gumdrop.on :start do |event|
   puts "Gumdrop v#{Gumdrop::VERSION} building..."
 end
 # on_end do |site|  end
 
 
 # View helpers (available in rendering context):
-view_helpers do
+Gumdrop.view_helpers do
 
   # Calculate the years for a copyright
   def copyright_years(start_year, divider="&#8211;")
@@ -119,15 +114,15 @@ end
 
 # Add (thor) tasks to gumdrop command
 # for more: https://github.com/wycats/thor/wiki
-# tasks do
+# Gumdrop.cli do
   
   # desc 'sync', "Syncs with public server using rsync (if configured)"  
   # method_option :build, :aliases => '-b', :desc => 'Build content before syncing'
   # method_option :dry_run, :aliases => '-d', :desc => 'Dry run'
   # def sync
-  #   SITE.build if options[:build]
-  #   config= SITE.config
-  #   output= SITE.config.output_dir
+  #   Gumdrop.site.build if options[:build]
+  #   config= Gumdrop.site.config
+  #   output= Gumdrop.site.output_path
   #   cmd= "rsync -avz --delete #{output} #{config.server_user}@#{config.server}:#{config.server_path}"
   #   puts "Running:\n#{cmd}\n"
   #   system(cmd) unless options[:dry_run]

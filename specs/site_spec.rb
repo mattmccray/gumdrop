@@ -1,5 +1,4 @@
 require_relative 'spec_helper'
-unless ENV['RUN'] == 'output'
 
 describe Gumdrop::Site do
 
@@ -77,5 +76,4 @@ describe Gumdrop::Site do
   #   site.source_dir.must_equal site.config.source_dir
   # end
 
-end
 end

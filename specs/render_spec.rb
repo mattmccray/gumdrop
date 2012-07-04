@@ -1,5 +1,4 @@
 require_relative 'spec_helper'
-unless ENV['RUN'] == 'output'
 
 describe Gumdrop::Renderer do
 
@@ -8,5 +7,4 @@ describe Gumdrop::Renderer do
     r.wont_be_nil
   end
 
-end
 end

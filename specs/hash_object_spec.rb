@@ -1,7 +1,5 @@
 require_relative 'spec_helper'
 
-unless ENV['RUN'] == 'output'
-
 describe Gumdrop::Util::HashObject do
   before do
     @ho= Gumdrop::Util::HashObject.from one:"ONE", two:"TWO", three:'THREE'
@@ -75,5 +73,4 @@ describe Gumdrop::Util::HashObject do
     ho.fifth.must_equal 5
   end
 
-end
 end

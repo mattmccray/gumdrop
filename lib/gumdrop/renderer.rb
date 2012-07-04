@@ -111,8 +111,7 @@ module Gumdrop
       case
         when @opts[:inline_render] then nil
         when (@content.params.has_key?(:layout) and !@content.params.layout) then nil
-        when @opts[:force_partial] then nil
-        when (@content.partial? and !@opts[:layout] and !@content.params.layout) then nil
+        # when (@content.partial? and !@opts[:layout] and !@content.params.layout) then nil
         else
           layout= @opts[:layout] || @content.params.layout || @context.get(:layout)
           site.layouts.first layout
