@@ -23,25 +23,14 @@ module Gumdrop
         end
     end
 
-    def build_checksums
-      event_block :checksum do
-        log.debug "(Creating Checksums)"
-        scanner= Util::Scanner.new(site.output_path) { false }
-        scanner.each do |path, rel|
-          digest= _checksum_for_file path
-          @checksums[rel]= digest
-          log.debug "  checksum: #{ rel } -> #{ digest }"
-        end
-      end
-    end
-
     def execute
       fire :start
       event_block :build do
         log.debug "[Building Site]"
         log.debug "(Rendering)"
         event_block :render do
-          site.contents.each do |uri, content|
+          site.contents.keys.sort.each do |uri|
+            content= site.contents[uri]
             log.debug "  blackout: #{ uri }" and next if site.in_blacklist? uri
             output_path= site.output_path / content.uri
             if content.binary?
@@ -66,6 +55,20 @@ module Gumdrop
       $stderr.puts _exception_message ex, true
       exit 1 unless site.options[:resume]
     end
+
+    # Might make this private... Not sure
+    def build_checksums
+      event_block :checksum do
+        log.debug "(Creating Checksums)"
+        scanner= Util::Scanner.new(site.output_path) { false }
+        scanner.each do |path, rel|
+          digest= _checksum_for_file path
+          @checksums[rel]= digest
+          log.debug "  checksum: #{ rel } -> #{ digest }"
+        end
+      end
+    end
+
 
   private
 

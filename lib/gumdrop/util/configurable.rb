@@ -26,6 +26,11 @@ module Gumdrop::Util
         else
           block.instance_eval &block
         end
+        config_did_change
+      end
+
+      def config_did_change
+        # Override me!
       end
 
     end

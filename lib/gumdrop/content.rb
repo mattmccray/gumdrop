@@ -167,7 +167,7 @@ module Gumdrop
 
     def create(path, generator=nil, &block)
       content= Content.new path, generator, &block
-      add content, path
+      add content #, path
     end
 
     def add(content, uri=nil)

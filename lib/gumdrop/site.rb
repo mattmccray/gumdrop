@@ -137,6 +137,10 @@ module Gumdrop
       nil
     end
 
+    def config_did_change
+      Gumdrop.init_logging
+    end
+
   private
 
     def _reset_config!
@@ -152,7 +156,7 @@ module Gumdrop
       clear_events
       load sitefile
       data.dir= data_dir.expand_path(root)
-      Gumdrop.init_logging
+      # _did_configure
     end
 
     def _content_scanner

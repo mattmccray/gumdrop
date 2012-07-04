@@ -56,6 +56,30 @@ module Gumdrop::CLI
       end
     end
 
+
+    desc 'uris', "Print list of the uri that will be generated."
+    def uris
+      Gumdrop.configure do |c|
+        c.log_level= :error
+      end
+      Gumdrop.site.scan
+
+      say "Gumdrop found:"
+      say ""
+      Gumdrop.site.contents.keys.sort.each do |uri|
+        content= Gumdrop.site.contents[uri]
+        blackout= Gumdrop.site.in_blacklist?(uri) ? 'X' : ' '
+        generated= content.generated? ? '*' : ' '
+        binary= content.binary? ? '!' : ' '
+        say " #{blackout + generated + binary} #{content.uri}"
+      end
+      say ""
+      say "Legend:"
+      say "  X = On on the blacklist"
+      say "  * = Generated (not on fs)"
+      say "  ! = Binary file"
+    end
+
   private
     
     def home_path(name="")
