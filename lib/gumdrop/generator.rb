@@ -43,6 +43,7 @@ module Gumdrop
           content= site.contents.create filepath, self, &block
         end
         content.params.merge! opts
+        content.params.merge! opts[:params] if opts.has_key?(:params)
         log.debug " generated: #{content.uri}"
         @pages << content
       end
@@ -73,6 +74,7 @@ module Gumdrop
 
     class DSL
       include Util::SiteAccess
+      include Util::ViewHelpers
 
       attr_reader :params
 

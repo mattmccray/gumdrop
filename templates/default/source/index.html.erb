@@ -1,1 +1,10 @@
 <p>Welcome to <%= config.site_title %></p>
+<h4>News</h4>
+<ul>
+<%
+  # We can query Gumdrop for the contents of the source_tree:
+  site.contents.find('news/**/*').each do |page|
+%>
+  <li><a href="<%= page.uri %>"><%= page.title %></a></li>
+<% end %>
+</ul>

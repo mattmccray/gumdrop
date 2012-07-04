@@ -263,7 +263,7 @@ module Gumdrop
     def _get_from_content(key)
       return nil if @content.nil?
       return @content.send(key.to_sym) if @content.respond_to?(key.to_sym)
-      return @content.params[key] if !@content.params.has_key?(key)
+      return @content.params[key] if @content.params.has_key?(key)
       nil
     end
 

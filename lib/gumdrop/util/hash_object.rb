@@ -22,6 +22,23 @@ module Gumdrop::Util
       end
     end
 
+    def get(key)
+      self[key]
+    end
+    def set(key,value=nil)
+      if key.is_a? Hash
+        key.each do |k,v|
+          self[k]= v
+        end
+      else
+        self[key]= value
+      end
+    end
+
+    def has_key?(key)
+      super key.to_sym
+    end
+
     def store(key,value)
       super(key.to_sym, value)
     end

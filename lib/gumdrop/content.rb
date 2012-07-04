@@ -119,6 +119,14 @@ module Gumdrop
       uri
     end
 
+    def method_missing(sym, *args, &block)
+      if params.has_key? sym
+        params[sym]
+      else
+        super
+      end
+    end
+
   private
 
     def _uri

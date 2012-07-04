@@ -1,4 +1,4 @@
-require 'ostruct'
+# require 'ostruct'
 
 module Gumdrop
 
@@ -74,7 +74,9 @@ module Gumdrop
         when provider.nil?
           raise "Unknown data type (#{ext}) for #{filename}"
         when provider.available?
-          provider.data_for filename
+          data= provider.data_for filename
+          log.debug "    loaded: #{filename}"
+          data
         else
           raise "Unavailable data type (#{ext}) for #{filename}"
       end
@@ -83,8 +85,7 @@ module Gumdrop
     def _load_from_directory( filepath )
       all=[]
       Dir[ filepath / _supported_type_glob ].each do |filename|
-        log.debug ">> Loading data file: #{filename}"
-        id= File.basename filename
+        id= File.basename(filename).gsub(File.extname(filename), '')
         obj_hash= _load_from_file filename
         obj_hash._id = id
         all << obj_hash
@@ -139,7 +140,8 @@ module Gumdrop
             object.each do |key, value|
               object[key] = supply_data(value)
             end
-            OpenStruct.new(object)
+            # OpenStruct.new(object)
+            Gumdrop::Util::HashObject.from object
           when Array
             object = object.clone
             object.map! { |item| supply_data(item) }

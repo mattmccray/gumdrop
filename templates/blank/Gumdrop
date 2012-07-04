@@ -1,136 +1,208 @@
 
-Gumdrop.configure do
+Gumdrop.configure do|config|
 
-  #  All the gumdrop specific configuration settings and their defaults:
+  # You can add whatever custom config options you'd like:
 
-  # relative_paths= true
-  # relative_paths_exts= %w(.html .htm .php)
-  # default_layout= 'site'
-  # layout_exts= %w(.html .htm .php)
-  # proxy_enabled= false
-  # output_dir= "./output"
-  # source_dir= "./source"
-  # data_dir= './data'
-  # log= STDOUT
-  # log_level= :info
-  # ignore= %w(**/.DS_Store .git* .git/**/* .svn/**/* **/.sass-cache/**/* Gumdrop)
-  # blacklist= []
-  # server_timeout= 5
-  # server_port= 4567
-  # env= :production
-  # file_change_test= :checksum
+  # config.site_title=   "My Site"
+  # config.site_tagline= "My home on thar intarwebs!"
+  # config.site_author=  "Me"
+  # config.site_url=     "http://www.mysite.com"
 
+  # config.redirects= [
+  #   { from:"old-path.html", to:"new-path.html" }
+  # ]
+  
+  # You can modify how Gumdrop runs and where it looks for things by
+  # modifying these configuration settings (included below are their
+  # default values):
 
-  # server= "REMOTE_USERNAME"
-  # server_user= 'server.com'
-  # server_path= '~/server.com'
+  # config.output_dir= "./output"
+  # config.source_dir= "./source"
+  # config.data_dir= './data'
+  # config.relative_paths= true
+  # config.relative_paths_exts= %w(.html .htm)
+  # config.default_layout= 'site'
+  # config.layout_exts= %w(.html .htm)
+  # config.proxy_enabled= false
+  # config.log= STDOUT
+  # config.log_level= :info
+  # config.server_timeout= 5
+  # config.server_port= 4567
+  # config.env= :production
+  # config.file_change_test= :checksum
+
+  # You can set ignore/blacklist here, but it'd be better to use the gumdrop 
+  # methods `Gumdrop.ignore(*paths)` and `Gumdrop.blacklist(*paths)`
+  # config.ignore= %w(**/.DS_Store .git* .git/**/* .svn/**/* **/.sass-cache/**/* Gumdrop)
+  # config.blacklist= []
+
+  # Optional, if you want to use the example 'sync' command below.
+
+  # You can call config.set and pass a hash, if you prefer that format:
+  # config.set({
+  #   server: 'example-server.com',
+  #   server_user: 'example-username',
+  #   server_path: '~/example-server.com'
+  # })
 
 end
 
+# Ignored files are not read from the source_dir into memory.
+# Use file glob pattern:
+# Gumdrop.ignore "**/ignore.me"
 
-# Ignore these files when loading from the source_dir
-# Gumdrop.ignore 'file-to-ignore.html'
-# Gumdrop.ignore 'dont-show/**/*'
+# Blacklisted files will not be render to output_dir (even generated pages). 
+# Use file glob pattern:
+# Gumdrop.blacklist "**/wont.render"
 
-# Exclude content from the source tree from being generated.
-# Gumdrop.blacklist 'pages/**/*.*'
+# Generators are a way of dynamically creating pages.
+# You can create generators like the following example or in the source tree
+# by creating a file with the extension `.generator`. The only difference is
+# that generators in the source_dir will assume the `base_path` of the 
+# `.generator` file path.
+# Gumdrop.generate 'Apache Specific Stuff (Example)' do
+#   page '.htaccess.erb' do
+#     # The return value will be used as the file content.
+#     # Since we give the filename (above) an .erb extension,
+#     # the rendering engine will run the following content
+#     # through erb before being saved to disk as `.htaccess`.
+#     <<-EOF
+# # For clean urls
+# DirectoryIndex index.html
 
-#  NOTE: Skipping and ignoring matches like a file glob (it use File.fnmatch in fact)
-#       (this doesn't work for files detected by stitch/sprockets)
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteBase /
 
-# Example generator
-Gumdrop.generate "Examples" do
-  
-  #  Requires a about.template.XX file
-  # page "about.html", 
-  #   :template=>'about', 
-  #   :passthru=>'Available in the template'
+#     # Do not do anything for already existing files and folders
+#     RewriteCond %{REQUEST_FILENAME} -f [OR]
+#     RewriteCond %{REQUEST_FILENAME} -d
+#     RewriteRule .+ - [L]
 
-  # page 'robots.txt' do
-  #   # And content returned will be put in the file
-  #   """
-  #   User-Agent: *
-  #   Disallow: /
-  #   """
-  # end
+#     # add .html file extension (if such file does exist)
+#     RewriteCond %{DOCUMENT_ROOT}/$1\.html -f
+#     RewriteRule ^(.+[^/])/?$ $1.html [L,QSA]
+# </IfModule>
 
-  #  Maybe for a tumblr-like pager
-  # pager= Gumdrop.data.pager_for :posts, base_path:'posts/page', page_size:5
+# # BEGIN Gzip
+# <IfModule mod_deflate.c>
+#   AddOutputFilterByType DEFLATE text/text text/html text/plain text/xml text/css application/x-javascript application/javascript
+# </IfModule>
+# # END Gzip
 
-  # pager.each do |page|
-  #   page "#{page.uri}.html", 
-  #     template:'post_page', 
-  #     posts:page.items, 
-  #     pager:pager, 
-  #     current_page:pager.current_page
-  # end
-
-  #  Assemble javscript files in a CommonJS-like way with stitch-rb
-  # stitch 'app.js',        # JavaScript to assemble
-  #   :identifier=>'app',   # variable name for the library
-  #   :paths=>['./app'],
-  #   :root=>'./app', 
-  #   :dependencies=>[],    # List of scripts to prepend to top of file (non moduled)
-  #   :prune=>false,        # If true, removes the source files from Gumdrop.site hash
-  #   :compress=>:jsmin,    # Options are :jsmin, :yuic, :uglify
-  #   :obfuscate=>false,    # For compressors that support munging/mangling
-  #   :keep_src=>true       # Creates another file, ex: app-src.js
-  
-  # Or use sprockets 
-  # sprockets 'app.js', 
-  #   :src=>'app/index.js', 
-  #   :paths=>['./lib'], 
-  #   :prune=>true, 
-  #   :root=>'./src', 
-  #   :compress=>:packr, 
-  #   :keep_src=>true
-end
-
-# All Gumdrop Hooks: on_start, on_before_scan, on_scan, on_before_generate, on_generate, on_before_render, on_render, on_end
-Gumdrop.on :start do |event|
-  puts "Gumdrop v#{Gumdrop::VERSION} building..."
-end
-# on_end do |site|  end
-
-
-# View helpers (available in rendering context):
-Gumdrop.view_helpers do
-
-  # Calculate the years for a copyright
-  def copyright_years(start_year, divider="&#8211;")
-    end_year = Date.today.year
-    if start_year == end_year
-      "#{start_year}"
-    else
-      "#{start_year}#{divider}#{end_year}"
-    end
-  end
-  
-  #
-  # Your custom helpers go here!
-  #
-
-end
-
-# Add (thor) tasks to gumdrop command
-# for more: https://github.com/wycats/thor/wiki
-# Gumdrop.cli do
-  
-  # desc 'sync', "Syncs with public server using rsync (if configured)"  
-  # method_option :build, :aliases => '-b', :desc => 'Build content before syncing'
-  # method_option :dry_run, :aliases => '-d', :desc => 'Dry run'
-  # def sync
-  #   Gumdrop.site.build if options[:build]
-  #   config= Gumdrop.site.config
-  #   output= Gumdrop.site.output_path
-  #   cmd= "rsync -avz --delete #{output} #{config.server_user}@#{config.server}:#{config.server_path}"
-  #   puts "Running:\n#{cmd}\n"
-  #   system(cmd) unless options[:dry_run]
-  # end
+# <% config.redirects.each do |opts| %>
+# Redirect <%= opts[:from] %> <%= opts[:to] %>
+# <% end %>
+#     EOF
+#   end
 
 # end
 
-# Any specialized code for your site goes here...
+# Gumdrop.generate 'Other Examples' do
+#   # Renders the about_site partial to about.html. 
+#   # It passes any other params on to the partial.
+#   # page "about.html",  :render=>'about_site', :passthru=>'Available to the partial'
+
+#   # If a block is passed in to `page`, the return value will be used as the file contents.
+#   page 'robots.txt' do
+#     """
+# User-Agent: *
+# Disallow: /
+#     """
+#   end
+
+#   # Building a webapp and want to use Sprockets to assemble the JS? Gumdrop
+#   # supplies a sprockets helper (and a stitch one, if you'd prefer).
+#   # file 'app.js' do
+#   #   # file generators will not render with any layouts
+#   #   sprocket 'js/main.js'
+#   # end
+#   # You might want to keep the source .js files from being generated:
+#   # Gumdrop.blacklist "js/**/*.js"
+
+#   # You can access data from the "./data" folder (by default, it's configurable
+#   # of course) so you can create data-driven static pages... If that makes sense.
+#   data.news.each do |item|
+
+#     page "news/#{ item._id }-#{ item.slug }.html.markdown.erb", params:item do
+#       # The data manager adds item._id to the resultset. It is 
+#       # the file's basename minus extname.
+#       #
+#       # Since we added '.markdown' and '.erb' to the end of the filename,
+#       # when this page is rendered, it'll be passed through erb first,
+#       # then a markdown engine (which we've included in our Gemfile).
+#       #
+#       # Notice the params:#object option above, that will take
+#       # whatever hash values are there and merge them into the
+#       # the Content object's params -- so we can use access that
+#       # data elsewhere (see source/index.html.erb).
+#       item.content
+#     end
+#   end
+    
+#   # With all these generated pages, you might be curious what all will be
+#   # built by Gumdrop. To see an overview run:
+#   #   $ gumdrop uris
+# end
+
+# Throughout the life of Gumdrop, several events are fired. You can listen
+# for them like this:
+Gumdrop.on :start do |event|
+  puts "Gumdrop v#{Gumdrop::VERSION} building..."
+
+  # Some Gumdrop events you can listen for: 
+  # start, scan, generate, generate_item, render, render_item, end
+  #
+  # For more, see: https://github.com/darthapo/gumdrop/wiki/Gumdrop-Events
+end
+
+
+# View helpers (available in the rendering context and generators):
+# Gumdrop.view_helpers do
+
+#   # Calculate the years for a copyright
+#   def copyright_years(start_year, divider="&#8211;")
+#     end_year = Date.today.year
+#     if start_year == end_year
+#       "#{start_year}"
+#     else
+#       "#{start_year}#{divider}#{end_year}"
+#     end
+#   end
+  
+#   #
+#   # Your custom helpers go here!
+#   #
+
+# end
+
+
+# Add your own commands to the gumdrop command line interface (for this site)!
+# For more, see: https://github.com/wycats/thor/wiki
+# Gumdrop.cli do
+  
+#   desc 'sync', "Syncs with public server using rsync (if configured)"  
+#   method_option :build, :aliases => '-b', :desc => 'Build content before syncing'
+#   method_option :dry_run, :aliases => '-d', :desc => 'Dry run'
+#   def sync
+#     Gumdrop.site.build if options[:build]
+#     config= Gumdrop.site.config
+#     output= Gumdrop.site.output_path
+#     dry_run= options[:dry_run] ? 'n' : ''
+#     unless config.server.nil? or config.server == 'example-server.com'
+#       cmd= "rsync -avz#{ dry_run } --delete #{ output } #{ config.server_user }@#{ config.server }:#{ config.server_path }"
+#       say "Running:\n#{ cmd }\n"
+#       system(cmd)
+#     else
+#       say "To use this command, please configure your server info in the Gumdrop file!"
+#     end
+#   end
+
+# end
+
+
+# Any other code you'd like to run... This is just a ruby file, after all!
 
 # require 'slim'
 # Slim::Engine.set_default_options pretty:true
+

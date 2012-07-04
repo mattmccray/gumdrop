@@ -1,5 +1,5 @@
 module Gumdrop
   
-  VERSION= "1.0.0"
+  VERSION= "9.9.9"
 
 end

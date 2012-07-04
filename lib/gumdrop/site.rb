@@ -1,6 +1,6 @@
 module Gumdrop
 
-  WEB_PAGE_EXTS= %w(.html .htm .php)
+  WEB_PAGE_EXTS= %w(.html .htm)
   JETSAM_FILES= %w(**/.DS_Store .git* .git/**/* .svn/**/* **/.sass-cache/**/* Gumdrop)
 
   DEFAULT_CONFIG= {
@@ -114,6 +114,8 @@ module Gumdrop
 
     def resolve(path=nil, opts={})
       case 
+        when path.is_a?(Content)
+          path
         when !path.nil?
           contents.first(path) || partials.first(path)
         when opts[:page]
@@ -154,8 +156,13 @@ module Gumdrop
     def _load_sitefile
       clear_events
       load sitefile
-      data.dir= data_dir.expand_path(root)
-      # _did_configure
+      data.dir= data_path
+    rescue Exception => ex
+      msg= "There is an error in your Gumdrop file!"
+      # $stderr.puts msg
+      log.error msg
+      log.error ex
+      raise ex
     end
 
     def _content_scanner

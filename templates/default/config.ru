@@ -5,6 +5,7 @@ require 'bundler'
 
 begin
   Bundler.setup(:default, :development)
+  Bundler.require if File.exists?('Gemfile')
 rescue Bundler::BundlerError => e
   $stderr.puts e.message
   $stderr.puts "Run `bundle install` to install missing gems"

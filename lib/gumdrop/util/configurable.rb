@@ -24,7 +24,7 @@ module Gumdrop::Util
         if block.arity == 1
           block.call config
         else
-          block.instance_eval &block
+          config.instance_eval &block
         end
         config_did_change
       end

@@ -8,13 +8,21 @@ module Gumdrop
       end
       
       def markdown(source)
-        m= Tilt['markdown'].new { source }
-        m.render
+        eng= Gumdrop::Renderer.for 'markdown'
+        unless eng.nil?
+          eng.new(source).render
+        else
+          raise StandardError, "Markdown is not available: Include a Markdown engine in your Gemfile!"
+        end
       end
       
       def textile(source)
-        m= Tilt['textile'].new { source }
-        m.render
+        eng= Gumdrop::Renderer.for 'textile'
+        unless eng.nil?
+          eng.new(source).render
+        else
+          raise StandardError, "Textile is not available: Include a Textile engine in your Gemfile!"
+        end
       end
       
       def config
