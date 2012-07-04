@@ -28,6 +28,7 @@ GEM
     fssm (0.2.9)
     hike (1.2.1)
     i18n (0.6.0)
+    jsmin (1.0.1)
     listen (0.4.7)
       rb-fchange (~> 0.0.5)
       rb-fsevent (~> 0.9.1)
@@ -66,6 +67,7 @@ PLATFORMS
 
 DEPENDENCIES
   gumdrop!
+  jsmin
   minitest
   redcarpet
   sprockets

@@ -1,13 +1,26 @@
 
-module Gumdrop
-  module Support
-    class Compressor
-      include Gumdrop::Util::Loggable
+module Gumdrop::Support
 
-      def compress(content, opts)
-        case opts[:compress]
+  module Compressor
 
-        when true, :jsmin
+    def compress(content, opts)
+      case opts
+      when Symbol, String
+        do_compress content, opts.to_s.to_sym
+      when Hash
+        do_compress content, opts[:with].to_s.to_sym, opts
+      else
+        # UNKNOWN Compressor type!
+        log.warn "Unknown javascript compressor type!"
+        content
+      end
+    end
+
+  private
+
+    def do_compress(content, type, opts={})
+      case type
+        when :jsmin
           require 'jsmin'
           JSMin.minify content
 
@@ -24,16 +37,16 @@ module Gumdrop
           require 'packr'
           Packr.pack(content, :shrink_vars => true, :base62 => false, :private=>false)
 
-        when false
-          content
-
         else
           # UNKNOWN Compressor type!
-          log.warn "Unknown javascript compressor type! (#{ opts[:compressor] })"
+          log.warn "Unknown javascript compressor type! (#{ type })"
           content
-        end
       end
     end
+
   end
+  
+  Gumdrop::Generator::DSL.send :include, Compressor
+
 end
 

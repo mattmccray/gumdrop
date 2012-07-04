@@ -34,6 +34,17 @@ Gumdrop.generate 'stitch test' do |gen|
   Gumdrop.blacklist 'js/stitch/**/*'
 end
 
+Gumdrop.generate 'compressor test (no block param to Gumdrop.generate)' do
+  # should have the same scope as a .generator file.
+  shared_js= stitch 'js/stitch/app.js'
+  file 'js/stitch-app.min.js' do
+    compress shared_js, :jsmin
+  end
+  file 'js/stitch-app.min.src.js' do
+    shared_js
+  end
+end
+
 Gumdrop.generate 'pages with blocks and layouts' do |gen|
   gen.page 'gen-with-block/as-plain.html' do
     "Test Plain"

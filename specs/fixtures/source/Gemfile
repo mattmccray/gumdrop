@@ -21,7 +21,7 @@ gem "coffee-script"
 #gem 'uglifier'
 #gem 'yui-compressor'
 #gem 'packr'
-# gem 'jsmin'
+gem 'jsmin'
 gem 'stitch-rb'
 gem 'sprockets'
 
