@@ -15,3 +15,8 @@ task :test_clear do
   here= File.dirname __FILE__
   FileUtils.rm_rf File.join( here, 'specs', 'fixtures', 'output' )
 end
+
+desc "test generated output"
+task :test_output do
+  sh "cd specs/fixtures/source && bundle exec gumdrop build && opendiff ../output ../expected"
+end
