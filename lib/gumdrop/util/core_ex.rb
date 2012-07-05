@@ -9,7 +9,7 @@ class Hash
   end
 
   def to_hash_object
-    Gumdrop::Util::HashObject.from self
+    Gumdrop::Util::HashObject.from self, true
   end
 
   def ends_with?(string)

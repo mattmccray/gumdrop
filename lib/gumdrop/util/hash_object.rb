@@ -7,6 +7,9 @@ module Gumdrop::Util
       super(key.to_sym)
     end
     def []=(key, value)
+      if value.is_a? Hash
+        value= HashObject.from value, true
+      end
       super(key.to_sym, value)
     end
   
@@ -59,8 +62,15 @@ module Gumdrop::Util
       end
     end
 
-    def self.from(hash={})
+    def self.from(hash={}, recurse=true)
       h= new
+      if recurse
+        hash.each do |key, value|
+          if value.is_a? Hash
+            hash[key]= HashObject.from value
+          end
+        end
+      end
       h.merge!(hash)
       h
     end

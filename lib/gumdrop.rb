@@ -38,7 +38,7 @@ module Gumdrop
   end
 
   # Returns 'ReadMe.md' from gem package.
-  def self.change_log
+  def self.read_me
     here= File.dirname(__FILE__)
     File.read here / ".." / "ReadMe.md"
   end

@@ -73,4 +73,11 @@ describe Gumdrop::Util::HashObject do
     ho.fifth.must_equal 5
   end
 
+  it "should make nested hashes act like objects too" do
+    @ho.sub= { :name=>'Matt', 'age'=>'OLDish', 'sub'=>{ 'stuff'=>'STUFF' } }
+    @ho.sub.name.must_equal "Matt"
+    @ho.sub.age.must_equal 'OLDish'
+    @ho.sub.sub.stuff.must_equal 'STUFF'
+  end
+
 end
