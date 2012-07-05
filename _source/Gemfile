@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gem "gumdrop"
+gem "gumdrop", path:"../../gumdrop"
 
 # Add your dependencies here:
 
@@ -8,7 +8,7 @@ gem "gumdrop"
 # gem "less"
 # gem "haml"
 # gem "slim"
-# gem "sass"
+gem "sass"
 # gem "coffee-script"
 
 # For JavaScript stitching and compressing:
@@ -21,7 +21,7 @@ gem "gumdrop"
 
 # For markdown support, a couple of options:
 # gem "redcarpet"
-# gem "kramdown", :git => "git://github.com/darthapo/kramdown.git"
+gem "kramdown", :git => "git://github.com/darthapo/kramdown.git"
 # gem "rdiscount"
 # gem 'maruku'
 

@@ -1,23 +1,142 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <title></title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Gumdrop by darthapo</title>
+
+    <link rel="stylesheet" href="styles/highlight/github.css">
+    <link rel="stylesheet" href="styles/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
-      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="/html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <!-- Created by Matthew McCray on July 4th! -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
+    </style>
   </head>
-  <body>
-     <header>
-      <h1>Gumdrop</h1>
-      <h3></h3>
-     </header>
-      <nav></nav>
-      <article>
-        <section>
-          <p>Coming soon...</p>
-        </section>
-      </article>
+  <body class="index">
+    <div class="wrapper">
+      <header>
+        <h1><a href="index.html">Gumdrop</a></h1>
+        <h4>The sweet cms/prototyping tool.</h4>
+        <nav>
+  <p><a href="changes.html">ChangeLog...</a></p>
+</nav>
+        <p class="view"><a href="https://github.com/darthapo/gumdrop">View the Project on GitHub <small>darthapo/gumdrop</small></a></p>
+        <ul>
+          <li><a href="https://github.com/darthapo/gumdrop/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/darthapo/gumdrop/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/darthapo/gumdrop">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+      <!-- Content -->
+        <h1 id="gumdrop">Gumdrop</h1>
+
+<p>Gumdrop; The sweet cms/prototyping tool.</p>
+
+<p>It generates static html and includes a dev server that can be run via any
+rack server (including POW!).</p>
+
+<h2 id="install">Install</h2>
+
+<pre class="bash"><code>$ gem install gumdrop
+</code></pre>
+
+<h2 id="quick-start">Quick Start</h2>
+
+<pre class="bash"><code>$ gumdrop new SITE_NAME
+</code></pre>
+
+<p><em>(You can run <code>gumdrop help</code> to see a list of commands and their supported flags.)</em></p>
+
+<p>Gumdrop will spit out a default Gumdrop project site for you, which you can then
+build by running:</p>
+
+<pre class="bash"><code>$ cd SITE_NAME
+$ gumdrop build
+</code></pre>
+
+<p>Bam! A static version of the site is now available in a newly created <code>./output</code>
+folder.</p>
+
+<p>Don't want the output there? Maybe you want it to put it in <code>./public</code> instead?
+No problem. Open up the <code>Gumdrop</code> project file:</p>
+
+<pre class="bash"><code>$ $EDITOR Gumdrop
+</code></pre>
+
+<p>At the top of the file you'll find a <code>Gumdrop.configure</code> block. Add this to the
+top of that block:</p>
+
+<pre class="ruby"><code>Gumdrop.configure do |config|
+
+  config.output_dir= "./public"
+
+  # ... Other stuff
+
+end
+</code></pre>
+
+<p>Now, when you run <code>gumdrop build</code> again, it'll generate all the output into
+the <code>./public</code> folder (creating it, if it doesn't exist).</p>
+
+<h2 id="lots-more">Lots More</h2>
+
+<p>That's enough to get you started! Poke around the code it generated to see how
+it works. You can also start with a blank slate by running:</p>
+
+<pre class="bash"><code>$ gumdrop new -t blank MY_BLANK_SITE
+</code></pre>
+
+<p>Gumdrop can do quite a lot and is very configurable. Be sure and read the wiki
+for documentation and more examples!</p>
+
+<p><a href="https://github.com/darthapo/gumdrop/wiki">https://github.com/darthapo/gumdrop/wiki</a></p>
+
+<h2 id="by-the-power-of">By The Power of…</h2>
+
+<p>Greyskull? Well, not so much. But Gumdrop core is powered by these excellent
+open source projects (in alphabetical order):</p>
+
+<ul>
+  <li>ActiveSupport</li>
+  <li>Bundle</li>
+  <li>Launchy</li>
+  <li>Onfire</li>
+  <li>Sinatra</li>
+  <li>Tilt</li>
+  <li>Thor </li>
+</ul>
+
+<p>And will, optionally, leverage these in building your site:</p>
+
+<ul>
+  <li>sqlite3</li>
+  <li>sprockets</li>
+  <li>stitch</li>
+  <li>jsmin</li>
+  <li>slim</li>
+  <li>haml/sass</li>
+  <li>coffee-script</li>
+  <li>and many, many more! (todo: gotta document 'em all!)</li>
+</ul>
+
+
+      <!-- /Content -->
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/darthapo">darthapo</a></p>
+        <p><small>
+          Hosted by GitHub Pages<br>
+          Theme by <a href="https://github.com/orderedlist">orderedlist</a><br>
+          Built with <a href="http://darthapo.github.com/gumdrop/">Gumdrop</a>
+        </small></p>
+      </footer>
+    </div>
+    <script src="scripts/scale.fix.js"></script>
+    <script src="scripts/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
   </body>
 </html>

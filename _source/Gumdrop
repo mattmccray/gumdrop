@@ -1,12 +1,17 @@
 
 Gumdrop.configure do|config|
 
-  config.project_name= "gumdrop"
-  config.project_title= "Gumdrop"
-  config.protect_tagline= "The sweet cms/prototyping tool."
-  config.author= "darthapo"
-  config.author_name= "Matt McCray"
-  config.author_email= "matt@elucidata.net"
+  config.set project:{
+    name: 'gumdrop',
+    title: 'Gumdrop',
+    tagline: 'The sweet cms/prototyping tool.'
+  }
+
+  config.set author:{
+    user: 'darthapo',
+    name: 'Matt McCray',
+    email: 'matt@elucidata.net'
+  }
 
   config.output_dir= "../"
   config.source_dir= "./"
@@ -18,16 +23,32 @@ Gumdrop.ignore "data/**/*"
 
 Gumdrop.view_helpers do
 
-  def github_url
-    "https://github.com/#{ config.author }/#{ config.project_name }"
+  def project
+    config.project
   end
 
-  def github_site
-    "http://#{ config.author }.github.com/#{ config.project_name }"
+  def author
+    config.author
+  end
+
+  def github_url
+    "#{ github_user_url }/#{ project.name }"
+  end
+
+  def github_site_url
+    "http://#{ author.user }.github.com/#{ project.name }"
+  end
+
+  def github_user_url
+    "https://github.com/#{ author.user }"
+  end
+
+  def class_name
+    uri.gsug(File.extname(filename), '').gsub('/','-')
   end
 
   def readme
-    Gumdrop.readme
+    Gumdrop.read_me
   end
 
   def changelog

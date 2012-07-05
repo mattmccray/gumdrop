@@ -1,23 +1,49 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <title></title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title><%= project.title %> by <%= author.user %></title>
+
+    <link rel="stylesheet" href="/styles/highlight/github.css">
+    <link rel="stylesheet" href="/styles/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
-      <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-    <!-- Created by Matthew McCray on July 4th! -->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
+    </style>
   </head>
-  <body>
-     <header>
-      <h1><%= config.project_title %></h1>
-      <h3><%= config.project_tagline %></h3>
-     </header>
-      <nav></nav>
-      <article>
-        <section>
-          <%= yield %>
-        </section>
-      </article>
+  <body class="<%= slug %>">
+    <div class="wrapper">
+      <header>
+        <h1><a href="/index.html"><%= project.title %></a></h1>
+        <h4><%= project.tagline %></h4>
+        <%= render 'sidebar' %>
+        <p class="view"><a href="<%= github_url %>">View the Project on GitHub <small><%= author.user %>/<%= project.name %></small></a></p>
+        <ul>
+          <li><a href="<%= github_url %>/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="<%= github_url %>/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="<%= github_url %>">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+      <!-- Content -->
+        <%= yield %>
+      <!-- /Content -->
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="<%= github_user_url %>"><%= author.user %></a></p>
+        <p><small>
+          Hosted by GitHub Pages<br>
+          Theme by <a href="https://github.com/orderedlist">orderedlist</a><br>
+          Built with <a href="http://darthapo.github.com/gumdrop/">Gumdrop</a>
+        </small></p>
+      </footer>
+    </div>
+    <script src="/scripts/scale.fix.js"></script>
+    <script src="/scripts/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
   </body>
 </html>

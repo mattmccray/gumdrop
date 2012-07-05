@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Gumdrop by darthapo</title>
+
+    <link rel="stylesheet" href="styles/highlight/github.css">
+    <link rel="stylesheet" href="styles/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="/html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Lato:300italic,700italic,300,700);
+    </style>
+  </head>
+  <body class="changes">
+    <div class="wrapper">
+      <header>
+        <h1><a href="index.html">Gumdrop</a></h1>
+        <h4>The sweet cms/prototyping tool.</h4>
+        <nav>
+  <p><a href="changes.html">ChangeLog...</a></p>
+</nav>
+        <p class="view"><a href="https://github.com/darthapo/gumdrop">View the Project on GitHub <small>darthapo/gumdrop</small></a></p>
+        <ul>
+          <li><a href="https://github.com/darthapo/gumdrop/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/darthapo/gumdrop/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/darthapo/gumdrop">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+      <!-- Content -->
+        <h1>Change Log</h1>
+<h1 id="v103">v1.0.3</h1>
+<ul>
+  <li>Fixed markdown and textile view_helpers.</li>
+  <li><code>Dir.chdir</code> to <code>site.root</code>. (should be able to run gumdrop in any folder of a Gumdrop project)</li>
+  <li>Added support for launching the browser when starting the dev server.</li>
+  <li>You may now override the dev server port on the cli as well.</li>
+  <li>Disabled automatic <code>bundle install</code> when a new project is created. It's annoying.</li>
+</ul>
+
+<h1 id="v102">v1.0.2</h1>
+<ul>
+  <li><code>gumdrop new</code> will automatically run <code>bundle install</code> so the project site is ready to go.</li>
+  <li>Using kramdown in default template.</li>
+  <li>Bugfix: Windows regression, in data providers.</li>
+</ul>
+
+<h1 id="v101">v1.0.1</h1>
+<ul>
+  <li>Moved <code>watch</code> feature from gem CLI to example in Gumdrop site file. (Because the listen gem does not, in fact, work on every platform out of the box – At least, not in a way that's usable in a library like this – Gumdrop needs to support Windows, so listen is gone from core.)</li>
+  <li>Fixed local reference to gumdrop gem in the default tempalte Gemfile.</li>
+</ul>
+
+<h1 id="v100">v1.0.0</h1>
+<ul>
+  <li>Complete internel rearchitecture. Good stuff.</li>
+  <li>Gumdrop files are now straight ruby that's loaded by gumdrop. You can do any typical ruby kind of things are the root level without having any scope surprises (Gumdrop will have been loaded).</li>
+  <li>New event system. <code>Gumdrop.on :event_name {|e| }</code> Events:
+    <ul>
+      <li><code>:build</code></li>
+      <li><code>:scan</code></li>
+      <li><code>:generate</code></li>
+      <li><code>:render</code></li>
+      <li><code>:render_item</code></li>
+    </ul>
+  </li>
+  <li>All the events have :before<em>* and :after</em>* versions too.</li>
+  <li>Removed content filters. You can now listen for the :render_item event and set event.data.return_value to change content post-render (layout will have been applied)</li>
+  <li>New DataProviders: csv, xml and sqlite3</li>
+</ul>
+
+<h1 id="v080">v0.8.0</h1>
+<ul>
+  <li>Leveraging Thor for new CLI support.</li>
+  <li>Added watch command to watch filesystem and auto-compile.</li>
+  <li>You can now add commands to the gumdrop command for your site. Use <code>tasks</code> block in Gumdrop file.</li>
+  <li>Report rendering errors better.</li>
+  <li>Code cleanup and reorganization.</li>
+  <li>Generators keep track of generated content.</li>
+  <li>Bugfix: Files without layouts won't throw an exception.</li>
+  <li>New subdued output mode, cli '-s' flag</li>
+</ul>
+
+<h1 id="v075">v0.7.5</h1>
+<ul>
+  <li>Gumdrop dev server will serve up files from output_dir if the file isn't found in the source tree.</li>
+  <li>Added new template: blank</li>
+  <li>Coerces content into UTF-8, if it can, when relativizing paths (to work around encoding bugs).</li>
+  <li>Content class defers a lot of stuff from the initializer (for slightly faster startup).</li>
+  <li>Changed site.node_tree to site.content_hash. More representative of what it is.</li>
+  <li>Paths aren't relativized for pages that set force_absolute</li>
+</ul>
+
+<h1 id="v074">v0.7.4</h1>
+<ul>
+  <li>All rendered content (including layouts) will relativize paths starting with / on href=&quot;&quot; and src=&quot;&quot; for html files. Can be set to array of file exts to process at <code>config.relative_paths_for= ['.html']</code> or sett to process all files <code>config.relative_paths_for= :all</code> or turned off entirely by <code>config.relative_paths= false</code></li>
+  <li>Proxy server is disabled by default. Enable it <code>configure.proxy = true</code></li>
+</ul>
+
+<h1 id="v073">v0.7.3</h1>
+<ul>
+  <li>Bugfix: Correctly runs content through multiple processors (when multiple are specified in the filename. ie: test.js.erb.coffee gets sent through CoffeeScript then erb)</li>
+</ul>
+
+<h1 id="v072">v0.7.2</h1>
+<ul>
+  <li>Now supports :packr as a type of compression for stitch/sprockets (be sure it's in your Gemfile)</li>
+  <li>Cleaned up generator internals</li>
+</ul>
+
+<h1 id="v071">v0.7.1</h1>
+<ul>
+  <li>Ignore/skip (greylist/blacklist) will now include/skip generated content too.</li>
+  <li>Quiet mode will actually be quiet.</li>
+  <li>Made build log output more consistent.</li>
+</ul>
+
+<h1 id="v070">v0.7.0</h1>
+<ul>
+  <li>Initial support for sprockets js generator.</li>
+</ul>
+
+<h1 id="v064">v0.6.4</h1>
+<ul>
+  <li>Callbacks are cleared on each <code>Site#rescan()</code> to prevent duplicates.</li>
+  <li>Callback blocks are called with <code>site</code> as the parameter.</li>
+  <li>Added <code>Gumdrop.change_log</code>.</li>
+  <li>Added on_before* event for scan, generate, and render.</li>
+</ul>
+
+<h1 id="v063">v0.6.3</h1>
+<ul>
+  <li>Added <code>generated</code> flag to Content object</li>
+  <li>Added <code>config</code> to Generator context</li>
+  <li>Added callbacks to site build process. Callbacks:
+    <ul>
+      <li>on_start</li>
+      <li>on_scan</li>
+      <li>on_generate</li>
+      <li>on_render</li>
+      <li>on_end</li>
+    </ul>
+  </li>
+  <li>Dev server doesn't check last build time for static assets.</li>
+</ul>
+
+<h1 id="v062">v0.6.2</h1>
+<ul>
+  <li>Consolidated stitch support code into single file</li>
+  <li>Bugfix: Generates better relative paths for Content objects</li>
+  <li>Cleaned up paths in Content</li>
+  <li>Updated project templates</li>
+</ul>
+
+<h1 id="v061">v0.6.1</h1>
+<ul>
+  <li>Content filters are run for dev server requests now too.</li>
+  <li>Added config.env, defaults to 'production' (override from cli with -e)</li>
+</ul>
+
+<h1 id="v06">v0.6</h1>
+<ul>
+  <li>Extracted Gumdrop::Build into Gumdrop::Site. Removed static Gumdrop#site.</li>
+</ul>
+
+<h1 id="v052">v0.5.2</h1>
+<ul>
+  <li>DeferredLoader changed to DataManager</li>
+  <li>Added YamlDoc support to data collections – a data format (.yamldoc) that strips YAML front matter and puts the content under the key 'content', or it will use a custom key from the front matter if the value of the pair is '<em>YAMLDOC</em>'</li>
+  <li>Templates are stored under their short name and full path now.</li>
+  <li>skip/ignore (blacklist and greylist) now use File.fnmatch instead of starts_with? for matching paths</li>
+</ul>
+
+<h1 id="v051">v0.5.1</h1>
+<ul>
+  <li>Bugfix: dev server was rescanning source files multiple times per pages load if build time exceeded 2 seconds… Will now wait 10 seconds before rescanning source.</li>
+</ul>
+
+<h1 id="v05">v0.5</h1>
+<ul>
+  <li>Gumdrop projects now require a <code>Gumdrop</code> file at the root – contents are what you used to put in lib/site.rb.</li>
+  <li>Added new <code>configure</code> and <code>view_helpers</code> methods for use in <code>Gumdrop</code> site file.</li>
+  <li>Smarter CLI, knows when you're in a gumdrop site or not.</li>
+  <li>Local templates supported for new sites (looks under ~/.gumdrop/templates)</li>
+  <li>You can list installed templates using <code>gumdrop --list</code></li>
+  <li>You can install the current site as a local template using <code>gumdrop -t new_template_name</code> in a site folder.</li>
+  <li>Data folder path is now configurable: <code>Gumdrop.config.data_dir</code> or <code>set :data_dir, "PATH"</code></li>
+  <li>Added <code>data.site</code> and <code>data.site_all</code> to <code>DefferedLoader</code>. Useful for listing all non-grey-listed files or all files.</li>
+  <li>Data will now load from data/COLLECTION_NAME/*.json or .yaml or .yml. Loads as an array array of all entries, adds a key '_id' that's the base filename.</li>
+  <li>Initial <code>redirect</code> options for use in generate blocks.</li>
+  <li>Extra stitch generator options:
+    <ul>
+      <li><code>compress</code> takes <code>:jsmin</code>, <code>:yuic</code>, or <code>:uglify</code> now. (<code>true</code> defaults to <code>:jsmin</code>)</li>
+      <li><code>obfuscate: true|false</code> – Sets munging/mangling for compressors that support it.</li>
+      <li><code>keep_src: true|false</code> – Creates a second filename with :source_postfix added to the end of the filename</li>
+      <li><code>source_postfix: "-src"</code> </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="v04">v0.4</h1>
+<ul>
+  <li>Added support for special dev proxy at /-proxy/ENDPOINT_URL – Useful for working with external (non-CORS) apis/websites. Enabled by default. To disable, set Gumdrop.config.proxy_enabled= false</li>
+</ul>
+
+<h1 id="v0310">v0.3.10</h1>
+<ul>
+  <li>Added 'ignore' dsl command – keeps the node in the memory, but doesn't render/copy it on build.</li>
+</ul>
+
+<h1 id="v039">v0.3.9</h1>
+<ul>
+  <li>Bugfix: Filenames won't break if the have extra '.' in them… For realz this time. <em>ahem</em></li>
+</ul>
+
+<h1 id="v038">v0.3.8</h1>
+<ul>
+  <li>Bugfix: Filenames won't break if the have extra '.' in them.</li>
+</ul>
+
+<h1 id="v037">v0.3.7</h1>
+<ul>
+  <li>Added lib_dir and source_dir to config for more customization possibilities</li>
+  <li>Added blacklisting example to templates</li>
+</ul>
+
+<h1 id="v036">v0.3.6</h1>
+<ul>
+  <li>Correctly added deps to gemspec for i18n and bundle. <em>ahem</em></li>
+  <li>Version bump</li>
+</ul>
+
+<h1 id="v035">v0.3.5</h1>
+<ul>
+  <li>Updated gemspec to include bundle and i18n dependencies</li>
+  <li>Updated backbone template to build minified version by default</li>
+</ul>
+
+<h1 id="v034">v0.3.4</h1>
+<ul>
+  <li>Fixed a bug in the default template</li>
+  <li>Added custom Stitch compilers for hogan, css/sass, and serenade files.</li>
+  <li>Added -r –reload switches to commandline to force reloading on server, per request.</li>
+</ul>
+
+<h1 id="v033">v0.3.3</h1>
+<ul>
+  <li>Updated Backbone template to include a default view (and some core bugfixes)</li>
+</ul>
+
+<h1 id="v032">v0.3.2</h1>
+<ul>
+  <li>Removed references to 'twitter' from cli message.</li>
+</ul>
+
+<h1 id="v031">v0.3.1</h1>
+<ul>
+  <li>Early version of a backbone (webapp) site template</li>
+</ul>
+
+<h1 id="v03">v0.3</h1>
+<ul>
+  <li>Better logging support</li>
+  <li>Removed twitter-bootstrap template</li>
+  <li>Initial support for stitch-rb via a <code>stitch</code> generator command.</li>
+</ul>
+
+<h1 id="v0217">v0.2.17</h1>
+<ul>
+  <li>Updated syntax to Ruby 1.9</li>
+  <li>Tweaked template Rakefile(s)</li>
+  <li>Added some initial specs</li>
+</ul>
+
+<h1 id="v0216">v0.2.16</h1>
+<ul>
+  <li>Added option to specify output folder, still defaults to &quot;output&quot;</li>
+  <li>Bugfix: content wasn't looking for layouts right, causing exception</li>
+</ul>
+
+<h1 id="v0215">v0.2.15</h1>
+<ul>
+  <li>Fixed minor regression.</li>
+  <li>CLI now will report gumdrop version when show help.</li>
+</ul>
+
+<h1 id="v0214">v0.2.14</h1>
+<ul>
+  <li>Added new template type: twitter</li>
+  <li>Added cli option -t / –template to specify default or twitter template when creating a new project</li>
+</ul>
+
+<h1 id="v0213">v0.2.13</h1>
+<ul>
+  <li>Adding content_filters for altering rendered output – BUILD ONLY!</li>
+  <li>Tweaks to template site</li>
+</ul>
+
+<h1 id="v0212">v0.2.12</h1>
+<ul>
+  <li>Added textile view_helper</li>
+  <li>Allow paths prefixed with &quot;/&quot; in uri()</li>
+  <li>Context#render will now look for templates too</li>
+  <li>Fixed content_for(key, &amp;block) in slim – not tested in any other template engines – be sure and use '=' tag: = content_for :sidebar do</li>
+</ul>
+
+<h1 id="v0211">v0.2.11</h1>
+<ul>
+  <li>Updated server to reload on .css and .js file requests too.</li>
+</ul>
+
+<h1 id="v0210">v0.2.10</h1>
+<ul>
+  <li>Update default template to use slim layouts</li>
+  <li>Fixed a bug in uri when creating a path to &quot;/&quot;</li>
+</ul>
+
+<h1 id="v029">v0.2.9</h1>
+<ul>
+  <li>Added ability to force absolute url's from uri helper. set force_absolute in template</li>
+</ul>
+
+<h1 id="v028">v0.2.8</h1>
+<ul>
+  <li>Added better support for site reloading in server</li>
+</ul>
+
+<h1 id="v027">v0.2.7</h1>
+<ul>
+  <li>Added support for <code>yield</code> in templates</li>
+  <li>Added support for content_for – only tested in SLIM</li>
+</ul>
+
+<h1 id="v026">v0.2.6</h1>
+<ul>
+  <li>Update pager_for to accept a symbol or an array</li>
+</ul>
+
+<h1 id="v025">v0.2.5</h1>
+<ul>
+  <li>New feature: Generators, from source tree or centreally in lib/site.rb</li>
+  <li>Server can reload the entire site for each request, by default this feature is off</li>
+  <li>Added Pager class for creating tumblr-like pagesets</li>
+</ul>
+
+<h1 id="v024">v0.2.4</h1>
+<ul>
+  <li>Modernized Sinatra usage. Added an example site (just boilerplate at this point).</li>
+</ul>
+
+<h1 id="v023">v0.2.3</h1>
+<ul>
+  <li>Updated code to use autoload. Added primary dependencies to the gemspec. Version bump.</li>
+</ul>
+
+<h1 id="v022">v0.2.2</h1>
+<ul>
+  <li>Fixed bug where partials weren't rendered via the dev server.</li>
+</ul>
+
+<h1 id="v021">v0.2.1</h1>
+<ul>
+  <li>Initial release. Yay!</li>
+</ul>
+
+      <!-- /Content -->
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/darthapo">darthapo</a></p>
+        <p><small>
+          Hosted by GitHub Pages<br>
+          Theme by <a href="https://github.com/orderedlist">orderedlist</a><br>
+          Built with <a href="http://darthapo.github.com/gumdrop/">Gumdrop</a>
+        </small></p>
+      </footer>
+    </div>
+    <script src="scripts/scale.fix.js"></script>
+    <script src="scripts/highlight.pack.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </body>
+</html>
