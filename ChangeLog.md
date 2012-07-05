@@ -1,3 +1,10 @@
+# v1.0.3
+- Fixed markdown and textile view_helpers.
+- `Dir.chdir` to `site.root`. (should be able to run gumdrop in any folder of a Gumdrop project)
+- Added support for launching the browser when starting the dev server.
+- You may now override the dev server port on the cli as well.
+- Disabled automatic `bundle install` when a new project is created. It's annoying.
+
 # v1.0.2
 - `gumdrop new` will automatically run `bundle install` so the project site is ready to go.
 - Using kramdown in default template.
@@ -105,7 +112,7 @@
 - You can install the current site as a local template using `gumdrop -t new_template_name` in a site folder.
 - Data folder path is now configurable: `Gumdrop.config.data_dir` or `set :data_dir, "PATH"`
 - Added `data.site` and `data.site_all` to `DefferedLoader`. Useful for listing all non-grey-listed files or all files.
-- Data will now load from data/COLLECTION_NAME/*.(json | yaml | yml). Loads as an array array of all entries, adds a key '_id' that's the base filename.
+- Data will now load from data/COLLECTION_NAME/*.json or .yaml or .yml. Loads as an array array of all entries, adds a key '_id' that's the base filename.
 - Initial `redirect` options for use in generate blocks.
 - Extra stitch generator options:
     - `compress` takes `:jsmin`, `:yuic`, or `:uglify` now. (`true` defaults to `:jsmin`)
@@ -171,7 +178,7 @@
 
 # v0.2.14
 - Added new template type: twitter
-- Added cli option -t / --template to specify default|twitter template when creating a new project
+- Added cli option -t / --template to specify default or twitter template when creating a new project
 
 # v0.2.13
 - Adding content_filters for altering rendered output -- BUILD ONLY!

@@ -28,8 +28,8 @@ module Gumdrop::CLI
         self.templates
         return
       end
-      path= File.expand_path(name)
-      puts `cd #{path} && bundle install`
+      # path= File.expand_path(name)
+      # puts `cd #{path} && bundle install`
     end
 
     desc 'templates', 'List templates'

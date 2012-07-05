@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
    s.add_dependency 'onfire'
    s.add_dependency 'sinatra'
    s.add_dependency 'i18n'
+   s.add_dependency 'launchy'
    s.add_dependency 'bundle'
 
    s.add_development_dependency 'minitest'

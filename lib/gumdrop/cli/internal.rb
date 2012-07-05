@@ -1,5 +1,6 @@
 require 'fileutils'
 require 'thor'
+require 'launchy'
 
 module Gumdrop::CLI
   class Internal < Thor
@@ -25,8 +26,15 @@ module Gumdrop::CLI
     end
 
     desc 'server', 'Run development server'
+    method_option :browser, aliases:'-b', default:false, desc:"Launch a browser to the site address."
+    method_option :port, aliases:'-p', default:4567, desc:"Port to run the server on."
     def server
+      Gumdrop.configure do |c|
+        c.server_port= options[:port]
+      end
       Gumdrop.site.options = options.merge(mode:'server')
+      Launchy.open "http://127.0.0.1:#{ options[:port] }" if options[:browser]
+      Gumdrop.log.warn "Launching dev server at http://127.0.0.1:#{ options[:port] }"
       Gumdrop::Server
     end
 
