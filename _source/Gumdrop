@@ -1,0 +1,38 @@
+
+Gumdrop.configure do|config|
+
+  config.project_name= "gumdrop"
+  config.project_title= "Gumdrop"
+  config.protect_tagline= "The sweet cms/prototyping tool."
+  config.author= "darthapo"
+  config.author_name= "Matt McCray"
+  config.author_email= "matt@elucidata.net"
+
+  config.output_dir= "../"
+  config.source_dir= "./"
+  config.data_dir= './data'
+
+end
+
+Gumdrop.ignore "data/**/*"
+
+Gumdrop.view_helpers do
+
+  def github_url
+    "https://github.com/#{ config.author }/#{ config.project_name }"
+  end
+
+  def github_site
+    "http://#{ config.author }.github.com/#{ config.project_name }"
+  end
+
+  def readme
+    Gumdrop.readme
+  end
+
+  def changelog
+    Gumdrop.change_log
+  end
+
+end
+

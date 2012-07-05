@@ -10,13 +10,13 @@
   </head>
   <body>
      <header>
-      <h1>Gumdrop</h1>
-      <h3></h3>
+      <h1><%= config.project_title %></h1>
+      <h3><%= config.project_tagline %></h3>
      </header>
       <nav></nav>
       <article>
         <section>
-          <p>Coming soon...</p>
+          <%= yield %>
         </section>
       </article>
   </body>
