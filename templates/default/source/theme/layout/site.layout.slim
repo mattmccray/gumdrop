@@ -2,7 +2,7 @@ doctype html
 html lang="en" 
   head
     meta charset="utf-8" 
-    title= config.site_title
+    title= config.site.title
     /[if le IE 9]
       script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"
     link rel="stylesheet" href='/theme/screen.css' type="text/css" media="screen" charset="utf-8"
@@ -11,8 +11,8 @@ html lang="en"
     div.row
       div.col.span-12
         header
-          h1= config.site_title
-          h4= config.site_tagline
+          h1= config.site.title
+          h4= config.site.tagline
     div.row
       div.col.span-12
         nav

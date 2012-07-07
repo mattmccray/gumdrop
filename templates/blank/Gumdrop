@@ -3,10 +3,12 @@ Gumdrop.configure do|config|
 
   # You can add whatever custom config options you'd like:
 
-  # config.site_title=   "My Site"
-  # config.site_tagline= "My home on thar intarwebs!"
-  # config.site_author=  "Me"
-  # config.site_url=     "http://www.mysite.com"
+  # config.site= {
+  #   title:   'My Site',
+  #   tagline: 'My home on thar intarwebs!',
+  #   author:  'Me',
+  #   url:     'http://www.mysite.com'
+  # }
 
   # config.redirects= [
   #   { from:"old-path.html", to:"new-path.html" }
@@ -37,13 +39,11 @@ Gumdrop.configure do|config|
   # config.blacklist= []
 
   # Optional, if you want to use the example 'sync' command below.
-
-  # You can call config.set and pass a hash, if you prefer that format:
-  # config.set({
-  #   server: 'example-server.com',
-  #   server_user: 'example-username',
-  #   server_path: '~/example-server.com'
-  # })
+  # config.remote= {
+  #   host: 'example-server.com',
+  #   user: 'example-username',
+  #   path: '~/example-server.com'
+  # }
 
 end
 
@@ -181,22 +181,23 @@ end
 # For more, see: https://github.com/wycats/thor/wiki
 # Gumdrop.cli do
   
-#   desc 'sync', "Syncs with public server using rsync (if configured)"  
-#   method_option :build, :aliases => '-b', :desc => 'Build content before syncing'
-#   method_option :dry_run, :aliases => '-d', :desc => 'Dry run'
-#   def sync
-#     Gumdrop.site.build if options[:build]
-#     config= Gumdrop.site.config
-#     output= Gumdrop.site.output_path
-#     dry_run= options[:dry_run] ? 'n' : ''
-#     unless config.server.nil? or config.server == 'example-server.com'
-#       cmd= "rsync -avz#{ dry_run } --delete #{ output } #{ config.server_user }@#{ config.server }:#{ config.server_path }"
-#       say "Running:\n#{ cmd }\n"
-#       system(cmd)
-#     else
-#       say "To use this command, please configure your server info in the Gumdrop file!"
-#     end
-#   end
+  # desc 'sync', "Syncs with public server using rsync (if configured)"  
+  # method_option :build, :aliases => '-b', :desc => 'Build content before syncing'
+  # method_option :dry_run, :aliases => '-d', :desc => 'Dry run'
+  # def sync
+  #   config= Gumdrop.site.config
+  #   output= Gumdrop.site.output_path
+  #   remote= config.remote
+  #   dry_run= options[:dry_run] ? 'n' : ''
+  #   unless remote.nil? or remote.host.nil? or remote.host == 'example-server.com'
+  #     Gumdrop.build if options[:build]
+  #     cmd= "rsync -avz#{ dry_run } --delete #{ output } #{ remote.user }@#{ remote.host }:#{ remote.path }"
+  #     say "Running:\n#{ cmd }\n"
+  #     system(cmd)
+  #   else
+  #     say "To use this command, please configure your server info in the Gumdrop file!"
+  #   end
+  # end
 
   # desc 'watch', "Watches the filesystem and recompiles whenever a source file changes."
   # method_option :quiet, default:false, aliases:'-q', type: :boolean
