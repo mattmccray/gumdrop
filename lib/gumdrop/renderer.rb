@@ -27,6 +27,8 @@ module Gumdrop
           _in_context(content, opts) do
             data[:context]= @context
             data[:output]= _render_content!
+            @cache[content.source_path]= data[:output] if @context.cache
+            data[:output]
           end
         end
       end
