@@ -1,4 +1,4 @@
-# v1.0.4
+# v1.1.0
 - Added `Gumdrop.prepare(&block)`, it's a good time to apply data transformations.
 - Added Content#dirname.
 - Fixed `base_path` for file based generators.
