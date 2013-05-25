@@ -6,12 +6,13 @@ module Gumdrop
     SPECIAL_OPTS= %w(layout force_partial)
     MUNGABLE_RE= Regexp.new(%Q<(href|data|src)([\s]*)=([\s]*)('|"|&quot;|&#34;|&#39;)?\\/([\\/]?)>, 'i')
 
-    attr_reader :context
+    attr_reader :context, :cache
 
     def initialize
       site.active_renderer= self
       @context, @content, @opts= nil, nil, nil
       @stack= []
+      @cache= {}
     end
 
     def draw(content, opts={})
@@ -22,6 +23,7 @@ module Gumdrop
           log.warn "Missing content body for: #{ content.uri }"
           nil
         else
+          opts[:calling_page]= @context unless opts.has_key? :calling_page
           _in_context(content, opts) do
             data[:context]= @context
             data[:output]= _render_content!
@@ -103,6 +105,7 @@ module Gumdrop
     def _relativize?
       return false if !site.config.relative_paths
       return false if @context.force_absolute
+      return false if @content.partial?
       return true if site.config.relative_paths_exts == :all
       site.config.relative_paths_exts.include?(@content.ext)
     end
@@ -216,7 +219,15 @@ module Gumdrop
       content= site.resolve path, opts
       raise StandardError, "Content or Partial cannot be found at: #{path} (#{opts})" if content.nil?
       opts[:force_partial]= true
-      @renderer.draw content, opts
+      opts[:calling_page]= self
+      if opts[:cache]
+        unless @renderer.cache.has_key? content.source_path
+          @renderer.cache[content.source_path]= @renderer.draw content, opts
+        end
+        @renderer.cache[content.source_path]
+      else
+        @renderer.draw content, opts
+      end
     end
 
     def get(key)
@@ -234,7 +245,13 @@ module Gumdrop
     end
 
     def page
-      self
+      @content_page ||= begin
+        parent= self
+        while !parent.nil? and !parent.calling_page.nil? do
+          parent= parent.calling_page
+        end 
+        parent
+      end
     end
 
     def content_for(key, &block)

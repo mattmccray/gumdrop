@@ -63,6 +63,14 @@ module Gumdrop
       @uri ||= _uri
     end
 
+    def uripath
+      @uripath ||= File.dirname uri
+    end 
+
+    def clean_uri
+      @clean_uri ||= uri.gsub(ext, '')
+    end
+
     def binary?
       @is_binary ||= begin
         if generated? or has_block? or missing?

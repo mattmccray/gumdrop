@@ -1,7 +1,5 @@
 source "http://rubygems.org"
 
-gem "gumdrop"
-
 # for the watch command
 # gem "listen"
 
@@ -31,3 +29,4 @@ gem "kramdown" #, :git => "git://github.com/darthapo/kramdown.git" #(github code
 # For xml generation support:
 gem 'builder'
 
+gem 'json', '~> 1.7.7'

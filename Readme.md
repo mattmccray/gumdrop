@@ -85,12 +85,13 @@ open source projects (in alphabetical order):
 
 And will, optionally, leverage these in building your site:
 
+* coffee-script
+* erb
+* haml/sass
+* jsmin
+* slim
 * sqlite3
 * sprockets
 * stitch
-* jsmin
-* slim
-* haml/sass
-* coffee-script
 * and many, many more! (todo: gotta document 'em all!)
 

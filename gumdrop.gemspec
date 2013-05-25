@@ -35,6 +35,7 @@ Gem::Specification.new do |s|
    s.add_dependency 'sprockets', '2.4.3'
    s.add_dependency 'stitch', '0.1.6'
    s.add_dependency 'jsmin', '1.0.1'
+   s.add_dependency 'json', '~> 1.7.7'
 
    s.add_development_dependency 'minitest', '3.2.0'
    s.add_development_dependency 'sqlite3', '1.3.6'

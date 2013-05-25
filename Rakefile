@@ -22,7 +22,7 @@ end
 
 desc "generates fixture site then tests output against expected fixture data"
 task :test_output => :test_output_clear do
-  sh "cd specs/fixtures/source && bundle exec gumdrop build -f"
+  sh "cd specs/fixtures/source && bundle exec gumdrop build -q -f"
   diff_results= `diff -w -r -y -N -q -B -b --suppress-common-lines specs/fixtures/output specs/fixtures/expected`
   if diff_results.empty?
     puts "\n\nPASS: All files matched!"

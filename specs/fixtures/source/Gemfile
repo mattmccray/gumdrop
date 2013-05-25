@@ -34,4 +34,4 @@ gem 'redcarpet'
 # For xml generation support:
 # gem 'builder'
 
-
+gem 'json', '~> 1.7.7'

@@ -6,7 +6,9 @@
 - Optionally prepare yaml data from content.
 - Lock version numbers of deps in gemspec
 - No longer do a binary check on files when running `uris` command.
+- Added support for caching partials (good for static partials used in layouts).
 - Fixed dev server bug where it would rescan on every request.
+- Fixed relativing urls in partials.
 - Re-enabled support for `content_for` and `content_for?` to rendering context (known to work for ERb).
 - Re-enabled support for `Gumdrop::Util::Pager`.
 - Re-enabled support for `page` in rendering context.

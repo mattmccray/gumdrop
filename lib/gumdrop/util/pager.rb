@@ -1,7 +1,7 @@
 module Gumdrop::Util
 
   class Pager
-    attr_reader :all, :pages, :base_url, :current_page, :page_sets
+    attr_reader :all, :pages, :base_path, :current_page, :page_sets
 
     def initialize(articles, base_path="/page", page_size=5)
       @all= articles

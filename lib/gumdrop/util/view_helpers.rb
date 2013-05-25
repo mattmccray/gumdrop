@@ -6,6 +6,11 @@ module Gumdrop
       def hidden(&block)
         #no-op
       end
+
+      def urlencode(string)
+        require "erb" unless defined? ERB
+        ERB::Util.url_encode(string)
+      end
       
       def markdown(source)
         eng_class= Gumdrop::Renderer.for 'markdown'

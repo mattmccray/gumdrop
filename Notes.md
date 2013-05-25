@@ -1,4 +1,5 @@
 ## Notes and Todos
 
-- Update dependencies
 - Flesh out the test/specs
+- Adde support for marking a partial 'cacheable' in the partial
+    <%= set :cache=>true %>
