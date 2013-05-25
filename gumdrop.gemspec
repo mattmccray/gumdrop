@@ -24,19 +24,19 @@ Gem::Specification.new do |s|
    s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
    s.require_paths = ["lib"]
    
-   s.add_dependency 'thor'
-   s.add_dependency 'tilt'
-   s.add_dependency 'active_support'
-   s.add_dependency 'onfire'
-   s.add_dependency 'sinatra'
-   s.add_dependency 'i18n'
-   s.add_dependency 'launchy'
-   s.add_dependency 'bundle'
+   s.add_dependency 'thor', '0.15.4'
+   s.add_dependency 'tilt', '1.3.3'
+   s.add_dependency 'active_support', '3.0.0'
+   s.add_dependency 'onfire', '0.2.0'
+   s.add_dependency 'sinatra', '1.3.2'
+   s.add_dependency 'i18n', '0.6.0'
+   s.add_dependency 'launchy', '0.4.0'
+   # s.add_dependency 'bundler', ''
+   s.add_dependency 'sprockets', '2.4.3'
+   s.add_dependency 'stitch', '0.1.6'
+   s.add_dependency 'jsmin', '1.0.1'
 
-   s.add_development_dependency 'minitest'
-   s.add_development_dependency 'sqlite3'
-   s.add_development_dependency 'sprockets'
-   s.add_development_dependency 'stitch'
-   s.add_development_dependency 'jsmin'
-
+   s.add_development_dependency 'minitest', '3.2.0'
+   s.add_development_dependency 'sqlite3', '1.3.6'
+   
 end

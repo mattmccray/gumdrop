@@ -1,11 +1,16 @@
 # v1.0.4
-- Returned `content_for` and `content_for?` to rendering context (known to work for ERb).
+- Added `Gumdrop.prepare(&block)`, it's a good time to apply data transformations.
 - Added Content#dirname.
 - Fixed `base_path` for file based generators.
 - Updated site templates.
 - Optionally prepare yaml data from content.
 - Lock version numbers of deps in gemspec
-
+- No longer do a binary check on files when running `uris` command.
+- Fixed dev server bug where it would rescan on every request.
+- Re-enabled support for `content_for` and `content_for?` to rendering context (known to work for ERb).
+- Re-enabled support for `Gumdrop::Util::Pager`.
+- Re-enabled support for `page` in rendering context.
+ 
 # v1.0.3
 - Fixed markdown and textile view_helpers.
 - `Dir.chdir` to `site.root`. (should be able to run gumdrop in any folder of a Gumdrop project)

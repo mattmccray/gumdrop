@@ -233,6 +233,10 @@ module Gumdrop
       end
     end
 
+    def page
+      self
+    end
+
     def content_for(key, &block)
       keyname= "_content_#{key}"
       if block_given?

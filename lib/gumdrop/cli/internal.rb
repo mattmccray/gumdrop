@@ -68,14 +68,15 @@ module Gumdrop::CLI
         content= Gumdrop.site.contents[uri]
         blackout= Gumdrop.site.in_blacklist?(uri) ? 'X' : ' '
         generated= content.generated? ? '*' : ' '
-        binary= content.binary? ? '!' : ' '
-        say " #{blackout + generated + binary} #{content.uri}"
+        # binary= content.binary? ? '!' : ' '
+        # say " #{blackout + generated + binary} #{content.uri}"
+        say " #{blackout + generated } #{content.uri}"
       end
       say ""
       say "Legend:"
-      say "  X = On on the blacklist"
+      say "  X = On the blacklist"
       say "  * = Generated (not on fs)"
-      say "  ! = Binary file"
+      # say "  ! = Binary file"
     end
 
     desc "version", "Displays Gumdrop version"

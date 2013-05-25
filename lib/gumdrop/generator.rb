@@ -66,6 +66,7 @@ module Gumdrop
     def _render_inline_content(opts)
       Proc.new {
         renderer= site.active_renderer || Renderer.new
+        raise "Generator: page :render=>'partial' param is missing!" unless opts[:render]
         content= site.resolve(opts[:render], opts)
         opts[:inline_render]= true
         renderer.draw content, opts

@@ -1,9 +1,12 @@
 module Gumdrop
 
+
   # All content (layouts, partials, images, html, js css, etc) found in
   # the source directory are represented as a Content object in memory
   class Content
     include Util::SiteAccess
+  
+    KNOWN_BINARY= %w(.jpe .jpeg .jpg .png .tiff .gif)
 
     attr_reader :source_path, :params
     
@@ -64,6 +67,8 @@ module Gumdrop
       @is_binary ||= begin
         if generated? or has_block? or missing?
           false
+        elsif KNOWN_BINARY.include? ext
+          true
         else
           # from ptools
           s = (File.read(source_path, File.stat(source_path).blksize) || "").split(//)

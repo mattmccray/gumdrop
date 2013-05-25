@@ -78,7 +78,7 @@ module Gumdrop
             _ensure_path to
             FileUtils.cp_r from, to
           else
-            log.info " unchanged: #{ _rel_path to }"
+            log.debug " unchanged: #{ _rel_path to }"
           end
         end
       end
@@ -94,7 +94,7 @@ module Gumdrop
               f.write rendered_content
             end
           else
-            log.info " unchanged: #{ _rel_path to }"
+            log.debug " unchanged: #{ _rel_path to }"
           end
         end
       end

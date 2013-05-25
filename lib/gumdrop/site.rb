@@ -44,6 +44,7 @@ module Gumdrop
       _options_updated!
       @root= File.dirname @sitefile
       @last_run= 0
+      @_preparations= []
       clear
     end
 
@@ -84,6 +85,7 @@ module Gumdrop
     end
 
     def generate
+      _execute_preparations
       _execute_generators
       self
     end
@@ -129,6 +131,10 @@ module Gumdrop
         else
           nil
       end
+    end
+
+    def prepare(&block)
+      @_preparations << block
     end
 
     # Events stop bubbling here.
@@ -194,6 +200,18 @@ module Gumdrop
       return true if ignore_path? source_path
       # in_blacklist? source_path
       false
+    end
+
+    def _execute_preparations
+      log.debug "[Executing Preparations]"
+      dsl= Generator::DSL.new nil
+      @_preparations.each do |block|
+        if block.arity == 1
+          block.call dsl
+        else
+          dsl.instance_eval &block
+        end
+      end
     end
 
     def _execute_generators
@@ -284,12 +302,16 @@ module Gumdrop
       site.configure &block
     end
 
+    def prepare(&block)
+      site.prepare &block
+    end
+
     # Short cut to the current Site config object.
     def config
       site.config
     end
 
-    # The env Gumdrop is run in -- You can set this in the congig
+    # The env Gumdrop is run in -- You can set this in the config
     # or, better, via command line: `gumdrop build -e test`
     def env
       site.env

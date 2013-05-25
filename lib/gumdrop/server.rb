@@ -16,6 +16,7 @@ module Gumdrop
     unless site.nil?
       site.scan true
       scan_count += 1
+      last_scan= Time.now.to_i
 
       set :port, site.config.server_port if site.config.server_port
       
@@ -37,12 +38,13 @@ module Gumdrop
         log.info "\n\n[#{$$}] GET /#{params[:splat].join('/')} -> #{file_path}"
         
         unless static_asset file_path
-          since_last_build= Time.now.to_i - site.last_run.to_i
+          since_last_build= Time.now.to_i - last_scan
           # site.report "!>!>>>>> since_last_build: #{since_last_build}"
           if since_last_build > site.config.server_timeout
             log.info "[#{$$}] Rebuilding from Source (#{since_last_build} > #{site.config.server_timeout})"
             site.scan true
             scan_count += 1
+            last_scan= Time.now.to_i
             if scan_count % 50 == 0
               log.info "<* Initiating Garbage Collection *>"
               GC.start
