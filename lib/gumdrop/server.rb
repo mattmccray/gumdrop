@@ -11,9 +11,11 @@ module Gumdrop
     include Util::Loggable
 
     site= Gumdrop.site
+    scan_count= 0
 
     unless site.nil?
       site.scan true
+      scan_count += 1
 
       set :port, site.config.server_port if site.config.server_port
       
@@ -40,6 +42,11 @@ module Gumdrop
           if since_last_build > site.config.server_timeout
             log.info "[#{$$}] Rebuilding from Source (#{since_last_build} > #{site.config.server_timeout})"
             site.scan true
+            scan_count += 1
+            if scan_count % 50 == 0
+              log.info "<* Initiating Garbage Collection *>"
+              GC.start
+            end
           end
         end
         

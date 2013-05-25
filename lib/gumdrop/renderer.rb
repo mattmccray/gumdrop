@@ -233,6 +233,40 @@ module Gumdrop
       end
     end
 
+    def content_for(key, &block)
+      keyname= "_content_#{key}"
+      if block_given?
+        content= capture &block
+        @state[keyname]= content #block
+        nil
+      else
+        if @state.has_key?(keyname)
+          # @state[keyname].call
+          @state[keyname]
+        else
+          nil
+        end
+      end
+    end
+
+    def capture(&block)
+      erbout = eval('_erbout', block.binding) rescue nil
+      unless erbout.nil?
+        erbout_length = erbout.length
+        block.call
+        content = erbout[erbout_length..-1]
+        erbout[erbout_length..-1] = ''
+      else
+        content= block.call
+      end
+      content
+    end
+    
+    def content_for?(key)
+      keyname= "_content_#{key}"
+      @state.has_key?(keyname)
+    end
+
     def method_missing(sym, *args, &block)
       if sym.to_s.ends_with? '='
         key= sym.to_s.chop

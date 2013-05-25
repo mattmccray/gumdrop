@@ -25,6 +25,7 @@ module Gumdrop
 
     def slug
       @slug ||= uri.gsub('/', '-').gsub(ext, '')
+      @params.slug || @slug
     end
 
     def path
@@ -41,6 +42,10 @@ module Gumdrop
 
     def filename
       @filename ||= _target_filename
+    end
+
+    def dirname
+      @dirname ||= File.dirname source_path
     end
 
     def type
@@ -109,7 +114,7 @@ module Gumdrop
 
     def mtime
       @mtime ||= if exists? and !generated?
-          File.new(@source_path).mtime
+          File.mtime @source_path
         else
           Time.now
         end

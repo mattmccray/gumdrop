@@ -1,3 +1,11 @@
+# v1.0.4
+- Returned `content_for` and `content_for?` to rendering context (known to work for ERb).
+- Added Content#dirname.
+- Fixed `base_path` for file based generators.
+- Updated site templates.
+- Optionally prepare yaml data from content.
+- Lock version numbers of deps in gemspec
+
 # v1.0.3
 - Fixed markdown and textile view_helpers.
 - `Dir.chdir` to `site.root`. (should be able to run gumdrop in any folder of a Gumdrop project)

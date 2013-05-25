@@ -8,7 +8,7 @@ module Gumdrop
       @dsl= DSL.new self
       @pages= []
       @filename= content.nil? ? (opts[:filename] || '') : content.filename
-      @base_path= content.nil? ? (opts[:base_path] || '') : content.slug 
+      @base_path= content.nil? ? (opts[:base_path] || '') : content.dirname 
     end
 
     def unload
