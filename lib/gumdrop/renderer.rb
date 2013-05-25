@@ -220,13 +220,13 @@ module Gumdrop
       raise StandardError, "Content or Partial cannot be found at: #{path} (#{opts})" if content.nil?
       opts[:force_partial]= true
       opts[:calling_page]= self
-      if opts[:cache]
-        unless @renderer.cache.has_key? content.source_path
-          @renderer.cache[content.source_path]= @renderer.draw content, opts
-        end
+      return @renderer.draw content, opts if opts[:cache] == false
+      if @renderer.cache.has_key? content.source_path
         @renderer.cache[content.source_path]
-      else
-        @renderer.draw content, opts
+      else  
+        output= @renderer.draw content, opts
+        @renderer.cache[content.source_path]= output if opts[:cache]
+        output
       end
     end
 
