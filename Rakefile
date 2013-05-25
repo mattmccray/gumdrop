@@ -23,7 +23,7 @@ end
 desc "generates fixture site then tests output against expected fixture data"
 task :test_output => :test_output_clear do
   sh "cd specs/fixtures/source && bundle exec gumdrop build -f"
-  diff_results= `diff -w -r -y -N -q --suppress-common-lines specs/fixtures/output specs/fixtures/expected`
+  diff_results= `diff -w -r -y -N -q -B -b --suppress-common-lines specs/fixtures/output specs/fixtures/expected`
   if diff_results.empty?
     puts "\n\nPASS: All files matched!"
     puts "#{ diff_results }"
@@ -34,7 +34,7 @@ task :test_output => :test_output_clear do
     matcher= Regexp.new('Files (.*) and', 'i')
     diff_results.scan(matcher).flatten.each do |fname|
       puts "\n\n"
-      puts `diff -w -C 3 #{fname} #{fname.gsub('fixtures/output', 'fixtures/expected')}`
+      puts `diff -w -B -b -C 3 #{fname} #{fname.gsub('fixtures/output', 'fixtures/expected')}`
     end
   end
   puts ""
