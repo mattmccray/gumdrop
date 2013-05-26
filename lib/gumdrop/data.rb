@@ -29,6 +29,10 @@ module Gumdrop
       @cache.clear
     end
 
+    def clear
+      @cache.clear
+    end
+
     def contents(pattern=nil, opts={})
       if pattern.nil?
         site.contents.all

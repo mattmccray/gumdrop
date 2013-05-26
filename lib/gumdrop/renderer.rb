@@ -17,7 +17,7 @@ module Gumdrop
 
     def draw(content, opts={})
       if @ctx_pool.size > 0
-        _start_rendering(content, opts)
+        _start_rendering(content, opts, data)
       else
         event_block :render_item do |data|
           _start_rendering(content, opts, data)
@@ -179,6 +179,7 @@ module Gumdrop
         when Array
           _hoist_data(prev, @opts[:hoist])
       end if @opts.has_key? :hoist
+      @context._setup nil, nil # so there are no loose pointers to content objects
       return if prev.nil?
       @context= prev
       @content= prev.content
@@ -221,11 +222,6 @@ module Gumdrop
     def next
       @_current += 1
       @pool << RenderContext.new( nil, nil, @renderer, prev ) if @_current == @pool.size
-      # if 
-      # @pool.fetch(@_current) { |index| 
-      #   # puts ">>> GROWING POOL #{index}"
-      #   @pool[index]= RenderContext.new nil, nil, @renderer, prev 
-      # }
       @pool[@_current]      
     end
 

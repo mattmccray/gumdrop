@@ -45,6 +45,13 @@ module Gumdrop
       @root= File.dirname @sitefile
       @last_run= 0
       @_preparations= []
+
+      @contents= ContentList.new
+      @layouts= SpecialContentList.new ".layout"
+      @partials= SpecialContentList.new
+      @generators= []
+      @data= DataManager.new
+
       clear
     end
 
@@ -55,11 +62,18 @@ module Gumdrop
 
 
     def clear()
-      @contents= ContentList.new
-      @layouts= SpecialContentList.new ".layout"
-      @partials= SpecialContentList.new
-      @generators= []
-      @data= DataManager.new
+      @contents.clear()
+      @layouts.clear()
+      @partials.clear()
+      @generators.clear()
+      @data.clear()
+
+      # @contents= ContentList.new
+      # @layouts= SpecialContentList.new ".layout"
+      # @partials= SpecialContentList.new
+      # @generators= []
+      # @data= DataManager.new
+      
       @is_scanned= false
       _reset_config!
       _load_sitefile

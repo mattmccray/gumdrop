@@ -11,7 +11,9 @@ module Gumdrop::Util
       result= data.payload= yield(data)
       fire target, data
       fire "after_#{target}".to_sym, data
-      data.return_value || result
+      ret_val= data.return_value || result
+      data.clear()
+      ret_val
     end
 
     def fire(event, data=nil)

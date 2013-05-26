@@ -7,11 +7,15 @@ module Gumdrop
 
   STATIC_ASSETS= %w(.jpg .jpe .jpeg .gif .ico .png .swf)
 
+  class RenderPool
+  end
+
   class Server < Sinatra::Base
     include Util::Loggable
 
     site= Gumdrop.site
     scan_count= 0
+    gc_after= 3
 
     unless site.nil?
       site.scan true
@@ -41,11 +45,12 @@ module Gumdrop
           since_last_build= Time.now.to_i - last_scan
           # site.report "!>!>>>>> since_last_build: #{since_last_build}"
           if since_last_build > site.config.server_timeout
-            log.info "[#{$$}] Rebuilding from Source (#{since_last_build} > #{site.config.server_timeout})"
+            log.info "[#{$$}] Rebuilding from Source (#{since_last_build} > #{site.config.server_timeout}) #{scan_count % gc_after}"
             last_scan= Time.now.to_i
             site.scan true
             scan_count += 1
-            if scan_count % 50 == 0
+            log.info "[#{$$}] Finished re-scan - #{ Time.now.to_i - last_scan }s"
+            if scan_count % gc_after == 0
               log.info "<* Initiating Garbage Collection *>"
               GC.start
             end
@@ -53,7 +58,6 @@ module Gumdrop
         end
         
         if site.contents.has_key? file_path
-          renderer= Renderer.new
           content= site.contents[file_path]
           content_type :css if content.ext == '.css' # Meh?
           content_type :js if content.ext == '.js' # Meh?
@@ -61,6 +65,7 @@ module Gumdrop
           unless content.binary?
             log.info "[#{$$}]  *Dynamic: #{file_path} (#{content.ext})"
             begin
+              renderer= Renderer.new
               content= renderer.draw content  
             rescue => ex
               log.error "ERROR!"
