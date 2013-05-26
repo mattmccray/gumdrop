@@ -17,7 +17,7 @@ module Gumdrop
 
     def draw(content, opts={})
       if @ctx_pool.size > 0
-        _start_rendering(content, opts, data)
+        _start_rendering(content, opts)
       else
         event_block :render_item do |data|
           _start_rendering(content, opts, data)
