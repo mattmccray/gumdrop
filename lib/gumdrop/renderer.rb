@@ -206,8 +206,9 @@ module Gumdrop
   end
 
   class ContextPool
-    def initialize(renderer, size=4)
+    def initialize(renderer, size=3)
       @_current= -1
+      @renderer= renderer
       @pool=[]
       prev= nil
       size.times do |i|
@@ -219,6 +220,12 @@ module Gumdrop
 
     def next
       @_current += 1
+      @pool << RenderContext.new( nil, nil, @renderer, prev ) if @_current == @pool.size
+      # if 
+      # @pool.fetch(@_current) { |index| 
+      #   # puts ">>> GROWING POOL #{index}"
+      #   @pool[index]= RenderContext.new nil, nil, @renderer, prev 
+      # }
       @pool[@_current]      
     end
 
