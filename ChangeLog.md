@@ -1,5 +1,6 @@
 # v1.1.1
 - Cleaned up dependencies.
+- Some performance and memory optimizations.
 
 # v1.1.0
 - Added `Gumdrop.prepare(&block)`, it's a good time to apply data transformations.
