@@ -42,9 +42,9 @@ module Gumdrop
           # site.report "!>!>>>>> since_last_build: #{since_last_build}"
           if since_last_build > site.config.server_timeout
             log.info "[#{$$}] Rebuilding from Source (#{since_last_build} > #{site.config.server_timeout})"
+            last_scan= Time.now.to_i
             site.scan true
             scan_count += 1
-            last_scan= Time.now.to_i
             if scan_count % 50 == 0
               log.info "<* Initiating Garbage Collection *>"
               GC.start

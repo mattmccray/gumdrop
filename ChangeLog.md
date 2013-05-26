@@ -1,3 +1,7 @@
+# v1.1.1
+- Fixed stitch-rb dependency
+- Updated to latest Sprockets gem
+
 # v1.1.0
 - Added `Gumdrop.prepare(&block)`, it's a good time to apply data transformations.
 - Added Content#dirname.
