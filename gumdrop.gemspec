@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
    
    s.add_dependency 'thor', '0.15.4'
    s.add_dependency 'tilt', '1.3.3'
+   # s.add_dependency 'tilt', '1.4.0'
    s.add_dependency 'active_support', '3.0.0'
    s.add_dependency 'onfire', '0.2.0'
    s.add_dependency 'sinatra', '1.3.2'
@@ -33,11 +34,11 @@ Gem::Specification.new do |s|
    s.add_dependency 'launchy', '0.4.0'
    # s.add_dependency 'bundler', ''
    # s.add_dependency 'sprockets', '2.4.3'
-   s.add_dependency 'sprockets', '2.10.0'
+   # s.add_dependency 'sprockets', '2.10.0'
    # s.add_dependency 'stitch', '0.1.6'
-   s.add_dependency 'stitch-rb', '0.0.8'
-   s.add_dependency 'jsmin', '1.0.1'
-   s.add_dependency 'json', '~> 1.7.7'
+   # s.add_dependency 'stitch-rb', '0.0.8'
+   # s.add_dependency 'jsmin', '1.0.1'
+   # s.add_dependency 'json', '~> 1.7.7'
 
    s.add_development_dependency 'minitest', '3.2.0'
    s.add_development_dependency 'sqlite3', '1.3.6'
