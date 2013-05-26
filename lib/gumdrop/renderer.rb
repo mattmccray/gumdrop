@@ -6,35 +6,43 @@ module Gumdrop
     SPECIAL_OPTS= %w(layout force_partial)
     MUNGABLE_RE= Regexp.new(%Q<(href|data|src)([\s]*)=([\s]*)('|"|&quot;|&#34;|&#39;)?\\/([\\/]?)>, 'i')
 
-    attr_reader :context, :cache
+    attr_reader :context, :cache, :ctx_pool
 
     def initialize
       site.active_renderer= self
       @context, @content, @opts= nil, nil, nil
-      @stack= []
+      @ctx_pool= ContextPool.new self
       @cache= {}
     end
 
     def draw(content, opts={})
-      event_block :render_item do |data|
-        data[:content]= content
-        log.debug " rendering: #{ content.source_filename } (#{ content.uri })"
-        if content.binary? or content.missing?
-          log.warn "Missing content body for: #{ content.uri }"
-          nil
-        else
-          opts[:calling_page]= @context unless opts.has_key? :calling_page
-          _in_context(content, opts) do
-            data[:context]= @context
-            data[:output]= _render_content!
-            @cache[content.source_path]= data[:output] if @context.cache
-            data[:output]
-          end
+      if @ctx_pool.size > 0
+        _start_rendering(content, opts)
+      else
+        event_block :render_item do |data|
+          _start_rendering(content, opts, data)
         end
       end
     end
 
   private
+
+    def _start_rendering(content, opts, data={})
+      data[:content]= content
+      log.debug " rendering: #{ content.source_filename } (#{ content.uri })"
+      if content.binary? or content.missing?
+        log.warn "Missing content body for: #{ content.uri }"
+        nil
+      else
+        opts[:calling_page]= @context unless opts.has_key? :calling_page
+        _in_context(content, opts) do
+          data[:context]= @context
+          data[:output]= _render_content!
+          @cache[content.source_path]= data[:output] if @context.cache
+          data[:output]
+        end
+      end
+    end
 
     def _render_content!
       output= @content.body
@@ -152,30 +160,27 @@ module Gumdrop
     end
 
     def _new_context(content, opts)
-      @stack.push({
-        content: @content,
-        context: @context,
-        opts: @opts
-      }.to_hash_object)
-      @context= RenderContext.new content, self, @context
+      @context= @ctx_pool.next #RenderContext.new content, opts, self, @context
+      @context._setup content, opts
       safe_opts= opts.reject { |o| SPECIAL_OPTS.include? o.to_s }
       @context.set safe_opts
       @content= content
       @opts= opts
-      if @stack.size == 1
+      if @ctx_pool.size == 1
         @context.set :layout, _default_layout
       end
     end
 
     def _revert_context
-      prev= @stack.pop
+      prev= @ctx_pool.pop
       case @opts[:hoist]
         when :all, true
-          _hoist_data(prev.context)
+          _hoist_data(prev)
         when Array
-          _hoist_data(prev.context, @opts[:hoist])
-      end
-      @context= prev.context
+          _hoist_data(prev, @opts[:hoist])
+      end if @opts.has_key? :hoist
+      return if prev.nil?
+      @context= prev
       @content= prev.content
       @opts= prev.opts
     end
@@ -186,10 +191,6 @@ module Gumdrop
       safe_keys.each do |key|
         to_context.set key, @context.state[key]
       end
-    end
-
-    def _previous
-      @stack.last
     end
 
     class << self
@@ -204,17 +205,66 @@ module Gumdrop
     end
   end
 
+  class ContextPool
+    def initialize(renderer, size=4)
+      @_current= -1
+      @pool=[]
+      prev= nil
+      size.times do |i|
+        ctx= RenderContext.new nil, nil, renderer, prev
+        @pool << ctx
+        prev= ctx
+      end
+    end
+
+    def next
+      @_current += 1
+      @pool[@_current]      
+    end
+
+    def current
+      @pool[@_current]
+    end
+
+    def prev
+      @pool[@_current - 1] rescue nil
+    end
+
+    def pop
+      @_current -= 1
+      @pool[@_current]      
+    end
+
+    def root
+      @pool[0]
+    end
+
+    def size
+      @_current + 1
+    end
+  end
+
   class RenderContext
     include Util::SiteAccess
     include Util::ViewHelpers
 
-    attr_reader :content, :state
+    attr_reader :content, :state, :opts
 
-    def initialize(content, renderer, parent=nil)
+    def initialize(content, opts, renderer, parent=nil)
+      # @content_page= nil
       @content= content
       @renderer= renderer
       @parent= parent
+      @opts= opts
       @state= {}
+    end
+
+    def _setup(content, opts)
+      # @content_page= nil
+      @content= content
+      @opts= opts
+      # @state= {}
+      @state.clear()
     end
 
     def render(path=nil, opts={})
@@ -247,13 +297,7 @@ module Gumdrop
     end
 
     def page
-      @content_page ||= begin
-        parent= self
-        while !parent.nil? and !parent.calling_page.nil? do
-          parent= parent.calling_page
-        end 
-        parent
-      end
+      @renderer.ctx_pool.root
     end
 
     def content_for(key, &block)
