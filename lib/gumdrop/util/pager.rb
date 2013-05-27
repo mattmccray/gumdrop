@@ -43,9 +43,19 @@ module Gumdrop::Util
       @current_page= nil
     end
 
+    def each_with_index
+      @current_page=1
+      @pages.each do |page_set|
+        yield page_set, @current_page - 1
+        @current_page += 1
+      end
+      @current_page= nil
+    end
+
     def [](key)
       @pages[key]
     end
+
   end
 
 end
