@@ -13,6 +13,7 @@ module Gumdrop::CLI
     desc 'build', 'Build project'
     method_option :env, default:'production', aliases:'-e'
     method_option :assets, aliases:'-a', type: :array, desc:"List of assets to render."
+    method_option :profile, default:false, type: :boolean, desc:"Profile ruby runtime (for dev)."
     method_option :quiet, default:false, aliases:'-q', type: :boolean
     method_option :resume, default:false, aliases:'-r', type: :boolean, desc:"Auto resume rendering after any errors"
     method_option :force, default:false, aliases:'-f', type: :boolean, desc:"Ignore file checksums and create all files"
@@ -21,6 +22,9 @@ module Gumdrop::CLI
         Gumdrop.configure do |c|
           c.log_level= :warn
         end
+      end
+      if options[:profile]
+        require 'profile'
       end
       Gumdrop.run options.merge(mode:'build')
     end
