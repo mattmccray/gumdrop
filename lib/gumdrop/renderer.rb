@@ -35,15 +35,6 @@ module Gumdrop
         nil
       else
         opts[:calling_page]= @context unless opts.has_key? :calling_page
-        # _push_context(content, opts)
-        
-        # data[:context]= @context
-        # data[:output]= _render_content!
-        # @cache[content.source_path]= data[:output] if @context.cache
-        # data[:output]
-        
-        # _pop_context
-        # data[:output]
         _in_new_context(content, opts) do
           data[:context]= @context
           data[:output]= _render_content!
@@ -161,74 +152,7 @@ module Gumdrop
       '../' * @content.level
     end
 
-    # def _push_context(content, opts)
-    #   ctx= @ctx_pool.next
-
-    #   ctx._setup content, opts
-    #   safe_opts= opts.reject { |o| SPECIAL_OPTS.include? o.to_s }
-    #   ctx.set safe_opts
-
-    #   @context= ctx
-    #   @content= content
-    #   @opts= opts
-
-    #   if @ctx_pool.size == 1
-    #     ctx.set :layout, _default_layout
-    #   end
-    # end
-
-    # def _pop_context
-    #   ctx= @ctx_pool.current
-    #   opts= ctx.opts
-    #   prev_ctx= @ctx_pool.pop
-
-    #   case opts[:hoist]
-    #     when :all, true
-    #       _hoist_data(prev_ctx)
-    #     when Array
-    #       _hoist_data(prev_ctx, opts[:hoist])
-    #   end if opts.has_key? :hoist
-
-    #   @context= prev_ctx
-    #   @content= prev_ctx.content || nil
-    #   @opts= prev_ctx.opts || nil
-
-    #   ctx._setup nil, nil
-    #   # @ctx_pool.pop
-    # end
-
     def _in_new_context(content, opts)
-      # prev_ctx= @ctx_pool.current
-      # ctx= @ctx_pool.next
-
-      # ctx._setup content, opts
-      # safe_opts= opts.reject { |o| SPECIAL_OPTS.include? o.to_s }
-      # ctx.set safe_opts
-
-      # @context= ctx
-      # @content= content
-      # @opts= opts
-
-      # if @ctx_pool.size == 1
-      #   ctx.set :layout, _default_layout
-      # end
-
-      # output= yield
-
-      # case opts[:hoist]
-      #   when :all, true
-      #     _hoist_data(prev_ctx)
-      #   when Array
-      #     _hoist_data(prev_ctx, opts[:hoist])
-      # end if opts.has_key? :hoist
-
-      # @context= prev_ctx
-      # @content= prev_ctx.content || nil
-      # @opts= prev_ctx.opts || nil
-
-      # ctx._setup nil, nil
-      # @ctx_pool.pop
-      # output
       @ctx_pool.sub_context do |ctx, prev_ctx|
         ctx._setup content, opts
         safe_opts= opts.reject { |o| SPECIAL_OPTS.include? o.to_s }
@@ -259,34 +183,7 @@ module Gumdrop
         output
       end
     end
-
-    # def _new_context(content, opts)
-    #   @context= @ctx_pool.next #RenderContext.new content, opts, self, @context
-    #   @context._setup content, opts
-    #   safe_opts= opts.reject { |o| SPECIAL_OPTS.include? o.to_s }
-    #   @context.set safe_opts
-    #   # @content= content
-    #   @opts= opts
-    #   if @ctx_pool.size == 1
-    #     @context.set :layout, _default_layout
-    #   end
-    # end
-
-    # def _revert_context
-    #   prev= @ctx_pool.pop
-    #   case @opts[:hoist]
-    #     when :all, true
-    #       _hoist_data(prev)
-    #     when Array
-    #       _hoist_data(prev, @opts[:hoist])
-    #   end if @opts.has_key? :hoist
-    #   @context._setup nil, nil # so there are no loose pointers to content objects
-    #   return if prev.nil?
-    #   @context= prev
-    #   # @content= prev.content
-    #   @opts= prev.opts
-    # end
-
+    
     def _hoist_data(to_context, keys=nil)
       keys ||= @context.state.keys
       safe_keys= keys.reject {|k| SPECIAL_OPTS.include? k.to_s }
