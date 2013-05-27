@@ -4,7 +4,6 @@ module Gumdrop
     include Util::SiteAccess
 
     SPECIAL_OPTS= %w(layout force_partial)
-    MUNGABLE_RE= Regexp.new(%Q<(href|data|src)([\s]*)=([\s]*)('|"|&quot;|&#34;|&#39;)?\\/([\\/]?)>, 'i')
 
     attr_reader :context, :cache, :ctx_pool
 
@@ -98,6 +97,8 @@ module Gumdrop
         end 
       end 
     end
+
+    MUNGABLE_RE= Regexp.new(%Q<(href|data|src)([\s]*)=([\s]*)('|"|&quot;|&#34;|&#39;)?\\/([\\/]?)>, 'i')
 
     def _relativize_uris(text)
       return text unless _relativize?

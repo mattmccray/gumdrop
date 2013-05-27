@@ -10,6 +10,8 @@ Gumdrop.configure do |config|
   config.custom_setting= 'yep'
   config.log_level= :debug if config.mode == :test
   config.log= config.mode == :test ? 'test.log' : STDOUT
+
+  config.relative_paths_exts= %w(.html .htm .css)
 end
 
 Gumdrop.ignore %w(output/**/* *.log data/**/* Gemfile Gemfile.lock)
@@ -60,5 +62,32 @@ Gumdrop.generate 'pages with blocks and layouts' do |gen|
   end
   gen.file 'gen-with-block/as-file.html' do
     "Test File"
+  end
+  gen.file 'gen-with-block/deeper/link-home.html' do
+    """
+    <a href='/index.html'>Home</a>
+    <a href=\"/index.html\">Home</a>
+    <a href = \"/index.html\">Home</a>
+
+    <img src='/logo.png'>
+    <img src=\"/logo.png\">
+    <img src = '/logo.png'>
+
+    <data data='/logo.png'>
+    <data data=\"/logo.png\">
+    <data data = '/logo.png'>
+    """
+  end
+  gen.file 'gen-with-block/deeper/link-home.css' do
+    """
+      body {
+        background: url(/logo.png);
+        background: url('/logo.png');
+        background: url(\"/logo.png\");
+
+        background: url( /logo.png );
+        background: url( '/logo.png' );
+      }
+    """
   end
 end
