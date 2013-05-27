@@ -98,13 +98,14 @@ module Gumdrop
       end 
     end
 
-    MUNGABLE_RE= Regexp.new(%Q<(href|data|src)([\s]*)=([\s]*)('|"|&quot;|&#34;|&#39;)?\\/([\\/]?)>, 'i')
+    HTML_MUNGABLE_RE= Regexp.new(%Q<(href|data|src)([\s]*)=([\s]*)('|"|&quot;|&#34;|&#39;)?\\/([\\/]?)>, 'i')
+    # CSS_MUNGABLE_RE= Regexp.new(%Q<(href|data|src)([\s]*)=([\s]*)('|"|&quot;|&#34;|&#39;)?\\/([\\/]?)>, 'i')
 
     def _relativize_uris(text)
       return text unless _relativize?
       path_to_root= _path_to_root
       text.force_encoding("UTF-8") if text.respond_to? :force_encoding
-      text.gsub MUNGABLE_RE do |match|
+      text.gsub HTML_MUNGABLE_RE do |match|
         if $5 == '/'
           "#{ $1 }#{ $2 }=#{ $3 }#{ $4 }/"
         else
