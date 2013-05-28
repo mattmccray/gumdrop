@@ -239,7 +239,6 @@ module Gumdrop
     end
 
     def first(pattern)
-      @cache ||= {}
       if @cache.has_key? pattern
         @cache[pattern]
       else
