@@ -191,6 +191,11 @@ module Gumdrop
 
   class ContentList < Hash 
 
+    def initialize
+      @cache = {}
+      super
+    end
+
     def create(path, generator=nil, &block)
       content= Content.new path, generator, &block
       add content #, path
@@ -224,12 +229,22 @@ module Gumdrop
       contents
     end
 
+    def clear
+      @cache.clear()
+      super
+    end
+
     def get(key)
       self[key]
     end
 
     def first(pattern)
-      find(pattern).first
+      @cache ||= {}
+      if @cache.has_key? pattern
+        @cache[pattern]
+      else
+        @cache[pattern]= find(pattern).first
+      end
     end
 
   end

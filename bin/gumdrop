@@ -4,8 +4,8 @@
 
 require 'rubygems'
 require 'bundler/setup'
-require 'gumdrop'
 Bundler.require if File.exists?('Gemfile')
+require 'gumdrop'
 
 begin
   if Gumdrop.in_site_folder?
