@@ -1,3 +1,5 @@
+require 'digest/md5'
+
 module Gumdrop
   
   module Util
@@ -29,6 +31,31 @@ module Gumdrop
           eng.render
         else
           raise StandardError, "Textile is not available: Include a Textile engine in your Gemfile!"
+        end
+      end
+
+      def uri_fresh(path)
+        if (path[0] == '/')
+          internal_path= path[1..-1]
+        else
+          internal_path= path
+          path= "/#{path}"
+        end
+        "#{ path }?v=#{ checksum_for internal_path }"
+      end
+
+      def cache_bust(path)
+        uri_fresh(path)
+      end
+
+      def checksum_for(path)
+        path= path[1..-1] if path[0] == '/'
+        @_checksum_cache ||= {}
+        if @_checksum_cache.has_key? path
+          @_checksum_cache[path]
+        else
+          content= render path
+          @_checksum_cache[path]= Digest::MD5.hexdigest( content )
         end
       end
       

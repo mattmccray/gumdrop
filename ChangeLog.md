@@ -1,3 +1,7 @@
+# v1.1.2
+- Added helper for checksums, good for:
+- Added cache busting support for uris. e.g. "/theme/screen.css?v=HASHHERE445435435ETC"
+
 # v1.1.1
 - Cleaned up dependencies.
 - Some performance and memory optimizations.

@@ -22,6 +22,10 @@ module Gumdrop::Util
       @current_page= nil
     end
 
+    def current
+      @pages.fetch(@current_page, nil)
+    end
+
     def length
       @pages.length
     end
