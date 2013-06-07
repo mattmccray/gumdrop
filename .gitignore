@@ -5,3 +5,5 @@ output
 *.log
 old_*
 Gemfile.lock
+templates/blank/output
+templates/default/output

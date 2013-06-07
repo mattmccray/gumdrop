@@ -54,6 +54,18 @@ module Gumdrop
       page_size= opts.fetch(:page_size, 5)
       Util::Pager.new( data, base_path, page_size )
     end
+
+    # Not used internally, but useful for external usage
+    def parse_file(path, target_ext=nil)
+      return nil if path.nil?
+      return nil if File.directory? path
+      _load_from_file path, target_ext
+      # if File.directory? path
+      #   _load_from_directory path
+      # else
+      #   _load_from_file path, target_ext
+      # end
+    end
   
   private
   
@@ -71,8 +83,8 @@ module Gumdrop
       end
     end
 
-    def _load_from_file( filename )
-      ext=File.extname(filename)[1..-1]
+    def _load_from_file( filename, target_ext=nil )
+      ext= target_ext || File.extname(filename)[1..-1]
       provider= Data::Provider.for ext
       case
         when provider.nil?
