@@ -62,6 +62,7 @@ module Gumdrop
         log.debug "  blackout: #{ uri }" and next if site.in_blacklist? uri
         output_path= site.output_path / content.uri
         if content.binary?
+          log.info "BINARY: #{content.path}"
           @copy_files << { content.source_path => output_path }
         else
           rendered_content= renderer.draw content

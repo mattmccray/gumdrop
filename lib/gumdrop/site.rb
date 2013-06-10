@@ -16,6 +16,7 @@ module Gumdrop
     log_level: :info,
     ignore: JETSAM_FILES,
     blacklist: [],
+    no_render: [],
     server_timeout: 5,
     server_port: 4567,
     env: :production,
@@ -112,6 +113,12 @@ module Gumdrop
 
     def ignore_path?(path)
       config.ignore.any? do |pattern|
+        path.path_match? pattern
+      end
+    end
+
+    def unrenderable?(path)
+      config.no_render.any? do |pattern|
         path.path_match? pattern
       end
     end
@@ -354,7 +361,7 @@ module Gumdrop
       end      
     end
 
-    # Specified paths will not be renderd to output (matching against
+    # Specified paths will not be rendered to output (matching against
     # the source tree).
     def blacklist(*paths)
       paths.each do |path|
@@ -362,6 +369,18 @@ module Gumdrop
           config.blacklist.concat path
         else
           config.blacklist << path
+        end
+      end      
+    end
+
+    # Specified paths will be treated as binary files and copied, not
+    # rendered.
+    def no_render(*paths)
+      paths.each do |path|
+        if path.is_a? Array
+          config.no_render.concat path
+        else
+          config.no_render << path
         end
       end      
     end

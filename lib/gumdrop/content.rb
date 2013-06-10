@@ -75,7 +75,7 @@ module Gumdrop
       @is_binary ||= begin
         if generated? or has_block? or missing?
           false
-        elsif KNOWN_BINARY.include? ext
+        elsif KNOWN_BINARY.include? ext or site.unrenderable? path
           true
         else
           # from ptools
