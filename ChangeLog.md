@@ -2,6 +2,7 @@
 - Added helper for checksums, good for:
 - Added cache busting support for uris. e.g. "/theme/screen.css?v=HASHHERE445435435ETC"
 - Added support for `Gumdrop#no_render(*paths)`. Treats all matched paths as binary.
+- Fixed sprockets load_paths issue.
 
 # v1.1.1
 - Cleaned up dependencies.
