@@ -32,6 +32,7 @@ module Gumdrop::CLI
     desc 'server', 'Run development server'
     method_option :browser, aliases:'-b', default:false, desc:"Launch a browser to the site address."
     method_option :port, aliases:'-p', default:4567, desc:"Port to run the server on."
+    method_option :env, default:'production', aliases:'-e'
     def server
       Gumdrop.configure do |c|
         c.server_port= options[:port]

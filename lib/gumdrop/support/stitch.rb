@@ -22,7 +22,9 @@ module Gumdrop::Support
       stitch_opts= {} #{ root: content.source_path }
       stitch_opts.merge! opts
       stitch_opts[:paths] ||= []
-      stitch_opts[:paths] << File.dirname(path)
+      if stitch_opts.fetch(:autorootpath, true)
+        stitch_opts[:paths] << File.dirname(path) 
+      end
       ::Stitch::Package.new(stitch_opts).compile
     rescue LoadError
       raise StandardError, "Stitch can't be loaded. Please add it to your Gemfile."

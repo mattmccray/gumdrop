@@ -98,7 +98,7 @@ module Gumdrop
       status = response.code # http status code
       protocol = proxy[:secure] ? 'https' : 'http'
 
-      log.log "~ PROXY: #{http_method.upcase} #{status} #{url} -> #{protocol}://#{http_host}:#{http_port}#{http_path}\n"
+      log.info "~ PROXY: #{http_method.upcase} #{status} #{url} -> #{protocol}://#{http_host}:#{http_port}#{http_path}\n"
 
       # display and construct specific response headers
       response_headers = {}
