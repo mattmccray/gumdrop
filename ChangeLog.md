@@ -1,3 +1,6 @@
+# v1.1.4
+- ...
+
 # v1.1.3
 - Added license type (MIT) to gem spec.
 
