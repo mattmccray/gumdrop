@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
    s.name = %q{gumdrop}
    s.version = Gumdrop::VERSION
    s.platform = Gem::Platform::RUBY
+   s.license = 'MIT'
    s.rubyforge_project = 'gumdrop'
    s.has_rdoc = false
    s.date = now.strftime("%Y-%m-%d")

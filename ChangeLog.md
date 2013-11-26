@@ -1,5 +1,5 @@
 # v1.1.3
-- ...
+- Added license type (MIT) to gem spec.
 
 # v1.1.2
 - Added helper for checksums, good for:
