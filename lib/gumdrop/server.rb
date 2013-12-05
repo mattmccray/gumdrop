@@ -106,9 +106,14 @@ module Gumdrop
         proxy_to= params[:splat][0]
         proxy_parts= proxy_to.split('/')
         host= proxy_parts.shift
+        proxy_ssl= false
+        if host == 's'
+          proxy_ssl= true
+          host= proxy_parts.shift
+        end
         path_info= "/#{proxy_parts.join('/')}"
         #puts "HOST: #{host}  PATH_INFO: #{path_info}"
-        opts={ :to=>host, :path_info=>path_info  }
+        opts={ :to=>host, :path_info=>path_info, :secure=>proxy_ssl  }
         Gumdrop.handle_proxy opts, proxy_to, env
       end
       

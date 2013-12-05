@@ -1,5 +1,5 @@
-# v1.1.4
-- ...
+# v1.1.4 (unreleased)
+- Added ssl support to dev proxy, use '/-proxy/s/*' to enable https remote call
 
 # v1.1.3
 - Added license type (MIT) to gem spec.
