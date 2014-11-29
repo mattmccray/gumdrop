@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
    s.add_dependency 'thor', '0.15.4'
    s.add_dependency 'tilt', '1.3.3'
    # s.add_dependency 'tilt', '1.4.0'
-   s.add_dependency 'active_support', '3.0.0'
+   s.add_dependency 'activesupport', '3.0.0'
    s.add_dependency 'onfire', '0.2.0'
    s.add_dependency 'sinatra', '1.3.2'
    s.add_dependency 'i18n', '0.6.0'
